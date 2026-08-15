@@ -4,14 +4,16 @@ export const appConfig = {
   uploadMaxMb: Number(process.env.UPLOAD_MAX_MB || "12"),
 };
 
+const officialContactEmail = "stackpilotfe@outlook.com";
+
 export const companyConfig = {
   legalName: process.env.COMPANY_LEGAL_NAME?.trim() || "",
   tradingName: process.env.COMPANY_TRADING_NAME?.trim() || "FlytheBG",
   registrationNumber: process.env.COMPANY_REGISTRATION_NUMBER?.trim() || "",
   registeredAddress: process.env.COMPANY_REGISTERED_ADDRESS?.trim() || "",
   country: process.env.COMPANY_COUNTRY?.trim() || "",
-  contactEmail: process.env.CONTACT_EMAIL?.trim() || "",
-  legalEmail: process.env.LEGAL_EMAIL?.trim() || process.env.CONTACT_EMAIL?.trim() || "",
+  contactEmail: process.env.CONTACT_EMAIL?.trim() || officialContactEmail,
+  legalEmail: process.env.LEGAL_EMAIL?.trim() || process.env.CONTACT_EMAIL?.trim() || officialContactEmail,
 };
 
 export function legalIdentityReady() {

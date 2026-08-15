@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import "./redesign-world.css";
 import "./redesign-sections.css";
+import "./car-card.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -62,7 +63,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/contact">Contact</Link>
             </div>
           </div>
-          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span><span>Images are not your inventory.</span></div>
+          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span><span>Official contact: stackpilotfe@outlook.com · email only</span></div>
         </footer>
       </body>
     </html>
