@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import "./redesign-world.css";
 import "./redesign-sections.css";
-import "./car-card.css";
+import "./hero-video.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="shell footerGrid">
             <div>
               <Logo />
-              <p className="footerCopy">Background removal with a private inference path and an adaptive quality loop that does not require a raw-image archive.</p>
+              <p className="footerCopy">Background removal with a private inference path, short-lived PostgreSQL run metadata, and an adaptive quality loop that does not require a raw-image archive.</p>
             </div>
             <div className="footerLinks">
               <Link href="/privacy">Privacy & AI</Link>

@@ -15,6 +15,7 @@ class Settings:
     model_provider: str = os.getenv("MODEL_PROVIDER", "isnet_onnx")
     model_variant: str = os.getenv("MODEL_VARIANT", "general-use")
     model_dir: str = os.getenv("MODEL_DIR", "./.models")
+    database_url: str = os.getenv("DATABASE_URL", "")
     onnx_threads: int = max(1, _int("ONNX_INTRA_OP_THREADS", 1))
     upload_max_mb: int = _int("UPLOAD_MAX_MB", 12)
     max_image_pixels: int = _int("MAX_IMAGE_PIXELS", 40_000_000)
