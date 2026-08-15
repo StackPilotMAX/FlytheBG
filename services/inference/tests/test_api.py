@@ -14,6 +14,8 @@ class FakeProvider:
         output = image.convert("RGBA")
         output.putalpha(Image.new("L", output.size, 180))
         buf = io.BytesIO(); output.save(buf, "PNG"); return buf.getvalue()
+    def record_feedback(self, feedback: str):
+        return {"mask_gamma": 1.0, "feedback_total": 1}
 
 
 def png_bytes():
@@ -43,3 +45,29 @@ def test_success_returns_alpha_png(monkeypatch):
     result = Image.open(io.BytesIO(response.content))
     assert result.mode == "RGBA"
     assert result.getchannel("A").getextrema() == (180, 180)
+
+
+def test_feedback_uses_short_lived_run_token(monkeypatch):
+    monkeypatch.setattr(main, "provider", FakeProvider())
+    monkeypatch.setattr(security, "settings", replace(security.settings, api_secret="test-secret"))
+    main.recent_runs.clear()
+    with TestClient(main.app) as client:
+        processed = client.post(
+            "/v1/remove-background",
+            headers={"x-inference-secret": "test-secret"},
+            files={"image": ("x.png", png_bytes(), "image/png")},
+        )
+        run_id = processed.headers.get("x-flythebg-run-id")
+        assert run_id
+        feedback = client.post(
+            "/v1/feedback",
+            headers={"x-inference-secret": "test-secret"},
+            json={"run_id": run_id, "feedback": "great"},
+        )
+        replay = client.post(
+            "/v1/feedback",
+            headers={"x-inference-secret": "test-secret"},
+            json={"run_id": run_id, "feedback": "great"},
+        )
+    assert feedback.status_code == 200
+    assert replay.status_code == 410

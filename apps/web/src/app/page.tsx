@@ -1,12 +1,13 @@
 import { Uploader } from "@/components/Uploader";
+import { ScrollWorld } from "@/components/ScrollWorld";
 import { appConfig } from "@/lib/config";
 
 const faqs = [
-  ["What file types are supported?", "PNG, JPEG, and WebP are accepted. Files are validated again on the server before AI processing."],
-  ["Does FlytheBG store my images forever?", "No. The current architecture processes images in memory and does not intentionally persist uploads or outputs. Infrastructure logs are configured not to contain image data."],
-  ["Can I download a transparent image?", "Yes. The default result is a PNG with an alpha channel. You can also preview and download it on white, black, or a custom solid background."],
-  ["Does the website use my photos to train AI?", "No. This implementation does not use uploaded images for model training."],
-  ["Are accounts required?", "No. The initial product works without an account. Account-based features can be added later without changing the core removal workflow."],
+  ["What file types are supported?", "PNG, JPEG, and WebP are accepted. Files are validated on both the public web boundary and the private inference service."],
+  ["How long does FlytheBG keep my image?", "Raw uploads and results are not intentionally written to a permanent image database. Processing happens in memory, and temporary run identifiers used for feedback expire within one hour."],
+  ["Does the AI learn from my photos?", "Not by storing your raw photos. If you choose to rate a result, FlytheBG uses that explicit feedback to adjust small aggregate mask-calibration values. The uploaded image is not retained as a training sample."],
+  ["Can I download transparent images?", "Yes. The default output is a PNG with an alpha channel. You can also preview and export it against white, black, or a custom color."],
+  ["What happens when I rate a result?", "Your rating is linked to a short-lived anonymous run token. It can nudge edge calibration for future requests; the token expires within one hour and does not identify you."],
 ];
 
 export default function HomePage() {
@@ -14,104 +15,98 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", name: appConfig.name, url: appConfig.siteUrl },
-      {
-        "@type": "SoftwareApplication",
-        name: `${appConfig.name} Background Remover`,
-        applicationCategory: "MultimediaApplication",
-        operatingSystem: "Web",
-        url: appConfig.siteUrl,
-        description: "Remove an image background and download a transparent PNG.",
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqs.map(([question, answer]) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
+      { "@type": "SoftwareApplication", name: `${appConfig.name} Background Remover`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "Remove an image background and download a transparent PNG." },
+      { "@type": "FAQPage", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
     ],
   };
 
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <section className="hero" id="remove">
-        <div className="heroOrb orbOne" aria-hidden="true" />
-        <div className="heroOrb orbTwo" aria-hidden="true" />
-        <div className="shell heroGrid">
-          <div className="heroCopy">
-            <span className="eyebrow"><i /> Fast, private image cleanup</span>
-            <h1>Remove the background.<br/><span>Keep what matters.</span></h1>
-            <p className="heroLead">Upload a photo and get a clean transparent PNG. Edit the backdrop and download the finished image from one focused workspace.</p>
-            <div className="heroTrust">
-              <span><b>01</b> No account required</span>
-              <span><b>02</b> Server-side validation</span>
-              <span><b>03</b> No training on uploads</span>
+      <ScrollWorld />
+
+      <section className="toolSection" id="remove">
+        <div className="shell toolSectionGrid">
+          <div className="toolIntro" data-reveal>
+            <span className="eyebrow"><i /> The tool, without the detour</span>
+            <h2>Drop it. Cut it. Ship it.</h2>
+            <p>Upload once. FlytheBG validates the file, sends it over Railway’s private service network, runs the segmentation model, strips source metadata through re-encoding, and returns a transparent PNG.</p>
+            <div className="metricRow">
+              <div><strong>1</strong><span>focused workflow</span></div>
+              <div><strong>0</strong><span>accounts required</span></div>
+              <div><strong>≤1h</strong><span>feedback token life</span></div>
             </div>
           </div>
           <Uploader />
         </div>
       </section>
 
-      <section className="proofStrip" aria-label="Product strengths">
-        <div className="shell proofGrid">
-          <div><strong>Transparent PNG</strong><span>True alpha output</span></div>
-          <div><strong>Fine edges</strong><span>AI segmentation</span></div>
-          <div><strong>Private flow</strong><span>Internal inference service</span></div>
-          <div><strong>Responsive editor</strong><span>Desktop to mobile</span></div>
-        </div>
-      </section>
+      <section className="marqueeBand" aria-hidden="true"><div>REMOVE · REFINE · RELEASE · REMOVE · REFINE · RELEASE ·</div></section>
 
-      <section className="section" id="how-it-works">
+      <section className="section storySection" id="story">
         <div className="shell">
-          <div className="sectionHeading">
-            <span className="eyebrow"><i /> Three simple steps</span>
-            <h2>From photo to clean cutout.</h2>
-            <p>The technical work stays behind the scenes. The product experience stays straightforward.</p>
+          <div className="sectionHeading wide" data-reveal>
+            <span className="eyebrow"><i /> Built like a product, not a demo</span>
+            <h2>Motion with a job to do.</h2>
+            <p>The page uses depth and movement to explain the product. The upload action stays obvious, the reading order survives without animation, and reduced-motion users get a calm version automatically.</p>
           </div>
-          <div className="stepsGrid">
-            <article className="stepCard"><span>01</span><h3>Upload</h3><p>Choose or drop a supported image. File type, size, and decoded pixels are checked before inference.</p></article>
-            <article className="stepCard featured"><span>02</span><h3>Remove</h3><p>The web server sends the image to a private AI service. The model returns a foreground cutout with transparency.</p></article>
-            <article className="stepCard"><span>03</span><h3>Finish</h3><p>Preview transparency, choose a solid background if needed, then download the result as PNG.</p></article>
+          <div className="bentoGrid">
+            <article className="bentoCard bentoLarge" data-reveal><span className="cardIndex">01</span><div className="miniScene"><i/><i/><i/></div><h3>Scroll becomes the camera</h3><p>A sticky 3D stage ties separation, refinement, and release to scroll progress. No autoplay video, no heavy external model asset.</p></article>
+            <article className="bentoCard" data-reveal><span className="cardIndex">02</span><div className="pulseOrb"/><h3>Pointer-aware depth</h3><p>Subtle perspective follows the cursor on capable devices without blocking input or navigation.</p></article>
+            <article className="bentoCard darkCard" data-reveal><span className="cardIndex">03</span><div className="fpsMeter"><i/><i/><i/><i/><i/></div><h3>Performance tiers</h3><p>CSS transforms, passive listeners, requestAnimationFrame and reduced-motion fallbacks keep the spectacle bounded.</p></article>
+            <article className="bentoCard bentoWide" data-reveal><span className="cardIndex">04</span><div className="typeRail"><span>SUBJECT</span><span>→</span><span>ALPHA</span></div><h3>Spatial typography, clear hierarchy</h3><p>Big type supplies the hook; small technical labels reward the scroll without competing with the core task.</p></article>
           </div>
         </div>
       </section>
 
       <section className="section privacySection" id="privacy">
         <div className="shell privacyGrid">
-          <div className="privacyVisual" aria-hidden="true">
-            <div className="lockRing"><div className="lockIcon">✓</div></div>
-            <div className="privacyTag tagA">No training</div>
-            <div className="privacyTag tagB">Private service</div>
-            <div className="privacyTag tagC">Metadata stripped</div>
+          <div className="privacyVisual" data-reveal aria-hidden="true">
+            <div className="retentionClock"><span>60</span><small>MIN MAX</small><i/></div>
+            <div className="privacyTag tagA">Raw image: not training data</div>
+            <div className="privacyTag tagB">Run token: auto-expiring</div>
+            <div className="privacyTag tagC">Feedback: aggregate only</div>
           </div>
-          <div>
-            <span className="eyebrow"><i /> Privacy by architecture</span>
-            <h2>Your photo is input, not inventory.</h2>
-            <p className="sectionText">The initial architecture avoids permanent image storage. Upload bytes move through the public web service to a private inference service, and output is returned directly to the browser.</p>
+          <div data-reveal>
+            <span className="eyebrow"><i /> Privacy that matches the code</span>
+            <h2>Learn from the result.<br/>Not from keeping your photo.</h2>
+            <p className="sectionText">The background-removal model does not silently collect uploads for weight training. When you explicitly rate an output, a short-lived anonymous run token lets the inference service adjust aggregate mask calibration. The raw image is not required for that learning loop.</p>
             <ul className="checkList">
-              <li><span>✓</span><div><strong>Minimal retention</strong><p>Images are processed in memory by default rather than silently archived.</p></div></li>
-              <li><span>✓</span><div><strong>No model training</strong><p>User uploads are not collected to train the background-removal model.</p></div></li>
-              <li><span>✓</span><div><strong>Defensive validation</strong><p>Malformed, oversized, and unsupported files are rejected before expensive inference.</p></div></li>
+              <li><span>01</span><div><strong>No permanent image database by default</strong><p>Upload and output bytes are processed in memory. A one-hour ceiling applies to temporary run identifiers; raw images are released sooner.</p></div></li>
+              <li><span>02</span><div><strong>Adaptive, versioned calibration</strong><p>Feedback can nudge a bounded alpha-mask gamma value. It cannot execute arbitrary code or rewrite the model checkpoint.</p></div></li>
+              <li><span>03</span><div><strong>Explicit feedback only</strong><p>No feedback is submitted until you tap a quality option after seeing your result.</p></div></li>
             </ul>
+            <a className="inlineLink" href="/privacy">Read the retention & AI policy <span>↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section className="section processSection" id="how-it-works">
+        <div className="shell">
+          <div className="sectionHeading compact" data-reveal><span className="eyebrow"><i /> Under the hood</span><h2>Four boundaries. One clean output.</h2></div>
+          <div className="processRail">
+            <article data-reveal><b>01</b><h3>Validate</h3><p>Format, declared MIME, magic bytes, file size and decoded pixel count are checked.</p></article>
+            <article data-reveal><b>02</b><h3>Infer</h3><p>The web tier sends bytes to a private FastAPI service protected by an internal secret.</p></article>
+            <article data-reveal><b>03</b><h3>Calibrate</h3><p>IS-Net creates the alpha mask and applies a bounded adaptive gamma learned from explicit quality feedback.</p></article>
+            <article data-reveal><b>04</b><h3>Release</h3><p>The PNG returns with no-store headers; raw request objects fall out of scope after the response.</p></article>
           </div>
         </div>
       </section>
 
       <section className="section" id="faq">
         <div className="shell faqWrap">
-          <div className="sectionHeading compact"><span className="eyebrow"><i /> FAQ</span><h2>Useful answers, without the fine print maze.</h2></div>
+          <div className="sectionHeading compact" data-reveal><span className="eyebrow"><i /> FAQ</span><h2>The questions that matter before upload.</h2></div>
           <div className="faqList">
-            {faqs.map(([q,a]) => <details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}
+            {faqs.map(([q,a]) => <details key={q} data-reveal><summary>{q}<span>+</span></summary><p>{a}</p></details>)}
           </div>
         </div>
       </section>
 
       <section className="closingCta">
-        <div className="shell closingInner">
-          <div><span className="eyebrow light"><i /> Ready when you are</span><h2>Give your next image a cleaner canvas.</h2></div>
-          <a href="#remove" className="primaryButton lightButton">Remove a background <span>→</span></a>
+        <div className="closingGlow" aria-hidden="true"/>
+        <div className="shell closingInner" data-reveal>
+          <div><span className="eyebrow light"><i /> One less background</span><h2>Make the subject impossible to ignore.</h2><p>Transparent PNG. Private inference. A learning loop that doesn’t need your photo archive.</p></div>
+          <a href="#remove" className="primaryButton lightButton">Try FlytheBG <span>↗</span></a>
         </div>
       </section>
     </main>
