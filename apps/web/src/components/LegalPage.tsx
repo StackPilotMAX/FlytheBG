@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { companyConfig, legalIdentityReady } from "@/lib/config";
+
+export function LegalPage({ title, updated, children }: { title: string; updated: string; children: React.ReactNode }) {
+  return <main className="legalMain"><div className="legalShell"><Link href="/" className="backLink">← Back to FlytheBG</Link><div className="legalHeading"><span>Legal</span><h1>{title}</h1><p>Last updated: {updated}</p></div>{!legalIdentityReady() && <div className="legalNotice"><strong>Pre-launch legal configuration required.</strong><p>Company identity/contact fields are intentionally not fabricated. Add the real incorporated-business details in the deployment environment before public launch.</p></div>}<div className="legalBody">{children}</div><div className="legalIdentity"><strong>Operator information</strong><p>{companyConfig.legalName || companyConfig.tradingName}</p>{companyConfig.registrationNumber && <p>Registration: {companyConfig.registrationNumber}</p>}{companyConfig.registeredAddress && <p>{companyConfig.registeredAddress}</p>}{companyConfig.country && <p>{companyConfig.country}</p>}{companyConfig.legalEmail && <p>{companyConfig.legalEmail}</p>}</div></div></main>;
+}

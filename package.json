@@ -1,0 +1,12 @@
+{
+  "name": "flythebg",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/web"],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "typecheck:web": "npm --workspace apps/web run typecheck",
+    "test:web": "npm --workspace apps/web run test"
+  }
+}
