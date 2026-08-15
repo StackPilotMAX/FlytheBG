@@ -6,14 +6,14 @@ from PIL import Image
 
 pytestmark = pytest.mark.skipif(
     os.getenv("RUN_REAL_INFERENCE") != "1",
-    reason="Set RUN_REAL_INFERENCE=1 to download/load the real BEN2 Base ONNX model",
+    reason="Set RUN_REAL_INFERENCE=1 to download/load the real IS-Net general-use ONNX model",
 )
 
 
-def test_real_ben2_inference_produces_alpha_png(tmp_path):
-    from app.provider import BEN2OnnxProvider
+def test_real_isnet_inference_produces_alpha_png(tmp_path):
+    from app.provider import ISNetOnnxProvider
 
-    provider = BEN2OnnxProvider(str(tmp_path), intra_op_threads=1)
+    provider = ISNetOnnxProvider(str(tmp_path), intra_op_threads=1)
     provider.start()
 
     image = Image.new("RGB", (256, 256), "white")

@@ -1,43 +1,32 @@
 # Open-source and model licensing review
 
-This document records the model/license decision for this revision. Re-check it whenever a model, checkpoint, backbone, runtime, or redistributed weight changes.
+Re-check this document whenever a model, checkpoint, runtime, or redistributed weight changes.
 
-## Production selection
+## Production selection: IS-Net general-use ONNX
 
-### BEN2 Base ONNX
-- Role: default background-removal model.
-- Official project: `PramaLLC/BEN2`.
-- Official model repository: `PramaLLC/BEN2` on Hugging Face.
-- Repository/model-card license: MIT.
-- Checkpoint used: `BEN2_Base.onnx`.
-- Model SHA-256 pinned by this application: `22cea62108ff53b7ccc20f7a008bf30494228d84b1687f29ecbe76936a998101`.
-- The official BEN/BEN2 materials describe the Base model as the open/public model and point users to the Hugging Face weights. The upstream BEN repository explicitly describes the base model as free for commercial use.
-- The inference service downloads this exact ONNX checkpoint, verifies its SHA-256 before loading it, and caches it in `MODEL_DIR`.
+- Purpose: general-purpose foreground/background segmentation.
+- Upstream research/code: `xuebinqin/DIS` (IS-Net / Highly Accurate Dichotomous Image Segmentation).
+- Upstream code license: Apache-2.0.
+- ONNX checkpoint source used by FlytheBG: `jellybox/isnet-general-use` on Hugging Face.
+- Checkpoint repository license metadata: Apache-2.0.
+- File: `isnet-general-use_1024.onnx`.
+- Pinned SHA-256: `60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a`.
+- FlytheBG verifies this digest before loading the model.
+- Pre/post-processing follows the current rembg `isnet-general-use` session behavior, but FlytheBG calls ONNX Runtime directly rather than exposing rembg's CLI/custom-model surface.
 
-### ONNX Runtime
-- Role: CPU inference runtime for the BEN2 ONNX graph.
-- Package: `onnxruntime`.
-- License: MIT.
+## Runtime libraries
 
-### NumPy
-- Role: model input/output tensor conversion and mask normalization.
-- License: BSD-family/SPDX expression published by NumPy.
+- ONNX Runtime: MIT.
+- NumPy: BSD-family license expression published by NumPy.
+- Pillow: HPND.
+- FastAPI: MIT.
 
-### Pillow
-- Role: image decoding, orientation normalization, resizing, and PNG output.
-- License: HPND.
+## Models intentionally not enabled
 
-## Explicitly blocked from the default commercial build
+- Official BiRefNet weights remain blocked because their published terms are not suitable for this project's commercial production requirement without separate rights.
+- BRIA RMBG self-hosted weights remain blocked unless a commercial agreement is obtained.
+- BEN2 Base remains a commercially permissive candidate, but the 223 MB ONNX graph exceeded the memory envelope of the current 1 GB Railway inference service during initialization, so it is not the production default on this deployment.
 
-### BiRefNet official weights
-The official BiRefNet project describes its official weights as non-commercial. Those weights are not enabled by this application. Do not switch production to an official BiRefNet checkpoint unless separate commercial rights are obtained and documented.
+## Distribution
 
-### BRIA RMBG 2.0 self-hosted weights
-The official model card publishes non-commercial terms for the self-hosted weights and directs commercial users to a commercial agreement. Those weights are not enabled here.
-
-### U²-Net via rembg
-The U²-Net source repository is permissively licensed and rembg itself is MIT, but this project's license policy requires checkpoint-level provenance to be explicit enough for commercial use. Because the exact downloaded rembg checkpoint provenance was not strong enough for that hard gate during this review, it is not the production default in this revision.
-
-## Redistribution note
-
-The Docker image does not embed the 223 MB BEN2 checkpoint. The inference service downloads the official model at startup into `MODEL_DIR`, verifies the pinned SHA-256, and reuses it from the mounted Railway volume on subsequent starts. If you later redistribute the checkpoint directly, re-review all applicable license and notice obligations first.
+The model checkpoint is not committed to this GitHub repository. The inference service downloads the pinned checkpoint into `MODEL_DIR`, verifies SHA-256, and then initializes ONNX Runtime. A persistent Railway model volume is recommended to avoid re-downloading after container replacement.

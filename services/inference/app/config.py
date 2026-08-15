@@ -12,8 +12,8 @@ def _int(name: str, default: int) -> int:
 @dataclass(frozen=True)
 class Settings:
     api_secret: str = os.getenv("INFERENCE_API_SECRET", "")
-    model_provider: str = os.getenv("MODEL_PROVIDER", "ben2_onnx")
-    model_variant: str = os.getenv("MODEL_VARIANT", "base")
+    model_provider: str = os.getenv("MODEL_PROVIDER", "isnet_onnx")
+    model_variant: str = os.getenv("MODEL_VARIANT", "general-use")
     model_dir: str = os.getenv("MODEL_DIR", "./.models")
     onnx_threads: int = max(1, _int("ONNX_INTRA_OP_THREADS", 1))
     upload_max_mb: int = _int("UPLOAD_MAX_MB", 12)
