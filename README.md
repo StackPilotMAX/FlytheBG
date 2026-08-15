@@ -42,6 +42,29 @@ docs/                 architecture, deployment, security, privacy, licenses
 .github/workflows/    CI
 ```
 
+## Local development
+
+### Web
+
+```bash
+cd apps/web
+npm install
+cp ../../.env.example .env.local
+npm run dev
+```
+
+### Inference
+
+```bash
+cd services/inference
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export INFERENCE_API_SECRET=replace-with-a-long-random-secret
+export MODEL_DIR=./.models
+uvicorn app.main:app --reload --port 8000
+```
+
 ## Brand assets
 
 Reusable FlytheBG logo assets live in `apps/web/public/brand/`. The landing-page vehicle artwork is authored directly in the app as a generic unbranded SVG with no manufacturer marks, badges, or copied third-party vehicle asset.
@@ -53,3 +76,7 @@ FlytheBG currently uses one official written contact channel for product support
 `stackpilotfe@outlook.com`
 
 Email-only contact keeps requests in a single auditable written channel, avoids collecting phone numbers for support, and keeps sensitive requests out of public social-media messages.
+
+## Railway
+
+See `docs/deployment.md` for the two-service setup and environment variables.
