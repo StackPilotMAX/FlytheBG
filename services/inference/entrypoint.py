@@ -19,18 +19,19 @@ def chown_tree(path: Path, uid: int, gid: int) -> None:
 def prune_obsolete_model_cache(model_dir: Path) -> None:
     """Free only obsolete model binaries before the app user starts.
 
-    The production volume is intentionally small. When BiRefNet is selected we
-    remove the abandoned FP32 BiRefNet cache and stale partial downloads, but keep
-    IS-Net and calibration JSON so rollback and feedback history remain available.
+    Keep IS-Net and calibration JSON for rollback. Remove failed 1024px BiRefNet
+    caches because the production service now uses the memory-safe 512px FP16 export.
     """
     if os.getenv("MODEL_PROVIDER", "").strip() != "birefnet_onnx":
         return
 
-    obsolete_names = {"birefnet-lite-1024.onnx"}
+    obsolete_names = {
+        "birefnet-lite-1024.onnx",
+        "birefnet-lite-1024-fp16.onnx",
+    }
     for candidate in model_dir.iterdir() if model_dir.exists() else ():
-        if candidate.name in obsolete_names or (
-            candidate.name.startswith("birefnet-lite-1024-fp16.onnx.") and candidate.name.endswith(".part")
-        ):
+        is_partial_birefnet = candidate.name.startswith("birefnet-lite-") and candidate.name.endswith(".part")
+        if candidate.name in obsolete_names or is_partial_birefnet:
             try:
                 candidate.unlink()
                 print(f"model_cache_pruned path={candidate}", flush=True)
