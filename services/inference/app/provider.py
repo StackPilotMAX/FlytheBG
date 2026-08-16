@@ -21,10 +21,10 @@ ISNET_MODEL_FILENAME = "isnet-general-use_1024.onnx"
 ISNET_INPUT_SIZE = (1024, 1024)
 CALIBRATION_FILENAME = "flythebg-calibration.json"
 
-BIREFNET_MODEL_URL = "https://huggingface.co/onnx-community/BiRefNet_lite-ONNX/resolve/main/onnx/model_fp16.onnx"
-BIREFNET_MODEL_SHA256 = "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402"
-BIREFNET_MODEL_FILENAME = "birefnet-lite-1024-fp16.onnx"
-BIREFNET_INPUT_SIZE = (1024, 1024)
+BIREFNET_MODEL_URL = "https://huggingface.co/studioludens/birefnet-lite-512/resolve/main/onnx/model_fp16.onnx"
+BIREFNET_MODEL_SHA256 = "eff9216bb2f9d3f023d9c2b7196845a7485739ab1f231593633e4d2344ffc516"
+BIREFNET_MODEL_FILENAME = "birefnet-lite-512-fp16.onnx"
+BIREFNET_INPUT_SIZE = (512, 512)
 BIREFNET_CALIBRATION_FILENAME = "flythebg-birefnet-calibration.json"
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
@@ -61,7 +61,7 @@ def _download_verified_model(url: str, expected_sha256: str, destination: Path) 
         destination.unlink()
 
     logger.info("model_download_started url=%s", url)
-    request = urllib.request.Request(url, headers={"User-Agent": "FlytheBG-Inference/1.3"})
+    request = urllib.request.Request(url, headers={"User-Agent": "FlytheBG-Inference/1.4"})
     fd, temporary_name = tempfile.mkstemp(prefix=f"{destination.name}.", suffix=".part", dir=destination.parent)
     os.close(fd)
     temporary = Path(temporary_name)
@@ -121,10 +121,10 @@ def _as_2d_prediction(outputs):
 def _precision_refine_mask(image: Image.Image, mask: Image.Image) -> Image.Image:
     """Preserve wispy boundaries without turning the matte into a hard mask.
 
-    BiRefNet provides the semantic matte. This pass works only in a narrow local
-    boundary band: it combines sub-pixel upsampling, a one-pixel support expansion,
-    source-image luminance edges and a very small blur. High-confidence foreground
-    and background remain untouched, which limits halos and protects clothing mass.
+    BiRefNet supplies the semantic matte. This pass works only in a narrow local
+    boundary band at the uploaded image's original resolution: a one-pixel support
+    expansion is combined with source luminance edges and a tiny softening pass.
+    High-confidence foreground and background are left untouched.
     """
     import numpy as np
 
@@ -184,7 +184,12 @@ class ISNetOnnxProvider(BackgroundRemovalProvider):
 
     def _persist_calibration(self) -> None:
         self.calibration_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {"schema": 1, "model": "isnet-general-use", "mask_gamma": round(self._mask_gamma, 6), "feedback_counts": self._feedback_counts}
+        payload = {
+            "schema": 1,
+            "model": "isnet-general-use",
+            "mask_gamma": round(self._mask_gamma, 6),
+            "feedback_counts": self._feedback_counts,
+        }
         fd, temporary_name = tempfile.mkstemp(prefix="calibration.", suffix=".json.part", dir=self.calibration_path.parent)
         os.close(fd)
         temporary = Path(temporary_name)
@@ -201,9 +206,17 @@ class ISNetOnnxProvider(BackgroundRemovalProvider):
         _download_verified_model(ISNET_MODEL_URL, ISNET_MODEL_SHA256, self.model_path)
         self._load_calibration()
         logger.info("model_session_loading provider=isnet_onnx")
-        self.session = ort.InferenceSession(str(self.model_path), sess_options=_session_options(self.intra_op_threads), providers=["CPUExecutionProvider"])
+        self.session = ort.InferenceSession(
+            str(self.model_path),
+            sess_options=_session_options(self.intra_op_threads),
+            providers=["CPUExecutionProvider"],
+        )
         self.input_name = self.session.get_inputs()[0].name
-        logger.info("model_session_loaded provider=isnet_onnx input=%s shape=%s", self.input_name, self.session.get_inputs()[0].shape)
+        logger.info(
+            "model_session_loaded provider=isnet_onnx input=%s shape=%s",
+            self.input_name,
+            self.session.get_inputs()[0].shape,
+        )
         self._predict_mask(Image.new("RGB", (64, 64), "white"))
         self.ready = True
         logger.info("model_warmup_complete provider=isnet_onnx")
@@ -222,7 +235,11 @@ class ISNetOnnxProvider(BackgroundRemovalProvider):
         pred = _as_2d_prediction(outputs)
         minimum = float(pred.min())
         maximum = float(pred.max())
-        alpha = np.zeros_like(pred, dtype=np.float32) if maximum - minimum <= 1e-8 else ((pred - minimum) / (maximum - minimum)).clip(0.0, 1.0)
+        alpha = (
+            np.zeros_like(pred, dtype=np.float32)
+            if maximum - minimum <= 1e-8
+            else ((pred - minimum) / (maximum - minimum)).clip(0.0, 1.0)
+        )
         with self._calibration_lock:
             gamma = self._mask_gamma
         alpha = np.power(alpha, gamma).astype(np.float32, copy=False)
@@ -248,17 +265,15 @@ class ISNetOnnxProvider(BackgroundRemovalProvider):
             elif feedback == "too_much_removed":
                 self._mask_gamma = max(0.82, self._mask_gamma - 0.006)
             self._persist_calibration()
-            snapshot = {"mask_gamma": round(self._mask_gamma, 6), "feedback_total": sum(self._feedback_counts.values())}
+            snapshot = {
+                "mask_gamma": round(self._mask_gamma, 6),
+                "feedback_total": sum(self._feedback_counts.values()),
+            }
         return snapshot
 
 
 class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
-    """BiRefNet Lite ONNX with precision alpha refinement for fine boundaries.
-
-    The FP16 export is used because the production Railway inference service has a
-    tight memory envelope. Input dtype is detected from the ONNX graph so this
-    remains safe if the export metadata changes between float32 and float16 inputs.
-    """
+    """Memory-bounded BiRefNet Lite matte plus original-resolution edge refinement."""
 
     def __init__(self, model_dir: str, intra_op_threads: int = 1) -> None:
         self.model_path = Path(model_dir) / BIREFNET_MODEL_FILENAME
@@ -288,8 +303,15 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
 
     def _persist_calibration(self) -> None:
         self.calibration_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {"schema": 1, "model": "birefnet-lite-onnx-fp16", "mask_gamma": round(self._mask_gamma, 6), "feedback_counts": self._feedback_counts}
-        fd, temporary_name = tempfile.mkstemp(prefix="birefnet-calibration.", suffix=".json.part", dir=self.calibration_path.parent)
+        payload = {
+            "schema": 1,
+            "model": "birefnet-lite-512-onnx-fp16",
+            "mask_gamma": round(self._mask_gamma, 6),
+            "feedback_counts": self._feedback_counts,
+        }
+        fd, temporary_name = tempfile.mkstemp(
+            prefix="birefnet-calibration.", suffix=".json.part", dir=self.calibration_path.parent
+        )
         os.close(fd)
         temporary = Path(temporary_name)
         try:
@@ -304,12 +326,22 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
 
         _download_verified_model(BIREFNET_MODEL_URL, BIREFNET_MODEL_SHA256, self.model_path)
         self._load_calibration()
-        logger.info("model_session_loading provider=birefnet_onnx variant=lite-1024-fp16")
-        self.session = ort.InferenceSession(str(self.model_path), sess_options=_session_options(self.intra_op_threads), providers=["CPUExecutionProvider"])
+        logger.info("model_session_loading provider=birefnet_onnx variant=lite-512-fp16")
+        self.session = ort.InferenceSession(
+            str(self.model_path),
+            sess_options=_session_options(self.intra_op_threads),
+            providers=["CPUExecutionProvider"],
+        )
         model_input = self.session.get_inputs()[0]
         self.input_name = model_input.name
         self.input_dtype = "float16" if "float16" in model_input.type else "float32"
-        logger.info("model_session_loaded provider=birefnet_onnx input=%s shape=%s dtype=%s outputs=%s", self.input_name, model_input.shape, self.input_dtype, [output.name for output in self.session.get_outputs()])
+        logger.info(
+            "model_session_loaded provider=birefnet_onnx input=%s shape=%s dtype=%s outputs=%s",
+            self.input_name,
+            model_input.shape,
+            self.input_dtype,
+            [output.name for output in self.session.get_outputs()],
+        )
         self._predict_mask(Image.new("RGB", (96, 96), "white"))
         self.ready = True
         logger.info("model_warmup_complete provider=birefnet_onnx")
@@ -329,7 +361,9 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
         outputs = self.session.run(None, {self.input_name: tensor})
         logits = _as_2d_prediction(outputs)
         alpha = _sigmoid(logits)
-        base_mask = Image.fromarray((alpha * 255.0).clip(0, 255).astype(np.uint8), mode="L").resize(image.size, Image.Resampling.LANCZOS)
+        base_mask = Image.fromarray(
+            (alpha * 255.0).clip(0, 255).astype(np.uint8), mode="L"
+        ).resize(image.size, Image.Resampling.LANCZOS)
         refined = _precision_refine_mask(image, base_mask)
 
         with self._calibration_lock:
@@ -360,14 +394,27 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
             elif feedback == "too_much_removed":
                 self._mask_gamma = max(0.78, self._mask_gamma - 0.005)
             self._persist_calibration()
-            snapshot = {"mask_gamma": round(self._mask_gamma, 6), "feedback_total": sum(self._feedback_counts.values())}
-        logger.info("calibration_feedback provider=birefnet_onnx category=%s gamma=%.4f total=%d", feedback, snapshot["mask_gamma"], snapshot["feedback_total"])
+            snapshot = {
+                "mask_gamma": round(self._mask_gamma, 6),
+                "feedback_total": sum(self._feedback_counts.values()),
+            }
+        logger.info(
+            "calibration_feedback provider=birefnet_onnx category=%s gamma=%.4f total=%d",
+            feedback,
+            snapshot["mask_gamma"],
+            snapshot["feedback_total"],
+        )
         return snapshot
 
 
-def build_provider(name: str, variant: str, model_dir: str = "./.models", intra_op_threads: int = 1) -> BackgroundRemovalProvider:
+def build_provider(
+    name: str,
+    variant: str,
+    model_dir: str = "./.models",
+    intra_op_threads: int = 1,
+) -> BackgroundRemovalProvider:
     if name == "birefnet_onnx":
-        if variant not in {"lite-1024", "lite", "lite-1024-fp16"}:
+        if variant not in {"lite-512-fp16", "lite-512", "lite"}:
             raise ValueError(f"Unsupported BiRefNet variant: {variant}")
         return BiRefNetLiteOnnxProvider(model_dir=model_dir, intra_op_threads=intra_op_threads)
     if name == "isnet_onnx":
