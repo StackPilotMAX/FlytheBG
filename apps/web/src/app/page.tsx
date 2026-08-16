@@ -1,14 +1,13 @@
-import { Uploader } from "@/components/Uploader";
+import Link from "next/link";
 import { GalaxyWorld } from "@/components/GalaxyWorld";
 import { appConfig } from "@/lib/config";
 
 const faqs = [
-  ["Is the galaxy on the landing page a real animation?", "Yes. It is a permanent full-screen WebGL scene that stays behind the site while you scroll. The upgraded scene uses more than 80,000 stellar particles on larger screens, four spiral arms, dust lanes, nebula haze, a luminous core, deep stars, pointer parallax, and slow camera travel."],
-  ["What file types are supported?", "PNG, JPEG, and WebP are accepted. Files are validated on both the public web boundary and the private inference service."],
-  ["How long does FlytheBG keep my image?", "Raw uploads and results are not intentionally written to a permanent image database. Processing happens in memory, and temporary run identifiers used for feedback expire within one hour."],
-  ["Does the AI learn from my photos?", "Not by storing your raw photos. If you choose to rate a result, FlytheBG uses that explicit feedback to adjust small aggregate mask-calibration values. The uploaded image is not retained as a training sample."],
-  ["Can I download transparent images?", "Yes. The default output is a PNG with an alpha channel. You can also preview and export it against white, black, or a custom color."],
-  ["What happens when I rate a result?", "Your rating is linked to a short-lived anonymous run token. It can nudge edge calibration for future requests; the token expires within one hour and does not identify you."],
+  ["Where do I remove a background?", "Open Remove Background from the navigation or landing-page button. The editor has its own workspace so the homepage stays fast and focused."],
+  ["Why does FlytheBG show two results?", "The remover compares FlytheBG Precision on the private inference service with an independent browser-side model. You can download whichever result preserves your subject better."],
+  ["Can I make print-ready passport photos?", "Yes. Passport Photo Maker can use your existing photo or remove its background first, then create multiple copies at exact physical dimensions and 300 or 600 DPI."],
+  ["Can I crop manually?", "Yes. Background-removal results can be cropped by cursor, common aspect ratios, or exact pixel coordinates. Passport photos can also be repositioned and resized by cursor."],
+  ["Does FlytheBG store my photos for training?", "No raw-image training archive is used by the production workflow. Short-lived anonymous run metadata used for optional feedback expires in under one hour."],
 ];
 
 export default function HomePage() {
@@ -16,120 +15,55 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", name: appConfig.name, url: appConfig.siteUrl },
-      { "@type": "SoftwareApplication", name: `${appConfig.name} Background Remover`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "Remove an image background and download a transparent PNG." },
+      { "@type": "SoftwareApplication", name: `${appConfig.name} Creative Tools`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "AI background removal, crop tools, and print-ready passport photo sheets." },
       { "@type": "FAQPage", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
     ],
   };
 
   return (
-    <main>
+    <main className="darkLanding">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <GalaxyWorld />
 
-      <section className="toolSection" id="remove">
-        <div className="shell toolSectionGrid">
-          <div className="toolIntro" data-reveal>
-            <span className="eyebrow"><i /> From galaxy scale to pixel edge</span>
-            <h2>Drop the image.<br />Keep what matters.</h2>
-            <p>Upload once. FlytheBG validates the file, sends it over Railway’s private service network, runs the segmentation model, strips source metadata through re-encoding, and returns a transparent PNG.</p>
-            <div className="metricRow">
-              <div><strong>1</strong><span>focused workflow</span></div>
-              <div><strong>0</strong><span>accounts required</span></div>
-              <div><strong>≤1h</strong><span>run metadata life</span></div>
-            </div>
-          </div>
-          <Uploader />
+      <section className="landingIntro shell">
+        <div className="landingIntroCopy">
+          <span className="eyebrow light"><i/> One place for clean image tools</span>
+          <h2>Choose the tool.<br/>Keep the workflow simple.</h2>
+          <p>FlytheBG is now organized like a product, not a single long demo. Start with background removal today, build exact passport-photo sheets, and use the Features hub as new tools arrive.</p>
+          <div className="landingButtons"><Link className="primaryButton" href="/remove-background">Remove a background <span>↗</span></Link><Link className="secondaryButton" href="/features">Explore features</Link></div>
+        </div>
+        <div className="landingStatGrid">
+          <div><strong>2</strong><span>background-removal results</span></div>
+          <div><strong>600</strong><span>DPI passport export</span></div>
+          <div><strong>0</strong><span>account required</span></div>
         </div>
       </section>
 
-      <section className="marqueeBand" aria-hidden="true"><div>FORM · FLOW · REMOVE · REFINE · RELEASE · FORM · FLOW · REMOVE · REFINE · RELEASE ·</div></section>
-
-      <section className="section storySection" id="story">
+      <section className="section landingFeatures" id="features">
         <div className="shell">
-          <div className="sectionHeading wide" data-reveal>
-            <span className="eyebrow"><i /> Live motion, restrained spectacle</span>
-            <h2>A galaxy that feels alive.<br />A product that stays clear.</h2>
-            <p>The landing experience is now a permanent full-screen spiral galaxy made from live WebGL particles, dust lanes and nebula haze. It remains behind every major section while the background-removal action stays the main task.</p>
-          </div>
-          <div className="bentoGrid">
-            <article className="bentoCard bentoLarge" data-reveal>
-              <span className="cardIndex">01 / PARTICLES</span>
-              <div className="miniScene"><i/><i/><i/></div>
-              <h3>Tens of thousands of live points</h3>
-              <p>The galaxy is generated directly in Three.js with four structured spiral arms, a warm luminous core, blue-white stellar populations, pink nebula regions, dark dust lanes, and a deterministic distribution that stays visually consistent between visits.</p>
-            </article>
-            <article className="bentoCard" data-reveal>
-              <span className="cardIndex">02 / DEPTH</span>
-              <div className="pulseOrb"/>
-              <h3>Pointer-aware parallax</h3>
-              <p>Small camera shifts follow the cursor while scroll changes the viewing depth, giving the scene dimensional motion without getting in the way of navigation.</p>
-            </article>
-            <article className="bentoCard darkCard" data-reveal>
-              <span className="cardIndex">03 / FLOW</span>
-              <div className="fpsMeter"><i/><i/><i/><i/><i/></div>
-              <h3>Continuous, not prerecorded</h3>
-              <p>The spiral rotates and the core breathes in real time. There is no hero-video timeline to scrub and no tutorial text embedded inside the landing visual.</p>
-            </article>
-            <article className="bentoCard bentoWide" data-reveal>
-              <span className="cardIndex">04 / PERFORMANCE</span>
-              <div className="typeRail"><span>PARTICLES</span><span>→</span><span>WEBGL</span><span>→</span><span>FOCUS</span></div>
-              <h3>High visual density, bounded responsibly</h3>
-              <p>Particle count adapts for smaller screens, device pixel ratio is capped, rendering stays client-side, resources are disposed on unmount, and reduced-motion users get a calmer version automatically.</p>
-            </article>
+          <div className="sectionHeading wide"><span className="eyebrow light"><i/> Live tools</span><h2>Focused pages for focused jobs.</h2><p>Each tool gets its own workspace, URL, controls, and room to grow.</p></div>
+          <div className="featureHubGrid">
+            <Link href="/remove-background" className="featureHubCard featuredTool">
+              <span className="featureNumber">01</span><div className="featureIcon">✦</div><h3>Remove Background</h3><p>Upload once, compare FlytheBG Precision with browser AI, crop the preferred result, and download a transparent PNG.</p><span className="featureLink">Open remover ↗</span>
+            </Link>
+            <Link href="/features/passport-photo" className="featureHubCard">
+              <span className="featureNumber">02</span><div className="featureIcon">▣</div><h3>Passport Photo Maker</h3><p>Use an existing photo or remove its background first, set exact printed size, arrange copies, and export at up to 600 DPI.</p><span className="featureLink">Make passport photos ↗</span>
+            </Link>
+            <Link href="/features" className="featureHubCard futureTool">
+              <span className="featureNumber">03+</span><div className="featureIcon">＋</div><h3>More tools later</h3><p>The Features page is designed as the permanent home for future image utilities without crowding the landing page.</p><span className="featureLink">View feature hub ↗</span>
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="section privacySection" id="privacy">
-        <div className="shell privacyGrid">
-          <div className="privacyVisual" data-reveal aria-hidden="true">
-            <div className="retentionClock"><span>60</span><small>MIN MAX</small><i/></div>
-            <div className="privacyTag tagA">Raw image: not training data</div>
-            <div className="privacyTag tagB">Run metadata: auto-expiring</div>
-            <div className="privacyTag tagC">Feedback: aggregate only</div>
-          </div>
-          <div data-reveal>
-            <span className="eyebrow"><i /> Privacy that matches the architecture</span>
-            <h2>Learn from the result.<br/>Not from keeping your photo.</h2>
-            <p className="sectionText">The background-removal model does not silently collect uploads for weight training. When you explicitly rate an output, a short-lived anonymous run record lets the inference service adjust aggregate mask calibration. The raw image is not required for that learning loop.</p>
-            <ul className="checkList">
-              <li><span>01</span><div><strong>No permanent image database by default</strong><p>Upload and output bytes are processed for the request. Short-lived PostgreSQL run metadata expires in under one hour.</p></div></li>
-              <li><span>02</span><div><strong>Adaptive, bounded calibration</strong><p>Feedback can nudge a bounded alpha-mask gamma value. It cannot execute arbitrary code or rewrite the model checkpoint.</p></div></li>
-              <li><span>03</span><div><strong>Explicit feedback only</strong><p>No quality feedback is submitted until you tap an option after seeing your result.</p></div></li>
-            </ul>
-            <a className="inlineLink" href="/privacy">Read the retention & AI policy <span>↗</span></a>
-          </div>
-        </div>
-      </section>
-
-      <section className="section processSection" id="how-it-works">
-        <div className="shell">
-          <div className="sectionHeading compact" data-reveal><span className="eyebrow"><i /> Under the hood</span><h2>Four boundaries. One clean output.</h2></div>
-          <div className="processRail">
-            <article data-reveal><b>01</b><h3>Validate</h3><p>Format, declared MIME, magic bytes, file size and decoded pixel count are checked.</p></article>
-            <article data-reveal><b>02</b><h3>Infer</h3><p>The web tier sends bytes to a private FastAPI service protected by an internal secret.</p></article>
-            <article data-reveal><b>03</b><h3>Calibrate</h3><p>FlytheBG runs a two-pass precision cutout: a full-frame pass finds the complete subject, then a high-resolution subject-crop pass plus original-resolution edge refinement preserves hair, fur and clothing boundaries before bounded feedback calibration.</p></article>
-            <article data-reveal><b>04</b><h3>Release</h3><p>The PNG returns with no-store headers; raw request objects fall out of scope after the response.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="faq">
+      <section className="section darkFaq" id="faq">
         <div className="shell faqWrap">
-          <div className="sectionHeading compact" data-reveal><span className="eyebrow"><i /> FAQ</span><h2>The questions that matter before upload.</h2></div>
-          <div className="faqList">
-            {faqs.map(([q,a]) => <details key={q} data-reveal><summary>{q}<span>+</span></summary><p>{a}</p></details>)}
-          </div>
+          <div className="sectionHeading compact"><span className="eyebrow light"><i/> FAQ</span><h2>Before you upload.</h2><p>Short answers about the new product structure and privacy model.</p></div>
+          <div className="faqList">{faqs.map(([q, a]) => <details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div>
         </div>
       </section>
 
-      <section className="closingCta">
-        <div className="closingGlow" aria-hidden="true"/>
-        <div className="shell closingInner" data-reveal>
-          <div><span className="eyebrow light"><i /> Start in the galaxy. Finish with the subject.</span><h2>Make the subject impossible to ignore.</h2><p>Transparent PNG. Private inference. A permanent live galaxy up front, and a two-pass precision cutout pipeline underneath.</p></div>
-          <a href="#remove" className="primaryButton lightButton">Try FlytheBG <span>↗</span></a>
-        </div>
-      </section>
+      <section className="closingCta"><div className="closingGlow"/><div className="shell closingInner"><div><span className="eyebrow light"><i/> Start with the job you need</span><h2>Remove. Resize. Print.</h2><p>The landing page introduces FlytheBG; dedicated tool pages do the work.</p></div><Link href="/features" className="primaryButton lightButton">Open features <span>↗</span></Link></div></section>
     </main>
   );
 }
