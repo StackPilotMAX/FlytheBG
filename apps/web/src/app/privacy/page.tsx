@@ -6,13 +6,14 @@ export const metadata = { title: "Privacy & AI Policy" };
 export default function PrivacyPage() {
   return <LegalPage title="Privacy & AI Policy" updated="16 August 2026">
     <h2>1. Scope</h2>
-    <p>This policy describes how FlytheBG handles images, short-lived processing metadata, technical data, optional quality feedback, browser-side AI, and advertising if advertising is enabled.</p>
+    <p>This policy describes how FlytheBG handles images, short-lived processing metadata, technical data, optional quality feedback, browser-side AI, and Google AdSense advertising.</p>
 
     <h2>2. FlytheBG Precision processing</h2>
     <p>When you use FlytheBG Precision, the image is sent through the FlytheBG web service to the private inference service to provide the requested background-removal result. Raw uploads and generated results are not intentionally written to the PostgreSQL run-metadata database. Request bytes are released after processing completes.</p>
 
-    <h2>3. Browser AI processing</h2>
-    <p>The comparison workflow can also run a second background-removal model in your browser. The source image is processed on your device for this result. The browser downloads the required model/runtime assets from the configured IMG.LY distribution service. Normal network metadata required to deliver those assets may be processed by that provider, but FlytheBG does not intentionally send the uploaded image to IMG.LY for the browser-side inference step.</p>
+    <h2>3. IMG.LY Browser AI processing</h2>
+    <p>The comparison workflow can also run <a href="https://github.com/imgly/background-removal-js" rel="noreferrer">IMG.LY background-removal software</a> in your browser. The source image is processed on your device for this browser-side result. The browser downloads model/runtime assets from IMG.LY&apos;s configured distribution service. Normal network information needed to deliver those assets may be processed by the asset provider, but FlytheBG does not intentionally upload the source image to IMG.LY for this browser-side inference step.</p>
+    <p>The integrated IMG.LY package is third-party software and is distributed under its upstream licence. FlytheBG keeps its integration source publicly available in the FlytheBG GitHub repository. Third-party software can have its own terms, privacy practices, availability, and licensing requirements.</p>
 
     <h2>4. Passport Photo Maker</h2>
     <p>If you choose the direct-photo option, framing, sheet layout, physical-size conversion, and PNG generation occur in the browser. If you choose “Remove background first”, FlytheBG Precision processes the image before the browser creates the print sheet. Print-sheet previews and generated sheets are not intentionally stored in the application database.</p>
@@ -24,22 +25,28 @@ export default function PrivacyPage() {
     <h2>6. AI improvement and feedback</h2>
     <p>Your raw uploaded image is not silently added to a training dataset. Optional quality feedback can adjust a small bounded aggregate alpha-mask calibration value for FlytheBG Precision. The production model checkpoint is not automatically retrained from individual uploads.</p>
 
-    <h2>7. Advertising and consent</h2>
-    <p>FlytheBG can be configured to load Google AdSense only after the operator supplies a real AdSense publisher ID. When advertising is enabled, Google and its partners may process device, network, cookie, or similar information for ad delivery, measurement, fraud prevention, and—where permitted—personalization. FlytheBG should use any consent controls required for the visitor’s region before enabling non-essential advertising technologies.</p>
+    <h2>7. Google AdSense advertising</h2>
+    <p>FlytheBG is configured to use Google AdSense to support the service. The public AdSense publisher identifier and the authorized-seller record in <code>/ads.txt</code> are intentionally public and are not passwords or private API credentials.</p>
+    <p>When AdSense is active, Google and advertising partners may process information such as device and browser information, IP/network information, cookies or similar local-storage identifiers, ad interactions, approximate location inferred from network data, and other information used for ad delivery, measurement, fraud prevention, frequency controls, and—where permitted—personalization. FlytheBG does not intentionally include uploaded image bytes, generated image files, private image URLs, or source filenames in advertising requests.</p>
+    <p>Google&apos;s own privacy information is available at <a href="https://policies.google.com/privacy" rel="noreferrer">Google Privacy Policy</a> and <a href="https://policies.google.com/technologies/ads" rel="noreferrer">How Google uses information for advertising</a>.</p>
 
-    <h2>8. Technical and security data</h2>
+    <h2>8. Consent and privacy choices</h2>
+    <p>For regions where consent or opt-out controls are required, FlytheBG uses or intends to use a Google-certified consent management platform associated with the AdSense account. Visitors may be shown choices for personalized advertising, non-personalized advertising, cookies/local storage, and other data uses depending on their region and the configuration available through Google Privacy &amp; messaging.</p>
+    <p>Where required, advertising-related consent choices should be honored without preventing access to the core background-removal, cropping, and passport-photo tools.</p>
+
+    <h2>9. Technical and security data</h2>
     <p>Infrastructure may process limited operational information such as request timing, status codes, error categories, resource usage, and security events. Application logging is designed not to include image binary data or private image URLs.</p>
 
-    <h2>9. Metadata and output</h2>
+    <h2>10. Metadata and output</h2>
     <p>Processed image outputs are re-encoded. Source EXIF and other unnecessary image metadata are not intentionally copied into generated PNG results.</p>
 
-    <h2>10. Your choices</h2>
-    <p>Quality feedback is optional. You can use the tools and download results without sending a feedback rating. Where applicable law gives you rights to access, correction, erasure, withdrawal of consent, or grievance redressal, contact FlytheBG by email.</p>
+    <h2>11. Your choices and rights</h2>
+    <p>Quality feedback is optional. You can use the tools and download results without sending a feedback rating. Where applicable law gives you rights to access, correction, erasure, restriction, objection, withdrawal of consent, or grievance redressal, contact FlytheBG by email. Advertising choices may also be available through the Google consent message shown for your region and Google&apos;s own ad/privacy controls.</p>
 
-    <h2>11. Security</h2>
+    <h2>12. Security</h2>
     <p>The service uses server-side file validation, MIME and magic-byte checks, bounded image sizes and pixel counts, private service communication, internal authentication, request timeouts, rate limiting, bounded inference concurrency, and short-lived run metadata. No internet service can guarantee absolute security.</p>
 
-    <h2>12. Contact</h2>
+    <h2>13. Contact</h2>
     <p>The official contact channel for privacy questions, deletion requests, complaints, security reports, and legal notices is <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p>
   </LegalPage>;
 }
