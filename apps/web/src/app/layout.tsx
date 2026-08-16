@@ -4,18 +4,18 @@ import "./globals.css";
 import "./redesign-world.css";
 import "./redesign-sections.css";
 import "./hero-video.css";
-import "./earth-world.css";
+import "./galaxy-world.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
   title: { default: `${appConfig.name} — Remove the background. Keep the subject.`, template: `%s — ${appConfig.name}` },
-  description: "AI background removal with transparent PNG output, private inference, short-lived run metadata, adaptive edge calibration, and an interactive NASA-imagery Earth experience.",
+  description: "AI background removal with transparent PNG output, private inference, short-lived run metadata, adaptive edge calibration, and a live WebGL galaxy experience.",
   applicationName: appConfig.name,
   alternates: { canonical: "/" },
   openGraph: {
     title: `${appConfig.name} — AI Background Remover`,
-    description: "Move the Earth. Then remove the background. Export a clean transparent PNG with private inference.",
+    description: "Move through a live particle galaxy. Then remove the background and export a clean transparent PNG with private inference.",
     type: "website",
     url: "/",
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#02070d" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#02030a" };
 
 function Logo() {
   return (
