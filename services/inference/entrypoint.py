@@ -16,9 +16,33 @@ def chown_tree(path: Path, uid: int, gid: int) -> None:
             os.chown(os.path.join(root, name), uid, gid)
 
 
+def prune_obsolete_model_cache(model_dir: Path) -> None:
+    """Free only obsolete model binaries before the app user starts.
+
+    The production volume is intentionally small. When BiRefNet is selected we
+    remove the abandoned FP32 BiRefNet cache and stale partial downloads, but keep
+    IS-Net and calibration JSON so rollback and feedback history remain available.
+    """
+    if os.getenv("MODEL_PROVIDER", "").strip() != "birefnet_onnx":
+        return
+
+    obsolete_names = {"birefnet-lite-1024.onnx"}
+    for candidate in model_dir.iterdir() if model_dir.exists() else ():
+        if candidate.name in obsolete_names or (
+            candidate.name.startswith("birefnet-lite-1024-fp16.onnx.") and candidate.name.endswith(".part")
+        ):
+            try:
+                candidate.unlink()
+                print(f"model_cache_pruned path={candidate}", flush=True)
+            except FileNotFoundError:
+                pass
+
+
 def main() -> None:
     account = pwd.getpwnam("app")
     model_dir = Path(os.getenv("MODEL_DIR", "/models"))
+    model_dir.mkdir(parents=True, exist_ok=True)
+    prune_obsolete_model_cache(model_dir)
     chown_tree(model_dir, account.pw_uid, account.pw_gid)
 
     os.initgroups(account.pw_name, account.pw_gid)
