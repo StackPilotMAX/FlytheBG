@@ -7,6 +7,7 @@ import "./redesign-sections.css";
 import "./hero-video.css";
 import "./galaxy-world.css";
 import "./final-dark.css";
+import "./production-fixes.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
