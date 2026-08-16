@@ -30,7 +30,7 @@ function normalizedRect(a: { x: number; y: number }, b: { x: number; y: number }
   return { x: x1, y: y1, width, height };
 }
 
-export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl: string; fileName: string; label: string; onClose: () => void }) {
+export function CropEditor({ sourceBlob, fileName, label, onClose }: { sourceBlob: Blob; fileName: string; label: string; onClose: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -38,18 +38,29 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
   const [crop, setCrop] = useState<CropRect>({ x: 0, y: 0, width: 1, height: 1 });
   const [mode, setMode] = useState<CropMode>("free");
   const [ratio, setRatio] = useState(1);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
+    const sourceUrl = URL.createObjectURL(sourceBlob);
     const image = new Image();
+    setLoadError("");
     image.onload = () => {
       imageRef.current = image;
       const next = { width: image.naturalWidth || image.width, height: image.naturalHeight || image.height };
+      if (!next.width || !next.height) {
+        setLoadError("The selected result has invalid image dimensions.");
+        return;
+      }
       setDimensions(next);
       setCrop({ x: 0, y: 0, width: next.width, height: next.height });
     };
+    image.onerror = () => setLoadError("The selected result could not be decoded for cropping.");
     image.src = sourceUrl;
-    return () => { imageRef.current = null; };
-  }, [sourceUrl]);
+    return () => {
+      imageRef.current = null;
+      URL.revokeObjectURL(sourceUrl);
+    };
+  }, [sourceBlob]);
 
   const previewSize = useMemo(() => {
     const maxWidth = 900;
@@ -60,7 +71,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
   useEffect(() => {
     const canvas = canvasRef.current;
     const image = imageRef.current;
-    if (!canvas || !image) return;
+    if (!canvas || !image || loadError) return;
     canvas.width = previewSize.width;
     canvas.height = previewSize.height;
     const ctx = canvas.getContext("2d");
@@ -100,7 +111,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
       ctx.stroke();
     }
     ctx.restore();
-  }, [crop, dimensions, previewSize]);
+  }, [crop, dimensions, previewSize, loadError]);
 
   function pointerToImage(event: PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current!;
@@ -111,6 +122,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
   }
 
   function onPointerDown(event: PointerEvent<HTMLCanvasElement>) {
+    if (loadError) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragStartRef.current = pointerToImage(event);
     setMode(mode === "pixels" ? "free" : mode);
@@ -163,7 +175,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
 
   async function downloadCrop() {
     const image = imageRef.current;
-    if (!image) return;
+    if (!image || loadError) return;
     const x = Math.round(clamp(crop.x, 0, dimensions.width - 1));
     const y = Math.round(clamp(crop.y, 0, dimensions.height - 1));
     const width = Math.round(clamp(crop.width, 1, dimensions.width - x));
@@ -173,6 +185,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
     canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
     ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) return;
@@ -181,14 +194,16 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
     const base = fileName.replace(/\.[^.]+$/, "") || "image";
     link.href = href;
     link.download = `${base}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-crop-${width}x${height}.png`;
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(href);
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(href), 1500);
   }
 
   return (
     <div className="cropEditor" aria-label={`Crop ${label} result`}>
       <div className="cropHeader"><div><span className="toolKicker">Crop editor</span><h3>{label}</h3></div><button className="textButton" onClick={onClose}>Close</button></div>
-      <div className="cropCanvasWrap"><canvas ref={canvasRef} className="cropCanvas" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} /></div>
+      {loadError ? <div className="modelError"><div><strong>Crop preview unavailable</strong><span>{loadError}</span></div></div> : <div className="cropCanvasWrap"><canvas ref={canvasRef} className="cropCanvas" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} /></div>}
       <div className="cropControls">
         <div className="cropControlGroup"><span className="controlLabel">By cursor</span><button className={`miniButton ${mode === "free" ? "active" : ""}`} onClick={() => setMode("free")}>Free drag</button><p>Drag directly over the preview to select any rectangle.</p></div>
         <div className="cropControlGroup"><span className="controlLabel">By ratio</span><div className="ratioButtons">{RATIOS.map((item) => <button key={item.label} className={`miniButton ${mode === "ratio" && ratio === item.value ? "active" : ""}`} onClick={() => applyRatio(item.value)}>{item.label}</button>)}</div></div>
@@ -199,7 +214,7 @@ export function CropEditor({ sourceUrl, fileName, label, onClose }: { sourceUrl:
           <label>H<input type="number" min={1} max={dimensions.height} value={Math.round(crop.height)} onChange={(e) => updatePixel("height", Number(e.target.value))} /></label>
         </div></div>
       </div>
-      <div className="cropFooter"><span>{Math.round(crop.width)} × {Math.round(crop.height)} px</span><button className="primaryButton" onClick={() => void downloadCrop()}>Download cropped PNG <span>↓</span></button></div>
+      <div className="cropFooter"><span>{Math.round(crop.width)} × {Math.round(crop.height)} px</span><button className="primaryButton" disabled={Boolean(loadError)} onClick={() => void downloadCrop()}>Download cropped PNG <span>↓</span></button></div>
     </div>
   );
 }
