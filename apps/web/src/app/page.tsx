@@ -108,7 +108,7 @@ export default function HomePage() {
           <div className="processRail">
             <article data-reveal><b>01</b><h3>Validate</h3><p>Format, declared MIME, magic bytes, file size and decoded pixel count are checked.</p></article>
             <article data-reveal><b>02</b><h3>Infer</h3><p>The web tier sends bytes to a private FastAPI service protected by an internal secret.</p></article>
-            <article data-reveal><b>03</b><h3>Calibrate</h3><p>BiRefNet Lite creates the alpha matte, then FlytheBG applies a narrow edge-aware refinement pass to preserve soft hair, fur and clothing boundaries before bounded feedback calibration.</p></article>
+            <article data-reveal><b>03</b><h3>Calibrate</h3><p>FlytheBG runs a two-pass precision cutout: a full-frame pass finds the complete subject, then a high-resolution subject-crop pass plus original-resolution edge refinement preserves hair, fur and clothing boundaries before bounded feedback calibration.</p></article>
             <article data-reveal><b>04</b><h3>Release</h3><p>The PNG returns with no-store headers; raw request objects fall out of scope after the response.</p></article>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function HomePage() {
       <section className="closingCta">
         <div className="closingGlow" aria-hidden="true"/>
         <div className="shell closingInner" data-reveal>
-          <div><span className="eyebrow light"><i /> Start in the galaxy. Finish with the subject.</span><h2>Make the subject impossible to ignore.</h2><p>Transparent PNG. Private inference. A permanent live galaxy up front, and a finer-detail BiRefNet cutout pipeline underneath.</p></div>
+          <div><span className="eyebrow light"><i /> Start in the galaxy. Finish with the subject.</span><h2>Make the subject impossible to ignore.</h2><p>Transparent PNG. Private inference. A permanent live galaxy up front, and a two-pass precision cutout pipeline underneath.</p></div>
           <a href="#remove" className="primaryButton lightButton">Try FlytheBG <span>↗</span></a>
         </div>
       </section>
