@@ -1,0 +1,29 @@
+/* Final production overrides. Kept separate so older redesign layers cannot reintroduce light surfaces. */
+:root{color-scheme:dark}
+html,body{background:#05060b!important;color:#f5f7fb!important}
+body{min-height:100vh;background:radial-gradient(circle at 72% 4%,rgba(80,65,180,.13),transparent 30%),linear-gradient(180deg,#05060b,#070912 58%,#030409)!important}
+
+/* Global surfaces */
+.siteHeader,.siteFooter,.section,.toolSection,.storySection,.privacySection,.processSection,.futureArchitecture,.toolInfoSection,.landingFeatures,.darkFaq{color:#f5f7fb}
+.toolCard,.stepCard,.bentoCard,.featureHubCard,.featureCatalogCard,.passportPanel,.cropEditor,.feedbackPanel,.legalIdentity{background-color:#0b0f18!important;color:#f5f7fb!important;border-color:#252e40!important}
+input,select,textarea{background:#080c14!important;color:#edf4fb!important;border-color:#303a4e!important;color-scheme:dark}
+input::placeholder,textarea::placeholder{color:#68768b}
+
+/* FAQ and legal pages must never fall back to the legacy light stylesheet. */
+.darkFaq,.faqWrap,.faqList,.legalMain{background-color:#070910!important;color:#f4f7fb!important}
+.faqList details{background:linear-gradient(145deg,rgba(14,19,30,.96),rgba(8,11,19,.96))!important;border:1px solid #242d3d!important;border-radius:16px!important;padding-inline:18px!important;margin-bottom:8px}
+.faqList summary{color:#eef4fb!important}.faqList details p{color:#95a3b7!important}.faqList summary span{color:#72ccff!important}
+.legalBody h1,.legalBody h2,.legalHeading h1{color:#f5f7fb!important}.legalBody p,.legalHeading p,.legalIdentity{color:#9ba8ba!important}.legalBody a,.backLink{color:#72ccff!important}.legalNotice{display:none!important}
+
+/* Decode-safe result viewer. */
+.originalStrip .imageStage,.modelResult .imageStage{position:relative;background-color:#090d14!important}
+.imageStage img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;opacity:1!important;visibility:visible!important;mix-blend-mode:normal!important;filter:none!important}
+.checker{background-color:#0c1119!important;background-image:linear-gradient(45deg,#192231 25%,transparent 25%),linear-gradient(-45deg,#192231 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#192231 75%),linear-gradient(-45deg,transparent 75%,#192231 75%)!important;background-size:22px 22px!important;background-position:0 0,0 11px,11px -11px,-11px 0!important}
+.resultMeta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:9px 2px 0;color:#75849a;font-size:10px;font-weight:700;letter-spacing:.01em}
+.modelError{min-height:255px;height:auto!important;border:1px dashed #414b5f!important;background:linear-gradient(145deg,#0b0f17,#080a10);border-radius:18px;display:grid;place-items:center;text-align:center;color:#9aa7b9;padding:28px}
+.modelError>div{display:grid;gap:8px;max-width:420px}.modelError strong{color:#f3f7fb;font-size:14px}.modelError span{display:block;color:#8c99ac;font-size:11px;line-height:1.55}
+.resultRetention{background:#09111b;border:1px solid #1d2b3d;border-radius:12px;padding:10px 12px;color:#8999ae!important;margin-bottom:16px}
+.primaryButton:disabled{opacity:.45;cursor:not-allowed}
+
+/* Make mobile result comparison readable and preserve preview height. */
+@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}}
