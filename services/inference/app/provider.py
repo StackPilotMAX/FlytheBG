@@ -21,9 +21,9 @@ ISNET_MODEL_FILENAME = "isnet-general-use_1024.onnx"
 ISNET_INPUT_SIZE = (1024, 1024)
 CALIBRATION_FILENAME = "flythebg-calibration.json"
 
-BIREFNET_MODEL_URL = "https://huggingface.co/onnx-community/BiRefNet_lite-ONNX/resolve/main/onnx/model.onnx"
-BIREFNET_MODEL_SHA256 = "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333"
-BIREFNET_MODEL_FILENAME = "birefnet-lite-1024.onnx"
+BIREFNET_MODEL_URL = "https://huggingface.co/onnx-community/BiRefNet_lite-ONNX/resolve/main/onnx/model_fp16.onnx"
+BIREFNET_MODEL_SHA256 = "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402"
+BIREFNET_MODEL_FILENAME = "birefnet-lite-1024-fp16.onnx"
 BIREFNET_INPUT_SIZE = (1024, 1024)
 BIREFNET_CALIBRATION_FILENAME = "flythebg-birefnet-calibration.json"
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
@@ -253,7 +253,12 @@ class ISNetOnnxProvider(BackgroundRemovalProvider):
 
 
 class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
-    """BiRefNet Lite ONNX with precision alpha refinement for fine boundaries."""
+    """BiRefNet Lite ONNX with precision alpha refinement for fine boundaries.
+
+    The FP16 export is used because the production Railway inference service has a
+    tight memory envelope. Input dtype is detected from the ONNX graph so this
+    remains safe if the export metadata changes between float32 and float16 inputs.
+    """
 
     def __init__(self, model_dir: str, intra_op_threads: int = 1) -> None:
         self.model_path = Path(model_dir) / BIREFNET_MODEL_FILENAME
@@ -261,6 +266,7 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
         self.intra_op_threads = max(1, intra_op_threads)
         self.session = None
         self.input_name: str | None = None
+        self.input_dtype = "float32"
         self.ready = False
         self._calibration_lock = threading.Lock()
         self._mask_gamma = 0.96
@@ -282,7 +288,7 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
 
     def _persist_calibration(self) -> None:
         self.calibration_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {"schema": 1, "model": "birefnet-lite-onnx", "mask_gamma": round(self._mask_gamma, 6), "feedback_counts": self._feedback_counts}
+        payload = {"schema": 1, "model": "birefnet-lite-onnx-fp16", "mask_gamma": round(self._mask_gamma, 6), "feedback_counts": self._feedback_counts}
         fd, temporary_name = tempfile.mkstemp(prefix="birefnet-calibration.", suffix=".json.part", dir=self.calibration_path.parent)
         os.close(fd)
         temporary = Path(temporary_name)
@@ -298,11 +304,12 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
 
         _download_verified_model(BIREFNET_MODEL_URL, BIREFNET_MODEL_SHA256, self.model_path)
         self._load_calibration()
-        logger.info("model_session_loading provider=birefnet_onnx variant=lite-1024")
+        logger.info("model_session_loading provider=birefnet_onnx variant=lite-1024-fp16")
         self.session = ort.InferenceSession(str(self.model_path), sess_options=_session_options(self.intra_op_threads), providers=["CPUExecutionProvider"])
         model_input = self.session.get_inputs()[0]
         self.input_name = model_input.name
-        logger.info("model_session_loaded provider=birefnet_onnx input=%s shape=%s outputs=%s", self.input_name, model_input.shape, [output.name for output in self.session.get_outputs()])
+        self.input_dtype = "float16" if "float16" in model_input.type else "float32"
+        logger.info("model_session_loaded provider=birefnet_onnx input=%s shape=%s dtype=%s outputs=%s", self.input_name, model_input.shape, self.input_dtype, [output.name for output in self.session.get_outputs()])
         self._predict_mask(Image.new("RGB", (96, 96), "white"))
         self.ready = True
         logger.info("model_warmup_complete provider=birefnet_onnx")
@@ -317,7 +324,8 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
         mean = np.asarray(IMAGENET_MEAN, dtype=np.float32)
         std = np.asarray(IMAGENET_STD, dtype=np.float32)
         array = (array - mean) / std
-        tensor = np.transpose(array, (2, 0, 1))[None, ...].astype(np.float32, copy=False)
+        tensor_dtype = np.float16 if self.input_dtype == "float16" else np.float32
+        tensor = np.transpose(array, (2, 0, 1))[None, ...].astype(tensor_dtype, copy=False)
         outputs = self.session.run(None, {self.input_name: tensor})
         logits = _as_2d_prediction(outputs)
         alpha = _sigmoid(logits)
@@ -359,7 +367,7 @@ class BiRefNetLiteOnnxProvider(BackgroundRemovalProvider):
 
 def build_provider(name: str, variant: str, model_dir: str = "./.models", intra_op_threads: int = 1) -> BackgroundRemovalProvider:
     if name == "birefnet_onnx":
-        if variant not in {"lite-1024", "lite"}:
+        if variant not in {"lite-1024", "lite", "lite-1024-fp16"}:
             raise ValueError(f"Unsupported BiRefNet variant: {variant}")
         return BiRefNetLiteOnnxProvider(model_dir=model_dir, intra_op_threads=intra_op_threads)
     if name == "isnet_onnx":
