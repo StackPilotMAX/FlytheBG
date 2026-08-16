@@ -6,39 +6,45 @@
 
 **Remove backgrounds · compare two AI engines · crop precisely · build print-ready passport photo sheets**
 
-[Live app](https://flythebg.up.railway.app) · [Features](https://flythebg.up.railway.app/features) · [Privacy](https://flythebg.up.railway.app/privacy)
+[Live app](https://flythebg.up.railway.app) · [Features](https://flythebg.up.railway.app/features) · [Remove Background](https://flythebg.up.railway.app/remove-background) · [Passport Photo Maker](https://flythebg.up.railway.app/features/passport-photo)
 
 </div>
 
 ---
 
-## What FlytheBG includes
+## ✨ What FlytheBG includes
 
-FlytheBG is a production-oriented monorepo built around dedicated image-tool pages instead of one oversized editor.
+FlytheBG is a production-oriented monorepo with dedicated image-tool pages rather than one oversized editor.
 
 ### 🌌 Product experience
 
 - Permanent dark visual language with a live WebGL galaxy landing experience.
 - Dedicated **Landing**, **Features**, **Remove Background**, and **Passport Photo Maker** pages.
-- Responsive dark UI, dark FAQs, dark legal pages, favicon, metadata, sitemap, robots, and Search Console hook.
+- Dark FAQ, dark legal pages, dark editors, responsive navigation, metadata, sitemap, robots and Search Console support.
 - No account required for the current tools.
 
-### ✂️ Remove Background
+### ✂️ Dual-model Remove Background
 
-One upload can produce two independent results:
+One upload can produce two independently processed outputs:
 
-1. **FlytheBG Precision** — private FastAPI + ONNX Runtime service using a two-pass IS-Net precision pipeline with edge refinement.
+1. **FlytheBG Precision** — private FastAPI + ONNX Runtime service using a two-pass IS-Net precision pipeline with full-resolution boundary refinement.
 2. **Browser AI** — `@imgly/background-removal` running locally in the visitor's browser.
 
-Users can compare both results and download either PNG.
+Both currently use IS-Net-family segmentation, but they run through different runtimes/configurations. The browser path starts with the quantized IMG.LY model and can retry its FP16 model when the first pass produces a degenerate foreground.
 
-The result editor also supports:
+Before FlytheBG displays a result it now:
 
-- cursor crop
-- common aspect ratios
-- exact X / Y / width / height pixel crop
-- transparent PNG export
-- optional result-quality feedback for FlytheBG Precision
+- decodes the returned image successfully;
+- verifies non-zero image dimensions;
+- checks that the alpha channel contains a usable foreground;
+- generates a stable decoded PNG preview;
+- rejects blank/degenerate cutouts instead of displaying an unexplained white or black card.
+
+Users can then download either original-resolution PNG or crop either result using:
+
+- free cursor selection;
+- common aspect ratios;
+- exact X / Y / width / height pixel values.
 
 ### 🪪 Passport Photo Maker
 
@@ -49,20 +55,20 @@ Two workflows are available:
 
 Print controls include:
 
-- exact final printed width/height in **cm, mm, or inches**
-- **300 DPI** high-quality or **600 DPI** ultra-quality export
-- A4, 4×6 inch, US Letter, or custom paper size
-- configurable copy count, margins, and gaps
-- cursor repositioning and zoom inside the passport frame
-- custom print background color
-- automatic grid layout or manual copy placement by cursor
-- PNG sheet download and browser print action
+- exact final printed width/height in **cm, mm, or inches**;
+- **300 DPI** high-quality or **600 DPI** ultra-quality export;
+- A4, 4×6 inch, US Letter, or custom paper size;
+- configurable copy count, margins, and gaps;
+- cursor repositioning and zoom inside the passport frame;
+- custom print background color;
+- automatic grid layout or manual copy placement by cursor;
+- PNG sheet download and browser print action.
 
-> Passport and ID requirements differ by country/document. Enter the current dimensions required by the issuing authority.
+> Passport and ID requirements differ by country/document. Enter the current dimensions required by the issuing authority. For physical-size accuracy, print at **Actual Size / 100%**, not “Fit to page”.
 
 ---
 
-## Architecture
+## 🧩 Architecture
 
 ```text
 Browser
@@ -85,7 +91,7 @@ The browser never receives the private Railway inference URL or `INFERENCE_API_S
 
 ---
 
-## Repository layout
+## 📁 Repository layout
 
 ```text
 apps/web/                    Next.js 16 + React 19 web app
@@ -93,8 +99,8 @@ apps/web/                    Next.js 16 + React 19 web app
   src/components/            Galaxy, remover, cropper, passport maker
 services/inference/          FastAPI + ONNX Runtime inference
 docs/                        deployment, privacy, security, licenses, ads
-.github/workflows/           CI
-.env.example                 complete environment template
+.github/workflows/           web + inference CI
+.env.example                 local/production environment template
 ```
 
 ---
@@ -103,23 +109,21 @@ docs/                        deployment, privacy, security, licenses, ads
 
 ## Requirements
 
-You need:
-
 - **Node.js 22+**
 - **npm**
 - **Python 3.11+**
-- internet access for the first model downloads
+- internet access for first-time model/runtime downloads
 
-PostgreSQL is optional for local testing. If `DATABASE_URL` is empty, the service can use its temporary fallback behavior for short-lived run metadata.
+PostgreSQL is optional for local testing. If `DATABASE_URL` is empty, the inference service uses its temporary fallback for short-lived run metadata.
 
-## 1. Clone the repository
+## 1. Clone
 
 ```bash
 git clone https://github.com/StackPilotMAX/FlytheBG.git
 cd FlytheBG
 ```
 
-## 2. Create your environment file
+## 2. Create the web environment file
 
 macOS / Linux:
 
@@ -133,9 +137,9 @@ Windows PowerShell:
 Copy-Item .env.example apps/web/.env.local
 ```
 
-Use the **same long random value** for `INFERENCE_API_SECRET` in the web environment and inference environment.
+Use the **same long random value** for `INFERENCE_API_SECRET` in web and inference.
 
-For local development, these values are enough to start:
+For local development, the important values are:
 
 ```text
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
@@ -153,9 +157,9 @@ MAX_IMAGE_PIXELS=40000000
 INFERENCE_CONCURRENCY=1
 ```
 
-Leave `NEXT_PUBLIC_ADSENSE_CLIENT` blank locally.
+Keep `NEXT_PUBLIC_ADSENSE_CLIENT` empty locally.
 
-## 3. Start the inference service
+## 3. Start inference
 
 macOS / Linux:
 
@@ -185,24 +189,20 @@ $env:MODEL_DIR="./.models"
 uvicorn app.main:app --reload --port 8000
 ```
 
-The first start downloads the pinned IS-Net ONNX checkpoint. `/ready` becomes healthy only after the model is loaded and warmed.
+The first start downloads the pinned IS-Net ONNX checkpoint. `/ready` becomes 200 only after the model has loaded and warmed.
 
-## 4. Start the web app
+## 4. Start web
 
-Open a second terminal from the repository root:
+From a second terminal at repository root:
 
 ```bash
 npm install
 npm run dev:web
 ```
 
-Then open:
+Open `http://localhost:3000`.
 
-```text
-http://localhost:3000
-```
-
-Useful local pages:
+Useful routes:
 
 ```text
 /                         landing page
@@ -212,22 +212,23 @@ Useful local pages:
 /privacy                  privacy & AI policy
 /terms                    terms
 /cookies                  cookie policy
+/contact                  support/legal contact
 ```
 
 ### Browser AI note
 
-The second result uses `@imgly/background-removal`. By default its browser runtime/model assets are fetched from IMG.LY's configured distribution service, so this result needs network access even when the Next.js app is running locally. FlytheBG Precision is independent of that browser model.
+The second output uses `@imgly/background-removal`. Its runtime/model resources normally come from IMG.LY's configured asset distribution, so that result needs access to those assets even when FlytheBG runs locally. If Browser AI cannot load, the private FlytheBG Precision path remains independent.
 
 ---
 
 # Production environment variables
 
-Copy `.env.example` and fill only real values.
+Fill only real values. Never invent legal/company details to satisfy a form.
 
 ## Web service
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://your-domain.example
+NEXT_PUBLIC_SITE_URL=https://your-real-domain.example
 NEXT_PUBLIC_APP_NAME=FlytheBG
 NEXT_PUBLIC_UPLOAD_MAX_MB=12
 GOOGLE_SITE_VERIFICATION=
@@ -245,7 +246,7 @@ CONTACT_EMAIL=stackpilotfe@outlook.com
 LEGAL_EMAIL=stackpilotfe@outlook.com
 ```
 
-These operator fields are optional unless they are true for you:
+Optional — leave blank unless actually true:
 
 ```text
 COMPANY_LEGAL_NAME=
@@ -254,8 +255,6 @@ COMPANY_REGISTERED_ADDRESS=
 COMPANY_COUNTRY=
 ```
 
-Do **not** invent a registration number, company name, or address just to fill the variables.
-
 ## Inference service
 
 ```text
@@ -263,7 +262,7 @@ INFERENCE_API_SECRET=<same-long-random-secret-as-web>
 MODEL_PROVIDER=isnet_precision
 MODEL_VARIANT=general-use-precision
 MODEL_DIR=/models
-DATABASE_URL=<private PostgreSQL URL in production>
+DATABASE_URL=<private PostgreSQL URL>
 ONNX_INTRA_OP_THREADS=1
 UPLOAD_MAX_MB=12
 MAX_IMAGE_PIXELS=40000000
@@ -273,37 +272,36 @@ PORT=8000
 
 ---
 
-# Google AdSense
+# 💰 Google AdSense
 
 FlytheBG is **AdSense-ready but ads are disabled by default**.
 
-After Google approves the site:
+After your production site is stable and Google approves it:
 
-1. Create/verify your AdSense account and add the production domain.
-2. In AdSense, enable Auto ads or create the ad units you want.
-3. Set:
+1. Add/verify the real production domain in AdSense.
+2. Complete the site/privacy review requested by Google.
+3. Configure the required consent/privacy messaging for the regions you serve.
+4. Set the approved publisher value:
 
 ```text
 NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-YOUR_16_DIGIT_PUBLISHER_ID
 ```
 
-4. Redeploy the **web** service.
-5. Check `/ads.txt`. FlytheBG generates the Google publisher record automatically from that environment variable.
-6. Configure Google's required privacy/consent messaging for the regions you serve before loading non-essential personalized advertising where consent is required.
-7. Keep ads away from upload/download/crop controls to reduce accidental clicks and policy risk.
+5. Redeploy only the web service.
+6. Check `/ads.txt`; FlytheBG generates the Google publisher line from the configured publisher ID.
+7. Use Auto ads or create deliberate placements away from upload, crop, download, passport-positioning and print buttons.
+8. Never use a fake/test publisher ID in production.
 
-Never put a test/fake publisher ID into production.
-
-More detail: `docs/analytics-and-ads.md`.
+See `docs/analytics-and-ads.md` for the longer checklist.
 
 ---
 
-# Privacy model
+# 🔒 Privacy model
 
 - Raw uploaded images are not intentionally stored in the PostgreSQL run-metadata database.
 - FlytheBG Precision processes request bytes through the private inference service.
-- Browser AI processes the uploaded image on the user's device for that second result.
-- Passport layout/export is browser-side unless the user chooses **Remove background first**.
+- Browser AI processes its second result on the user's device.
+- Passport layout/export is browser-side unless **Remove background first** is chosen.
 - Optional FlytheBG Precision feedback uses a random short-lived run identifier.
 - Run metadata expires in under one hour.
 - Source EXIF is not intentionally copied into generated PNG results.
@@ -312,15 +310,76 @@ See `docs/privacy-architecture.md` and `docs/adaptive-learning-and-retention.md`
 
 ---
 
-# Licensing ⚠️
+# ⚠️ IMG.LY licensing
 
-The private FlytheBG Precision pipeline uses the Apache-2.0 IS-Net model/code lineage documented in `docs/open-source-licenses.md`.
+The optional browser comparison integrates `@imgly/background-removal`. The upstream project publishes this package under **GNU AGPL v3** and offers separate licensing routes. AGPL can create source-availability obligations depending on how covered software is modified, combined, distributed or served.
 
-The optional browser comparison integrates **IMG.LY `@imgly/background-removal`**, whose repository publishes the software under **GNU AGPL v3**. AGPL is a strong copyleft license and can impose source-availability obligations for covered/combined works. This repository keeps the integration source visible, but you should review the actual license and your distribution/deployment model before commercial use.
-
-If AGPL obligations do not fit your intended business model, disable/remove the Browser AI integration or obtain licensing terms that fit your use case before commercial launch.
+If those obligations do not fit your intended commercial model, remove/disable Browser AI or obtain licensing terms that fit the business before monetizing that integration.
 
 This README is not legal advice.
+
+---
+
+# ✅ Final production checklist
+
+Before treating a deployment as the public monetized version:
+
+- [ ] Attach a real custom domain and set `NEXT_PUBLIC_SITE_URL` to it.
+- [ ] Verify the domain in Google Search Console and set `GOOGLE_SITE_VERIFICATION`.
+- [ ] Test `/remove-background` with people, hair, clothes, products and difficult backgrounds.
+- [ ] Confirm **both model cards show decoded subjects**, not blank checker/white/black panels.
+- [ ] Test Download and all three crop modes on both result cards.
+- [ ] Test Passport Photo Maker at 300 and 600 DPI and print one known dimension at **Actual Size / 100%**.
+- [ ] Keep company-registration/address variables blank until those statements are true.
+- [ ] Apply to AdSense only after the site/domain/legal/content experience is stable.
+- [ ] Add the real `ca-pub-…` ID only after approval.
+- [ ] Review IMG.LY AGPL/commercial licensing before monetizing Browser AI.
+- [ ] Require the latest GitHub Actions **web** and **inference** jobs to be green.
+- [ ] Require Railway web, inference and PostgreSQL services to be healthy.
+
+---
+
+## Troubleshooting
+
+### Result card looks empty
+
+Current FlytheBG validates decode, dimensions and alpha coverage before showing a model result. A degenerate transparent output should now produce an explicit model error instead of an unexplained blank card. Browser AI also retries its FP16 model when its first quantized cutout is effectively empty.
+
+### Browser AI cannot start
+
+Check that the browser/network can reach IMG.LY's model/runtime asset host. FlytheBG Precision does not use that browser download path.
+
+### `/api/remove-background` works but preview does not
+
+Check browser console/CSP errors and verify the returned response is an image. Current production code builds previews from decoded image pixels and keeps the original result Blob separately for full-resolution download/crop.
+
+### Inference CI cannot import `app`
+
+The CI workflow sets `PYTHONPATH=.` while running from `services/inference`. Do the same when invoking tests from unusual shells/directories.
+
+---
+
+## CI
+
+Every pushed commit runs:
+
+**Web**
+
+```text
+npm install
+npm run test
+npm run typecheck
+npm run build
+```
+
+**Inference**
+
+```text
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+Only promote a production revision after both jobs pass.
 
 ---
 
@@ -328,4 +387,4 @@ This README is not legal advice.
 
 `stackpilotfe@outlook.com`
 
-Use this address for support, privacy, security, copyright/legal correspondence, and other official written requests.
+Use this address for support, privacy, security, copyright/legal correspondence and other official written requests.
