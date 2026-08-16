@@ -13,7 +13,7 @@ def _int(name: str, default: int) -> int:
 class Settings:
     api_secret: str = os.getenv("INFERENCE_API_SECRET", "")
     model_provider: str = os.getenv("MODEL_PROVIDER", "birefnet_onnx")
-    model_variant: str = os.getenv("MODEL_VARIANT", "lite-1024")
+    model_variant: str = os.getenv("MODEL_VARIANT", "lite-512-fp16")
     model_dir: str = os.getenv("MODEL_DIR", "./.models")
     database_url: str = os.getenv("DATABASE_URL", "")
     onnx_threads: int = max(1, _int("ONNX_INTRA_OP_THREADS", 1))
