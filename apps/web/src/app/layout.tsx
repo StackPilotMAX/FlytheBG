@@ -1,21 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import "./redesign-world.css";
 import "./redesign-sections.css";
 import "./hero-video.css";
 import "./galaxy-world.css";
+import "./final-dark.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
-  title: { default: `${appConfig.name} — Remove the background. Keep the subject.`, template: `%s — ${appConfig.name}` },
-  description: "AI background removal with transparent PNG output, private inference, short-lived run metadata, adaptive edge calibration, and a live WebGL galaxy experience.",
+  title: { default: `${appConfig.name} — Compare two AI background removers`, template: `%s — ${appConfig.name}` },
+  description: "Dark, privacy-focused AI background removal with two independent cutout results, transparent PNG export, cursor/pixel/ratio cropping, and a permanent WebGL galaxy.",
   applicationName: appConfig.name,
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${appConfig.name} — AI Background Remover`,
-    description: "Move through a live particle galaxy. Then remove the background and export a clean transparent PNG with private inference.",
+    title: `${appConfig.name} — Dual-model AI Background Remover`,
+    description: "Upload once, compare two background-removal engines, crop the result precisely, and download the cleaner transparent PNG.",
     type: "website",
     url: "/",
   },
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
   verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#02030a" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05060b", colorScheme: "dark" };
 
 function Logo() {
   return (
@@ -35,19 +37,31 @@ function Logo() {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "";
+  const adsEnabled = /^ca-pub-\d{16}$/.test(adsenseClient);
+
   return (
     <html lang="en">
       <body>
+        {adsEnabled && (
+          <Script
+            id="flythebg-adsense"
+            async
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
+          />
+        )}
         <header className="siteHeader">
           <div className="shell navShell">
             <Logo />
             <nav className="navLinks" aria-label="Primary navigation">
-              <Link href="/#story">Experience</Link>
+              <Link href="/#remove">Compare models</Link>
               <Link href="/#how-it-works">How it works</Link>
               <Link href="/#privacy">Privacy & AI</Link>
               <Link href="/#faq">FAQ</Link>
             </nav>
-            <Link className="navCta" href="/#remove">Try it <span>↗</span></Link>
+            <Link className="navCta" href="/#remove">Remove background <span>↗</span></Link>
           </div>
         </header>
         {children}
@@ -55,7 +69,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="shell footerGrid">
             <div>
               <Logo />
-              <p className="footerCopy">Background removal with a private inference path, short-lived PostgreSQL run metadata, and an adaptive quality loop that does not require a raw-image archive.</p>
+              <p className="footerCopy">Compare private server precision with on-device browser AI, crop by cursor, pixels, or ratio, then download the result you prefer.</p>
             </div>
             <div className="footerLinks">
               <Link href="/privacy">Privacy & AI</Link>
