@@ -25,5 +25,11 @@ input::placeholder,textarea::placeholder{color:#68768b}
 .resultRetention{background:#09111b;border:1px solid #1d2b3d;border-radius:12px;padding:10px 12px;color:#8999ae!important;margin-bottom:16px}
 .primaryButton:disabled{opacity:.45;cursor:not-allowed}
 
+/* Official FlytheBG generated logo. The light glass capsule preserves the exact dark-navy wordmark on the dark site. */
+.brand{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:5px 9px!important;min-height:44px;border:1px solid rgba(118,203,255,.28)!important;border-radius:14px!important;background:linear-gradient(135deg,rgba(252,254,255,.98),rgba(232,244,255,.94))!important;box-shadow:0 10px 28px rgba(0,0,0,.26),0 0 24px rgba(42,166,255,.08)!important;overflow:hidden}
+.brand:hover{border-color:rgba(118,203,255,.5)!important;box-shadow:0 12px 30px rgba(0,0,0,.3),0 0 28px rgba(42,166,255,.12)!important}
+.brandLockup{display:block!important;width:156px!important;height:auto!important;max-height:35px!important;object-fit:contain!important;filter:none!important;opacity:1!important}
+.siteFooter .brand{width:max-content}
+
 /* Make mobile result comparison readable and preserve preview height. */
-@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}}
+@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}.brand{padding:4px 7px!important;min-height:40px}.brandLockup{width:138px!important;max-height:31px!important}}
