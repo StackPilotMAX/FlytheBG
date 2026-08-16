@@ -11,13 +11,13 @@ import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
-  title: { default: `${appConfig.name} — Compare two AI background removers`, template: `%s — ${appConfig.name}` },
-  description: "Dark, privacy-focused AI background removal with two independent cutout results, transparent PNG export, cursor/pixel/ratio cropping, and a permanent WebGL galaxy.",
+  title: { default: `${appConfig.name} — AI image tools`, template: `%s — ${appConfig.name}` },
+  description: "Dark, privacy-focused image tools with dual-model background removal, precise crop controls, and print-ready passport photo sheets.",
   applicationName: appConfig.name,
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${appConfig.name} — Dual-model AI Background Remover`,
-    description: "Upload once, compare two background-removal engines, crop the result precisely, and download the cleaner transparent PNG.",
+    title: `${appConfig.name} — AI Image Tools`,
+    description: "Remove backgrounds, compare two AI results, crop precisely, and create print-ready passport photo sheets.",
     type: "website",
     url: "/",
   },
@@ -56,12 +56,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="shell navShell">
             <Logo />
             <nav className="navLinks" aria-label="Primary navigation">
-              <Link href="/#remove">Compare models</Link>
-              <Link href="/#how-it-works">How it works</Link>
-              <Link href="/#privacy">Privacy & AI</Link>
+              <Link href="/features">Features</Link>
+              <Link href="/remove-background">Remove BG</Link>
+              <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/#faq">FAQ</Link>
             </nav>
-            <Link className="navCta" href="/#remove">Remove background <span>↗</span></Link>
+            <Link className="navCta" href="/remove-background">Remove background <span>↗</span></Link>
           </div>
         </header>
         {children}
@@ -69,9 +69,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="shell footerGrid">
             <div>
               <Logo />
-              <p className="footerCopy">Compare private server precision with on-device browser AI, crop by cursor, pixels, or ratio, then download the result you prefer.</p>
+              <p className="footerCopy">Dedicated image tools for background removal, precision cropping, and print-ready passport photo sheets.</p>
             </div>
             <div className="footerLinks">
+              <Link href="/features">Features</Link>
               <Link href="/privacy">Privacy & AI</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/cookies">Cookies</Link>
