@@ -1,36 +1,53 @@
-# Analytics and Google AdSense readiness
+# Analytics and Google AdSense production setup
 
-FlytheBG's core image tools do not require analytics or advertising cookies. Advertising support is present but remains disabled until a valid publisher ID is configured.
+FlytheBG's core image tools do not require advertising cookies to perform background removal, cropping, or passport-photo sheet generation. Google AdSense support is integrated separately from the image-processing path.
 
-## Google AdSense integration already in the code
+## Production publisher
 
-The root layout checks:
-
-```text
-NEXT_PUBLIC_ADSENSE_CLIENT
-```
-
-Only a value matching Google's `ca-pub-` publisher-ID format causes the AdSense loader script to be added. Leaving the variable empty means no AdSense script is loaded.
-
-FlytheBG also exposes `/ads.txt`. When a valid client ID is present, the route derives the `pub-...` identifier and publishes the Google DIRECT record automatically.
-
-## Recommended launch sequence
-
-1. Deploy FlytheBG on the final production domain.
-2. Make sure Privacy, Terms, Cookies, Contact, sitemap, robots, and useful product content are publicly reachable.
-3. Apply for / configure Google AdSense using that real domain.
-4. Complete Google's site verification/ownership flow.
-5. In AdSense, choose Auto ads or create explicit ad units.
-6. Configure the required privacy/consent message for the regions you serve before loading non-essential personalized advertising where consent is required.
-7. Add the real Railway web variable:
+The production AdSense publisher ID supplied by the FlytheBG operator is:
 
 ```text
-NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-YOUR_16_DIGIT_PUBLISHER_ID
+pub-7486274445029717
 ```
 
-8. Redeploy the web service.
-9. Verify `/ads.txt` contains the matching `pub-...` identifier.
-10. Check the AdSense dashboard for site status, policy issues, and ad serving.
+The matching AdSense client ID is:
+
+```text
+ca-pub-7486274445029717
+```
+
+These identifiers are intentionally public. They are **not passwords, API keys, or private secrets**.
+
+The production root `ads.txt` record must be:
+
+```text
+google.com, pub-7486274445029717, DIRECT, f08c47fec0942fa0
+```
+
+FlytheBG generates this record from `NEXT_PUBLIC_ADSENSE_CLIENT`. The root layout uses the same environment variable to load Google's AdSense script.
+
+## Railway web variable
+
+Set:
+
+```text
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-7486274445029717
+```
+
+Do not put `INFERENCE_API_SECRET`, database credentials, Railway private URLs, or other server secrets into any `NEXT_PUBLIC_*` variable.
+
+## Google AdSense account steps
+
+Repository code cannot configure settings inside the operator's Google AdSense account. In AdSense, the operator must:
+
+1. Add the final production domain under **Sites**.
+2. Complete Google's site connection/review flow.
+3. Open **Privacy & messaging** and configure Google's consent management platform for the regions served.
+4. For EEA, UK, and Switzerland traffic, use a Google-certified CMP that integrates with the IAB Transparency & Consent Framework when required by Google's publisher policies.
+5. Enable Auto ads or create the desired ad units only after the site is accepted and the privacy configuration is ready.
+6. Check the site's `ads.txt` status and use **Check for updates** after deployment if needed.
+
+Google can take time to recrawl `ads.txt` and update the account status.
 
 ## Placement guidance
 
@@ -46,13 +63,13 @@ This reduces accidental-click risk and keeps the image workflow usable.
 
 ## Privacy rules
 
-If advertising is enabled:
+With advertising enabled:
 
-- update policy text whenever providers or behavior change;
+- keep Privacy, Terms, and Cookie pages current;
 - do not send image bytes, private image URLs, source filenames, or image contents into analytics/ad event payloads;
-- use consent controls required for the visitor's region;
-- provide a way to revisit privacy choices where required;
-- do not claim ads are disabled once the AdSense variable is live.
+- use the consent/opt-out controls required for the visitor's region;
+- provide a way to revisit privacy choices where required by the CMP and applicable law;
+- do not describe advertising as disabled while the AdSense client is live.
 
 ## Search Console / SEO
 
