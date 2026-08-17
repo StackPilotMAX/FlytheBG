@@ -22,7 +22,11 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
   },
-  icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
+  icons: {
+    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml" }],
+    shortcut: "/brand/flythebg-mark.svg",
+    apple: "/brand/flythebg-mark.svg",
+  },
   verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
@@ -31,7 +35,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 function Logo() {
   return (
     <Link className="brand" href="/" aria-label={`${appConfig.name} home`}>
-      <img className="brandMark" src="/brand/flythebg-mark.svg" alt="" width="34" height="34" />
+      <img className="brandMark" src="/brand/flythebg-mark.svg" alt="" width="38" height="38" />
       <span>{appConfig.name}</span>
     </Link>
   );
