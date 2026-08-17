@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Terms of Use" };
 
 export default function TermsPage() {
-  return <LegalPage title="Terms of Use" updated="16 August 2026">
+  return <LegalPage title="Terms of Use" updated="17 August 2026">
     <h2>1. Service</h2>
     <p>FlytheBG provides automated image tools including background removal, image cropping, and print-sheet creation. Machine-learning results can vary with image quality, lighting, hair, transparency, motion blur, fine objects, and other visual conditions.</p>
 
@@ -20,9 +20,12 @@ export default function TermsPage() {
 
     <h2>5. Passport and ID photo tools</h2>
     <p>FlytheBG can size and arrange photos using measurements you enter, but document-photo rules vary by issuing authority. FlytheBG does not guarantee that a generated photo satisfies a particular passport, visa, licence, or identity-document standard. Check the current official requirements before printing or submitting a photo.</p>
+    <p>When “Remove background first” is selected, FlytheBG validates that the processed image contains a usable visible foreground before creating the sheet. The selected color is intended to be composited behind each passport-photo cell rather than used as the paper color. To reduce browser memory pressure, very large high-DPI sheet requests may be exported at a lower memory-safe DPI than requested; the interface shows the actual export DPI before download.</p>
 
-    <h2>6. Retention</h2>
-    <p>The current production flow does not intentionally place raw uploads or generated results in a permanent image database. Temporary anonymous run identifiers used for optional FlytheBG Precision feedback expire within one hour.</p>
+    <h2>6. Image retention and download cleanup</h2>
+    <p>The current production flow does not intentionally place raw uploads or generated results in a permanent image database. Server-side request and response bytes are used to perform and deliver the requested processing and are released when that work completes.</p>
+    <p>During editing, the browser temporarily holds working image data. In the current background-removal and passport-sheet download flows, FlytheBG clears its working upload/result/previews from the page after the browser download starts. This cleanup does not delete the downloaded file from your device and cannot control normal caching performed outside FlytheBG&apos;s own application state.</p>
+    <p>Temporary anonymous run identifiers used for optional FlytheBG Precision feedback expire within one hour and do not contain the uploaded image or generated PNG.</p>
 
     <h2>7. Optional quality feedback</h2>
     <p>If you choose to rate a FlytheBG Precision result, you allow FlytheBG to use that category to improve aggregate mask calibration. This does not grant permission to keep your raw uploaded image as a training sample.</p>
