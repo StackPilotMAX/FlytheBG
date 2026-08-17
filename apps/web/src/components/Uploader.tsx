@@ -6,7 +6,7 @@ import { validateUploadBasics } from "@/lib/image-validation";
 
 const configuredMaxMb = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB || "12");
 const MAX_MB = Number.isFinite(configuredMaxMb) && configuredMaxMb > 0 ? configuredMaxMb : 12;
-const PREVIEW_MAX_EDGE = 1400;
+const PREVIEW_MAX_EDGE = 960;
 const EMPTY_FOREGROUND_THRESHOLD = 0.0015;
 
 type Stage = "idle" | "processing" | "complete" | "error";
@@ -48,12 +48,24 @@ function percent(value: number) {
   return `${Math.max(0, Math.min(100, value * 100)).toFixed(value < 0.1 ? 1 : 0)}%`;
 }
 
+function revokePreview(url: string | undefined) {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
+
+async function canvasToPreviewUrl(canvas: HTMLCanvasElement, label: string) {
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((value) => value ? resolve(value) : reject(new Error(`${label} preview could not be encoded.`)), "image/png");
+  });
+  return URL.createObjectURL(blob);
+}
+
 async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
   if (!blob || blob.size < 32) throw new Error(`${label} returned an empty image.`);
   if (blob.type && !blob.type.startsWith("image/")) throw new Error(`${label} returned an unsupported file type.`);
 
   const objectUrl = URL.createObjectURL(blob);
   const image = new Image();
+  image.decoding = "async";
   try {
     await new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
@@ -84,8 +96,9 @@ async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
       if (pixels[i] >= 18) foregroundPixels += 1;
     }
 
-    const previewUrl = canvas.toDataURL("image/png");
-    if (!previewUrl || previewUrl === "data:,") throw new Error(`${label} preview could not be encoded.`);
+    const previewUrl = await canvasToPreviewUrl(canvas, label);
+    canvas.width = 1;
+    canvas.height = 1;
 
     return {
       previewUrl,
@@ -94,6 +107,7 @@ async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
       foregroundCoverage: foregroundPixels / totalPixels,
     };
   } finally {
+    image.src = "";
     URL.revokeObjectURL(objectUrl);
   }
 }
@@ -115,7 +129,7 @@ export function Uploader() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState<Stage>("idle");
   const [dragging, setDragging] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
   const [originalPreview, setOriginalPreview] = useState<PreparedImage | null>(null);
   const [precision, setPrecision] = useState<ResultState>(emptyResult);
   const [browser, setBrowser] = useState<ResultState>(emptyResult);
@@ -125,6 +139,7 @@ export function Uploader() {
   const [feedbackState, setFeedbackState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
   const [cropTarget, setCropTarget] = useState<CropTarget>(null);
+  const [cleanupNotice, setCleanupNotice] = useState("");
 
   async function runPrecision(nextFile: File) {
     setPrecision({ ...emptyResult(), status: "processing", engine: "FlytheBG Precision" });
@@ -139,6 +154,7 @@ export function Uploader() {
     const output = await response.blob();
     const prepared = await prepareImage(output, "FlytheBG Precision");
     if (prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
+      revokePreview(prepared.previewUrl);
       throw new Error("FlytheBG Precision could not find a usable foreground in this photo. The empty cutout was rejected instead of showing a blank panel.");
     }
 
@@ -171,11 +187,13 @@ export function Uploader() {
 
     let candidate = await runImgly(nextFile, "isnet_quint8");
     if (candidate.prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
+      revokePreview(candidate.prepared.previewUrl);
       setBrowserProgress("Quantized result was empty — retrying higher-precision browser AI…");
       candidate = await runImgly(nextFile, "isnet_fp16");
     }
 
     if (candidate.prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
+      revokePreview(candidate.prepared.previewUrl);
       throw new Error("Browser AI could not find a usable foreground in this photo. The empty cutout was rejected instead of showing a blank panel.");
     }
 
@@ -186,9 +204,14 @@ export function Uploader() {
   async function processFile(nextFile: File) {
     if (stage === "processing") return;
     const problem = validateUploadBasics(nextFile, MAX_MB);
-    if (problem) { setError(problem); setStage("error"); return; }
+    if (problem) {
+      setError(problem);
+      setStage("error");
+      return;
+    }
 
-    setFile(nextFile);
+    setFileName(nextFile.name);
+    setCleanupNotice("");
     setOriginalPreview(null);
     setPrecision({ ...emptyResult(), status: "processing" });
     setBrowser({ ...emptyResult(), status: "processing" });
@@ -262,26 +285,22 @@ export function Uploader() {
     let next: File | null = null;
     for (let i = 0; i < event.clipboardData.files.length; i += 1) {
       const item = event.clipboardData.files.item(i);
-      if (item?.type.startsWith("image/")) { next = item; break; }
+      if (item?.type.startsWith("image/")) {
+        next = item;
+        break;
+      }
     }
-    if (next) { event.preventDefault(); void processFile(next); }
+    if (next) {
+      event.preventDefault();
+      void processFile(next);
+    }
   }
 
-  function download(blob: Blob | null, label: string) {
-    if (!blob) return;
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const base = file?.name.replace(/\.[^.]+$/, "") || "image";
-    link.href = href;
-    link.download = `${base}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(href), 1500);
-  }
-
-  function reset() {
-    setFile(null);
+  function reset(notice = "") {
+    revokePreview(originalPreview?.previewUrl);
+    revokePreview(precision.previewUrl);
+    revokePreview(browser.previewUrl);
+    setFileName("");
     setOriginalPreview(null);
     setPrecision(emptyResult());
     setBrowser(emptyResult());
@@ -292,7 +311,25 @@ export function Uploader() {
     setStage("idle");
     setCropTarget(null);
     setBrowserProgress("Waiting");
+    setCleanupNotice(notice);
     if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function download(blob: Blob | null, label: string) {
+    if (!blob) return;
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const base = fileName.replace(/\.[^.]+$/, "") || "image";
+    link.href = href;
+    link.download = `${base}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.setTimeout(() => {
+      URL.revokeObjectURL(href);
+      reset("Download started successfully. The uploaded image, both AI results, and previews were released from this tab memory. Your downloaded PNG remains on your device.");
+    }, 1500);
   }
 
   if (stage === "complete" && originalPreview) {
@@ -300,9 +337,9 @@ export function Uploader() {
       <div className="toolCard resultCard dualResultCard">
         <div className="toolTop">
           <div><span className="toolKicker">Two validated results</span><h2>Choose the cleaner cutout.</h2></div>
-          <button className="textButton" onClick={reset}>New image</button>
+          <button className="textButton" onClick={() => reset()}>New image</button>
         </div>
-        <div className="resultRetention"><span className="liveDot"/>Every preview is decoded and validated before it is shown. Empty model outputs are rejected instead of appearing as black/white cards.</div>
+        <div className="resultRetention"><span className="liveDot"/>Every preview is decoded and validated before it is shown. Empty model outputs are rejected. Downloading your chosen PNG clears the working images from this tab memory.</div>
 
         <div className="originalStrip">
           <span>Original · {originalPreview.width} × {originalPreview.height}px</span>
@@ -316,7 +353,7 @@ export function Uploader() {
               <>
                 <div className="imageStage checker"><img src={precision.previewUrl} alt="FlytheBG Precision background removed result" /></div>
                 <div className="resultMeta"><span>{precision.width} × {precision.height}px</span><span>Foreground {percent(precision.foregroundCoverage)}</span></div>
-                <div className="resultActions"><button className="primaryButton" onClick={() => download(precision.blob, "flythebg-precision")}>Download PNG ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: precision.blob!, label: "FlytheBG Precision" })}>Crop</button></div>
+                <div className="resultActions"><button className="primaryButton" onClick={() => download(precision.blob, "flythebg-precision")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: precision.blob!, label: "FlytheBG Precision" })}>Crop</button></div>
               </>
             ) : <div className="modelError"><div><strong>No usable preview</strong><span>{precision.error || "Precision result unavailable."}</span></div></div>}
           </article>
@@ -327,13 +364,13 @@ export function Uploader() {
               <>
                 <div className="imageStage checker"><img src={browser.previewUrl} alt="Browser AI background removed result" /></div>
                 <div className="resultMeta"><span>{browser.width} × {browser.height}px</span><span>Foreground {percent(browser.foregroundCoverage)}</span></div>
-                <div className="resultActions"><button className="primaryButton" onClick={() => download(browser.blob, "browser-ai")}>Download PNG ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: browser.blob!, label: "Browser AI" })}>Crop</button></div>
+                <div className="resultActions"><button className="primaryButton" onClick={() => download(browser.blob, "browser-ai")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: browser.blob!, label: "Browser AI" })}>Crop</button></div>
               </>
             ) : <div className="modelError"><div><strong>No usable preview</strong><span>{browser.error || browserProgress}</span></div></div>}
           </article>
         </div>
 
-        {cropTarget && <CropEditor sourceBlob={cropTarget.blob} fileName={file?.name || "image.png"} label={cropTarget.label} onClose={() => setCropTarget(null)} />}
+        {cropTarget && <CropEditor sourceBlob={cropTarget.blob} fileName={fileName || "image.png"} label={cropTarget.label} onClose={() => setCropTarget(null)} />}
 
         {runId && <div className="feedbackPanel">
           <div><span className="controlLabel">Rate FlytheBG Precision</span><p>Optional. Sends only the quality category, not your photo.</p></div>
@@ -360,8 +397,9 @@ export function Uploader() {
           <><div className="uploadIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg></div><strong>Choose an image</strong><p>or drag, drop, or paste</p><span className="fileHint">PNG · JPEG · WebP · up to {MAX_MB} MB</span></>
         )}
       </div>
-      {stage === "error" && <div className="errorBox" role="alert"><strong>Couldn’t produce a usable cutout.</strong><span>{error}</span><button onClick={reset}>Try another image</button></div>}
-      <div className="toolFinePrint"><span>✓ Two outputs</span><span>✓ Empty-result protection</span><span>✓ Crop by cursor, ratio, or pixels</span><span>✓ No account</span><span>By using FlytheBG you accept our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</span></div>
+      {stage === "error" && <div className="errorBox" role="alert"><strong>Couldn’t produce a usable cutout.</strong><span>{error}</span><button onClick={() => reset()}>Try another image</button></div>}
+      {cleanupNotice && stage === "idle" && <div className="cleanupComplete"><strong>Privacy cleanup complete</strong><span>{cleanupNotice}</span></div>}
+      <div className="toolFinePrint"><span>✓ Two outputs</span><span>✓ Empty-result protection</span><span>✓ Lower-memory previews</span><span>✓ Working images cleared after download starts</span><span>✓ No account</span><span>By using FlytheBG you accept our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</span></div>
     </div>
   );
 }
