@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, PointerEvent, WheelEvent, useEffect, useMemo, useRef, useState } from "react";
+import { removeBackgroundInBrowser, type BrowserBackgroundModel } from "@/lib/browser-background-removal";
 import { validateUploadBasics } from "@/lib/image-validation";
 
 type Unit = "cm" | "mm" | "in";
@@ -53,6 +54,7 @@ async function prepareWorkingPhoto(blob: Blob, label: string, requireForeground:
       image.onerror = () => reject(new Error(`${label} could not be decoded by this browser.`));
       image.src = url;
     });
+    await image.decode().catch(() => undefined);
 
     const width = image.naturalWidth || image.width;
     const height = image.naturalHeight || image.height;
@@ -68,6 +70,8 @@ async function prepareWorkingPhoto(blob: Blob, label: string, requireForeground:
     if (!ctx) throw new Error("This browser cannot prepare the passport photo.");
 
     ctx.clearRect(0, 0, sampleWidth, sampleHeight);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
     ctx.drawImage(image, 0, 0, sampleWidth, sampleHeight);
 
     let foregroundCoverage = 1;
@@ -79,7 +83,7 @@ async function prepareWorkingPhoto(blob: Blob, label: string, requireForeground:
       }
       foregroundCoverage = foregroundPixels / Math.max(1, sampleWidth * sampleHeight);
       if (foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
-        throw new Error("Background removal produced an empty cutout. The blank result was rejected so a color-only passport sheet is not created. Try a clearer photo.");
+        throw new Error("Background removal returned an empty/transparent cutout. FlytheBG rejected it instead of creating a blank or color-only passport sheet.");
       }
     }
 
@@ -89,6 +93,8 @@ async function prepareWorkingPhoto(blob: Blob, label: string, requireForeground:
   } catch (reason) {
     URL.revokeObjectURL(url);
     throw reason;
+  } finally {
+    image.src = "";
   }
 }
 
@@ -110,7 +116,7 @@ function drawPhotoCell(
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
 
-  // The selected color belongs only to each passport-photo cell. The paper stays white.
+  // Only the photo cell gets the selected color. The print paper is always white.
   ctx.fillStyle = background;
   ctx.fillRect(x, y, width, height);
 
@@ -134,16 +140,27 @@ function drawPhotoCell(
 
 function autoLayout(pageWidthMm: number, pageHeightMm: number, photoWidthMm: number, photoHeightMm: number, copies: number, marginMm: number, gapMm: number): Position[] {
   const positions: Position[] = [];
-  const usableWidth = Math.max(photoWidthMm, pageWidthMm - marginMm * 2);
+  const usableWidth = Math.max(0, pageWidthMm - marginMm * 2);
+  const usableHeight = Math.max(0, pageHeightMm - marginMm * 2);
+  if (photoWidthMm <= 0 || photoHeightMm <= 0 || usableWidth < photoWidthMm || usableHeight < photoHeightMm) return positions;
+
   const columns = Math.max(1, Math.floor((usableWidth + gapMm) / (photoWidthMm + gapMm)));
-  for (let index = 0; index < copies; index += 1) {
+  const rows = Math.max(1, Math.floor((usableHeight + gapMm) / (photoHeightMm + gapMm)));
+  const capacity = Math.min(copies, columns * rows);
+
+  for (let index = 0; index < capacity; index += 1) {
     const col = index % columns;
     const row = Math.floor(index / columns);
-    const xMm = marginMm + col * (photoWidthMm + gapMm);
-    const yMm = marginMm + row * (photoHeightMm + gapMm);
-    if (xMm + photoWidthMm <= pageWidthMm - marginMm + 0.01 && yMm + photoHeightMm <= pageHeightMm - marginMm + 0.01) positions.push({ xMm, yMm });
+    positions.push({
+      xMm: marginMm + col * (photoWidthMm + gapMm),
+      yMm: marginMm + row * (photoHeightMm + gapMm),
+    });
   }
   return positions;
+}
+
+function asMessage(reason: unknown) {
+  return reason instanceof Error ? reason.message : "Unknown error";
 }
 
 export function PassportPhotoMaker() {
@@ -158,6 +175,9 @@ export function PassportPhotoMaker() {
   const [fileName, setFileName] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState("");
+  const [engineUsed, setEngineUsed] = useState("Original photo");
+  const [fallbackNotice, setFallbackNotice] = useState("");
   const [error, setError] = useState("");
   const [releaseNotice, setReleaseNotice] = useState("");
   const [foregroundCoverage, setForegroundCoverage] = useState(1);
@@ -182,15 +202,33 @@ export function PassportPhotoMaker() {
   const photoHeightMm = Math.max(1, photoHeight * mmPerUnit[unit]);
   const paper = paperPreset === "custom" ? { widthMm: customPaperWidthMm, heightMm: customPaperHeightMm } : presets[paperPreset];
   const exportDpi = memorySafeDpi(paper.widthMm, paper.heightMm, dpi);
-
+  const maxCopies = useMemo(
+    () => autoLayout(paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, 200, marginMm, gapMm).length,
+    [paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, marginMm, gapMm],
+  );
   const autoPositions = useMemo(
     () => autoLayout(paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, copies, marginMm, gapMm),
     [paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, copies, marginMm, gapMm],
   );
 
   useEffect(() => {
-    if (layoutMode === "auto" || positions.length !== copies) setPositions(autoPositions);
-  }, [autoPositions, copies, layoutMode]);
+    if (maxCopies > 0 && copies > maxCopies) setCopies(maxCopies);
+  }, [copies, maxCopies]);
+
+  useEffect(() => {
+    if (layoutMode === "auto") {
+      setPositions(autoPositions);
+      return;
+    }
+    setPositions((current) => {
+      const invalid = current.length !== autoPositions.length || current.some((position) => (
+        position.xMm < 0 || position.yMm < 0 ||
+        position.xMm + photoWidthMm > paper.widthMm ||
+        position.yMm + photoHeightMm > paper.heightMm
+      ));
+      return invalid ? autoPositions : current;
+    });
+  }, [autoPositions, layoutMode, paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm]);
 
   useEffect(() => () => {
     if (sourceUrl) URL.revokeObjectURL(sourceUrl);
@@ -209,12 +247,12 @@ export function PassportPhotoMaker() {
       if (!active) return;
       sourceImageRef.current = image;
       setError("");
-      drawPreviews();
+      window.requestAnimationFrame(() => drawPreviews());
     };
     image.onerror = () => {
       if (!active) return;
       sourceImageRef.current = null;
-      setError("The prepared photo could not be loaded. Please choose the image again.");
+      setError("The prepared person image could not be loaded. Please choose the image again.");
     };
     image.src = sourceUrl;
 
@@ -241,6 +279,9 @@ export function PassportPhotoMaker() {
     setFileName("");
     setPositions([]);
     setForegroundCoverage(1);
+    setEngineUsed("Original photo");
+    setFallbackNotice("");
+    setProcessingStatus("");
     setZoom(1.05);
     setShiftX(0);
     setShiftY(0);
@@ -250,16 +291,23 @@ export function PassportPhotoMaker() {
     setReleaseNotice(message);
   }
 
+  function changeSourceMode(nextMode: SourceMode) {
+    if (nextMode === sourceMode) return;
+    if (sourceUrl) releasePhotoMemory("Photo cleared because the source mode changed. Choose the photo again for the new mode.");
+    setSourceMode(nextMode);
+    setError("");
+  }
+
   function drawPreviews() {
     const image = sourceImageRef.current;
     const portrait = portraitCanvasRef.current;
     const sheet = sheetCanvasRef.current;
     if (!image || !portrait || !sheet || !image.naturalWidth || !image.naturalHeight) return;
 
-    const portraitWidth = 320;
+    const portraitWidth = 340;
     const portraitHeight = Math.round((portraitWidth * photoHeightMm) / photoWidthMm);
     portrait.width = portraitWidth;
-    portrait.height = Math.min(520, Math.max(220, portraitHeight));
+    portrait.height = Math.min(540, Math.max(230, portraitHeight));
     const portraitCtx = portrait.getContext("2d");
     if (portraitCtx) {
       portraitCtx.clearRect(0, 0, portrait.width, portrait.height);
@@ -285,17 +333,67 @@ export function PassportPhotoMaker() {
       const w = photoWidthMm * sx;
       const h = photoHeightMm * sy;
       drawPhotoCell(ctx, image, x, y, w, h, zoom, shiftX, shiftY, background);
-      ctx.strokeStyle = layoutMode === "manual" ? "rgba(14,165,233,.85)" : "rgba(20,20,20,.22)";
+      ctx.strokeStyle = layoutMode === "manual" ? "rgba(14,165,233,.9)" : "rgba(20,20,20,.2)";
       ctx.lineWidth = 1;
       ctx.strokeRect(x, y, w, h);
       if (layoutMode === "manual") {
-        ctx.fillStyle = "rgba(2,6,23,.72)";
-        ctx.fillRect(x + 4, y + 4, 22, 18);
+        ctx.fillStyle = "rgba(2,6,23,.78)";
+        ctx.fillRect(x + 4, y + 4, 24, 19);
         ctx.fillStyle = "white";
         ctx.font = "11px Arial";
         ctx.fillText(String(index + 1), x + 10, y + 17);
       }
     });
+  }
+
+  async function runServerRemoval(nextFile: File) {
+    setProcessingStatus("Trying FlytheBG Precision…");
+    const form = new FormData();
+    form.append("image", nextFile);
+    const response = await fetch("/api/remove-background", { method: "POST", body: form, cache: "no-store" });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({ error: "FlytheBG Precision failed." }));
+      throw new Error(body.error || "FlytheBG Precision failed.");
+    }
+    return response.blob();
+  }
+
+  async function runBrowserRemoval(nextFile: File, model: BrowserBackgroundModel) {
+    const result = await removeBackgroundInBrowser(nextFile, model, setProcessingStatus);
+    return prepareWorkingPhoto(result.blob, `IMG.LY ${result.modelLabel}`, true);
+  }
+
+  async function prepareRemovedPhoto(nextFile: File) {
+    let serverError = "";
+    try {
+      const serverBlob = await runServerRemoval(nextFile);
+      const prepared = await prepareWorkingPhoto(serverBlob, "FlytheBG Precision", true);
+      setEngineUsed("FlytheBG Precision · server");
+      setFallbackNotice("");
+      return prepared;
+    } catch (reason) {
+      serverError = asMessage(reason);
+      setFallbackNotice("FlytheBG Precision was unavailable or returned an unusable cutout. IMG.LY is taking over locally in your browser; your photo is not sent to IMG.LY for this fallback.");
+    }
+
+    let quantizedError = "";
+    try {
+      setProcessingStatus("Server unavailable — running IMG.LY in this browser…");
+      const prepared = await runBrowserRemoval(nextFile, "isnet_quint8");
+      setEngineUsed("IMG.LY quantized · browser-only fallback");
+      return prepared;
+    } catch (reason) {
+      quantizedError = asMessage(reason);
+    }
+
+    try {
+      setProcessingStatus("Retrying browser AI with FP16…");
+      const prepared = await runBrowserRemoval(nextFile, "isnet_fp16");
+      setEngineUsed("IMG.LY FP16 · browser-only fallback");
+      return prepared;
+    } catch (reason) {
+      throw new Error(`No background-removal engine produced a usable person. Server: ${serverError}. Browser quantized: ${quantizedError}. Browser FP16: ${asMessage(reason)}.`);
+    }
   }
 
   async function handleFile(nextFile: File) {
@@ -308,21 +406,15 @@ export function PassportPhotoMaker() {
     setProcessing(true);
     setError("");
     setReleaseNotice("");
+    setFallbackNotice("");
+    setProcessingStatus(sourceMode === "remove" ? "Preparing background removal…" : "Decoding photo…");
 
     try {
-      let blob: Blob = nextFile;
-      if (sourceMode === "remove") {
-        const form = new FormData();
-        form.append("image", nextFile);
-        const response = await fetch("/api/remove-background", { method: "POST", body: form, cache: "no-store" });
-        if (!response.ok) {
-          const body = await response.json().catch(() => ({ error: "Background removal failed." }));
-          throw new Error(body.error || "Background removal failed.");
-        }
-        blob = await response.blob();
-      }
+      const prepared = sourceMode === "remove"
+        ? await prepareRemovedPhoto(nextFile)
+        : await prepareWorkingPhoto(nextFile, "Photo", false);
 
-      const prepared = await prepareWorkingPhoto(blob, sourceMode === "remove" ? "Background removal" : "Photo", sourceMode === "remove");
+      if (sourceMode === "direct") setEngineUsed("Original photo · browser layout");
       setFileName(nextFile.name);
       setForegroundCoverage(prepared.foregroundCoverage);
       setSourceUrl(prepared.url);
@@ -331,8 +423,10 @@ export function PassportPhotoMaker() {
       setShiftY(0);
       setLayoutMode("auto");
       setPositions(autoPositions);
+      setProcessingStatus("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not prepare the photo.");
+      setProcessingStatus("");
     } finally {
       setProcessing(false);
     }
@@ -397,7 +491,7 @@ export function PassportPhotoMaker() {
   async function createPrintBlob() {
     const image = sourceImageRef.current;
     if (!image || !image.naturalWidth || !image.naturalHeight) throw new Error("Upload a valid photo first.");
-    if (!positions.length) throw new Error("No passport photos fit on the selected paper. Reduce photo size, margins, or copy count.");
+    if (!positions.length) throw new Error("No passport photos fit on the selected paper. Reduce photo size or margins.");
 
     const canvas = document.createElement("canvas");
     canvas.width = mmToPx(paper.widthMm, exportDpi);
@@ -405,6 +499,7 @@ export function PassportPhotoMaker() {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas unavailable.");
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -426,8 +521,6 @@ export function PassportPhotoMaker() {
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Could not encode print sheet.")), "image/png");
     });
-
-    // Explicitly shrink the temporary high-resolution canvas so its backing buffer can be reclaimed quickly.
     canvas.width = 1;
     canvas.height = 1;
     return blob;
@@ -448,7 +541,7 @@ export function PassportPhotoMaker() {
 
       window.setTimeout(() => {
         URL.revokeObjectURL(href);
-        releasePhotoMemory("Download started successfully. The working photo, cutout, previews, and generated sheet were released from this tab memory. Your downloaded file remains on your device.");
+        releasePhotoMemory("Download started successfully. The working source, cutout, previews and generated sheet were released from this tab memory. Your downloaded file remains on your device.");
       }, 1500);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Export failed.");
@@ -476,31 +569,37 @@ export function PassportPhotoMaker() {
     }
   }
 
-  const maxCopies = autoLayout(paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, 200, marginMm, gapMm).length;
-
   return (
     <div className="passportMaker">
       <div className="passportStart">
         <div>
           <span className="eyebrow"><i/> Passport Photo Maker</span>
-          <h1>Exact print size. Memory-safe export.</h1>
-          <p>Use an existing photo as-is, or remove its background first. FlytheBG validates the cutout before it can reach the sheet, so an empty transparent result cannot silently become a color-only page.</p>
+          <h1>One photo. A clean print-ready sheet.</h1>
+          <p>Use the original photo or remove its background first. If FlytheBG Precision is unavailable, IMG.LY automatically runs on the device as a browser-only fallback. Empty cutouts are rejected before the sheet is drawn.</p>
         </div>
 
         <div className="sourceModeCards">
-          <button className={sourceMode === "direct" ? "active" : ""} onClick={() => setSourceMode("direct")}><b>01</b><strong>Use my photo</strong><span>Keep the existing background.</span></button>
-          <button className={sourceMode === "remove" ? "active" : ""} onClick={() => setSourceMode("remove")}><b>02</b><strong>Remove background first</strong><span>Run FlytheBG Precision, validate the person, then create the sheet.</span></button>
+          <button className={sourceMode === "direct" ? "active" : ""} onClick={() => changeSourceMode("direct")}><b>01</b><strong>Use my photo</strong><span>Keep its existing background and go straight to layout.</span></button>
+          <button className={sourceMode === "remove" ? "active" : ""} onClick={() => changeSourceMode("remove")}><b>02</b><strong>Remove background first</strong><span>Server first · browser-only IMG.LY fallback if needed.</span></button>
+        </div>
+
+        <div className="passportFlowStrip">
+          <span>Upload</span><i>→</i><span>Remove / validate</span><i>→</i><span>Frame</span><i>→</i><span>Fill sheet</span><i>→</i><span>Download</span>
         </div>
 
         <input ref={inputRef} className="srOnly" type="file" accept="image/png,image/jpeg,image/webp" onChange={onInput} />
         <button className="primaryButton passportUpload" disabled={processing} onClick={() => inputRef.current?.click()}>
           {processing ? "Preparing photo…" : sourceUrl ? "Choose another photo" : "Choose photo"} <span>↗</span>
         </button>
+        {processingStatus && <div className="passportProcessing" aria-live="polite"><span className="liveDot"/><strong>{processingStatus}</strong></div>}
+        {fallbackNotice && <div className="passportFallback"><strong>Automatic fallback active</strong><span>{fallbackNotice}</span></div>}
         {error && <div className="errorBox"><strong>Passport maker</strong><span>{error}</span></div>}
         {releaseNotice && !sourceUrl && <div className="passportMemoryNotice"><strong>Privacy cleanup complete</strong><span>{releaseNotice}</span></div>}
       </div>
 
       {sourceUrl && <>
+        <div className="passportEngineBar"><div><span>Working image</span><strong>{engineUsed}</strong></div>{sourceMode === "remove" && <div><span>Cutout validation</span><strong>Visible foreground {(foregroundCoverage * 100).toFixed(foregroundCoverage < .1 ? 1 : 0)}%</strong></div>}<div><span>Privacy</span><strong>Cleared after download starts</strong></div></div>
+
         <div className="passportWorkspace">
           <section className="passportPanel">
             <span className="toolKicker">1 · Printed photo size</span>
@@ -509,42 +608,39 @@ export function PassportPhotoMaker() {
               <label>Height<input type="number" min="0.1" step="0.1" value={photoHeight} onChange={(e) => setPhotoHeight(Math.max(.1, Number(e.target.value) || .1))}/></label>
               <label>Unit<select value={unit} onChange={(e) => setUnit(e.target.value as Unit)}><option value="cm">cm</option><option value="mm">mm</option><option value="in">inch</option></select></label>
             </div>
-            <p className="panelHint">These are physical dimensions after printing, not CSS or screen dimensions.</p>
-            <div className="dpiButtons">
-              <button className={dpi === 300 ? "active" : ""} onClick={() => setDpi(300)}>300 DPI · Recommended</button>
-              <button className={dpi === 600 ? "active" : ""} onClick={() => setDpi(600)}>600 DPI · If memory allows</button>
-            </div>
-            {exportDpi < dpi && <p className="memoryGuard">Memory guard active: this paper size will export at {exportDpi} DPI instead of {dpi} DPI to avoid an oversized browser canvas.</p>}
+            <p className="panelHint">These are physical dimensions after printing, not screen dimensions.</p>
+            <div className="dpiButtons"><button className={dpi === 300 ? "active" : ""} onClick={() => setDpi(300)}>300 DPI · Recommended</button><button className={dpi === 600 ? "active" : ""} onClick={() => setDpi(600)}>600 DPI · Ultra</button></div>
+            {exportDpi < dpi && <p className="memoryGuard">Memory guard: this sheet exports at {exportDpi} DPI instead of {dpi} DPI to prevent a browser-memory crash.</p>}
           </section>
 
           <section className="passportPanel portraitPanel">
-            <span className="toolKicker">2 · Frame the person</span>
+            <div className="panelTitleRow"><span className="toolKicker">2 · Frame the person</span><button className="miniButton" onClick={() => { setZoom(1.05); setShiftX(0); setShiftY(0); }}>Reset frame</button></div>
             <div className="portraitEditor"><canvas ref={portraitCanvasRef} onPointerDown={onPortraitDown} onPointerMove={onPortraitMove} onPointerUp={onPortraitUp} onPointerCancel={onPortraitUp} onWheel={onPortraitWheel}/></div>
-            <p className="panelHint">Drag to reposition. Scroll over the photo or use the slider to resize the person inside the frame.</p>
+            <p className="panelHint">Drag to reposition. Scroll over the photo or use the slider to resize the person.</p>
             <label className="zoomControl">Zoom <input type="range" min="1" max="3" step="0.01" value={zoom} onChange={(e) => setZoom(Number(e.target.value))}/><span>{zoom.toFixed(2)}×</span></label>
             <label className="colorControl">Photo background only <input type="color" value={background} onChange={(e) => setBackground(e.target.value)}/><span>{background.toUpperCase()}</span></label>
-            <p className="panelHint">The selected color is painted behind each passport photo only. The paper itself always stays white.</p>
-            {sourceMode === "remove" && <p className="cutoutVerified">✓ Cutout verified · visible foreground {(foregroundCoverage * 100).toFixed(foregroundCoverage < .1 ? 1 : 0)}%</p>}
+            <p className="panelHint">This color is painted only inside each passport-photo rectangle. The paper remains white.</p>
           </section>
 
           <section className="passportPanel">
-            <span className="toolKicker">3 · Sheet</span>
+            <span className="toolKicker">3 · Build the sheet</span>
             <label>Paper<select value={paperPreset} onChange={(e) => setPaperPreset(e.target.value as PaperPreset)}><option value="a4">{presets.a4.label}</option><option value="4x6">{presets["4x6"].label}</option><option value="letter">{presets.letter.label}</option><option value="custom">Custom paper</option></select></label>
             {paperPreset === "custom" && <div className="measurementRow two"><label>Width mm<input type="number" min="20" value={customPaperWidthMm} onChange={(e) => setCustomPaperWidthMm(Math.max(20, Number(e.target.value) || 20))}/></label><label>Height mm<input type="number" min="20" value={customPaperHeightMm} onChange={(e) => setCustomPaperHeightMm(Math.max(20, Number(e.target.value) || 20))}/></label></div>}
-            <div className="measurementRow three"><label>Copies<input type="number" min="1" max="200" value={copies} onChange={(e) => setCopies(clamp(Number(e.target.value) || 1, 1, 200))}/></label><label>Margin mm<input type="number" min="0" step="0.5" value={marginMm} onChange={(e) => setMarginMm(Math.max(0, Number(e.target.value) || 0))}/></label><label>Gap mm<input type="number" min="0" step="0.5" value={gapMm} onChange={(e) => setGapMm(Math.max(0, Number(e.target.value) || 0))}/></label></div>
-            <p className="panelHint">Current automatic capacity: {maxCopies} copies. If you request more than fit, only copies inside the sheet are exported.</p>
+            <div className="measurementRow three"><label>Copies<input type="number" min="1" max={Math.max(1, maxCopies)} value={copies} onChange={(e) => setCopies(clamp(Number(e.target.value) || 1, 1, Math.max(1, maxCopies)))}/></label><label>Margin mm<input type="number" min="0" step="0.5" value={marginMm} onChange={(e) => setMarginMm(Math.max(0, Number(e.target.value) || 0))}/></label><label>Gap mm<input type="number" min="0" step="0.5" value={gapMm} onChange={(e) => setGapMm(Math.max(0, Number(e.target.value) || 0))}/></label></div>
+            <div className="capacityRow"><span>Sheet capacity</span><strong>{maxCopies} photos</strong><button className="miniButton" disabled={maxCopies < 1} onClick={() => setCopies(maxCopies)}>Fill sheet</button></div>
+            {maxCopies < 1 && <p className="memoryGuard">The photo is larger than the usable paper area. Reduce the photo size or margins.</p>}
             <div className="dpiButtons"><button className={layoutMode === "auto" ? "active" : ""} onClick={() => { setLayoutMode("auto"); setPositions(autoPositions); }}>Auto grid</button><button className={layoutMode === "manual" ? "active" : ""} onClick={() => { setLayoutMode("manual"); setPositions(autoPositions); }}>Manual placement</button></div>
           </section>
         </div>
 
         <section className="sheetSection">
           <div className="sheetHeading">
-            <div><span className="toolKicker">4 · Print preview</span><h2>{positions.length} photos on {paperPreset === "custom" ? "custom paper" : presets[paperPreset].label}</h2><p>{layoutMode === "manual" ? "Drag any numbered photo to relocate it on the sheet." : "Switch to Manual placement if you want to relocate individual photos with the cursor."}</p></div>
-            <div className="sheetMeta"><b>{mmToPx(paper.widthMm, exportDpi)} × {mmToPx(paper.heightMm, exportDpi)} px</b><span>{exportDpi} DPI export</span></div>
+            <div><span className="toolKicker">4 · Print preview</span><h2>{positions.length} passport photos ready</h2><p>{layoutMode === "manual" ? "Drag numbered photos to reposition them. The export uses the same layout." : `Auto grid on ${paperPreset === "custom" ? "custom paper" : presets[paperPreset].label}.`}</p></div>
+            <div className="sheetMeta"><b>{mmToPx(paper.widthMm, exportDpi)} × {mmToPx(paper.heightMm, exportDpi)} px</b><span>{exportDpi} DPI PNG</span></div>
           </div>
           <div className="sheetCanvasShell"><canvas ref={sheetCanvasRef} onPointerDown={onSheetDown} onPointerMove={onSheetMove} onPointerUp={onSheetUp} onPointerCancel={onSheetUp}/></div>
-          <div className="sheetActions"><button className="secondaryButton" onClick={() => void printSheet()}>Print sheet</button><button className="primaryButton" onClick={() => void downloadSheet()}>Download PNG & clear working photo <span>↓</span></button></div>
-          <p className="sheetPrivacyNote">After the browser download starts, FlytheBG releases the working source, cutout, previews, and generated sheet from this tab memory. The downloaded file on your device is not deleted.</p>
+          <div className="sheetActions"><button className="secondaryButton" onClick={() => void printSheet()}>Print sheet</button><button className="primaryButton" disabled={!positions.length} onClick={() => void downloadSheet()}>Download PNG & clear working image <span>↓</span></button></div>
+          <p className="sheetPrivacyNote">Print using Actual Size / 100%. After a download starts, FlytheBG releases the working source, cutout, previews and generated sheet from this tab memory. The downloaded file remains on your device.</p>
         </section>
       </>}
     </div>
