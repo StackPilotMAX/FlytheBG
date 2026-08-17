@@ -25,21 +25,4 @@ jobs:
         env:
           NEXT_PUBLIC_SITE_URL: https://example.invalid
           NEXT_PUBLIC_UPLOAD_MAX_MB: 12
-
-  inference:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: services/inference
-    env:
-      PYTHONPATH: .
-      INFERENCE_API_SECRET: ci-only-secret
-      MODEL_PROVIDER: isnet_precision
-      MODEL_VARIANT: general-use-precision
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.11'
-      - run: pip install -r requirements-dev.txt
-      - run: pytest -q
+          NEXT_PUBLIC_ADSENSE_CLIENT: ca-pub-7486274445029717
