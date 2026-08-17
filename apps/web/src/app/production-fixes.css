@@ -25,30 +25,41 @@ input::placeholder,textarea::placeholder{color:#68768b}
 .resultRetention{background:#09111b;border:1px solid #1d2b3d;border-radius:12px;padding:10px 12px;color:#8999ae!important;margin-bottom:16px}
 .primaryButton:disabled{opacity:.45;cursor:not-allowed}
 
-/* The landing feature cards are intentionally opaque and isolated from the galaxy canvas. */
+/* Feature cards: opaque neutral surfaces so the galaxy/blue canvas cannot bleed through. */
 .landingFeatures{position:relative;isolation:isolate;overflow:hidden;background:#05070d!important}
-.landingFeatures:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(180deg,rgba(5,7,13,.98),rgba(7,9,16,.99))}
+.landingFeatures:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(180deg,#05070d 0%,#070911 100%)}
 .landingFeatures>.shell{position:relative;z-index:1}
 .featureHubGrid,.featureCatalog{position:relative;z-index:2}
-.featureHubCard,.featureCatalogCard,.featureHubCard.featuredTool{isolation:isolate;overflow:hidden;background:linear-gradient(155deg,#101521 0%,#090d16 64%,#080b12 100%)!important;border:1px solid #263044!important;box-shadow:0 22px 64px rgba(0,0,0,.34)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.featureHubCard:before,.featureCatalogCard:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 12% 0,rgba(89,184,255,.07),transparent 30%)}
-.featureHubCard:hover,.featureCatalogCard:hover{border-color:#44536d!important;background:linear-gradient(155deg,#121927,#0a0e17)!important}
+.featureHubCard,.featureCatalogCard,.featureHubCard.featuredTool{isolation:isolate;overflow:hidden;background:linear-gradient(160deg,#111620 0%,#0b0f17 58%,#080b12 100%)!important;border:1px solid #273044!important;box-shadow:0 22px 64px rgba(0,0,0,.38)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.featureHubCard:before,.featureCatalogCard:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(165,198,235,.22),transparent)}
+.featureHubCard.featuredTool:after{content:"";position:absolute;right:24px;top:24px;width:7px;height:7px;border-radius:50%;background:#6cc8ff;box-shadow:0 0 20px rgba(108,200,255,.35)}
+.featureHubCard:hover,.featureCatalogCard:hover{border-color:#48566d!important;background:linear-gradient(160deg,#141a25,#0a0e16)!important;transform:translateY(-4px)}
 .featureHubCard.futureTool,.featureCatalogCard.planned{opacity:.88!important}
-.featureHubCard h3,.featureCatalogCard h2{color:#f5f7fb!important}.featureHubCard p,.featureCatalogCard p{color:#8f9db0!important}.featureLink{color:#76ccff!important}
+.featureHubCard h3,.featureCatalogCard h2{color:#f5f7fb!important}.featureHubCard p,.featureCatalogCard p{color:#94a0b1!important}.featureLink{color:#84cfff!important}
+.featureIcon{background:#111721!important;border-color:#293448!important;box-shadow:none!important}
 
-/* Passport sheet: white paper, selected color only inside photo cells. */
-.sheetCanvasShell{background:#070a10!important;border:1px solid #222b3b!important;border-radius:24px!important;padding:18px!important;overflow:auto!important}
-.sheetCanvasShell canvas{display:block!important;margin:auto!important;background:#fff!important;box-shadow:0 20px 55px rgba(0,0,0,.55)!important;max-width:100%!important;height:auto!important}
-.passportMemoryNotice,.cleanupComplete{display:grid;gap:4px;margin-top:12px;padding:12px 14px;border:1px solid #1e4f3d;border-radius:13px;background:#091b16;color:#8fe8bc;font-size:11px;line-height:1.5}
-.passportMemoryNotice strong,.cleanupComplete strong{color:#baf5d8}
-.passportMemoryNotice span,.cleanupComplete span{color:#7fbe9f}
-.memoryGuard{margin:12px 0 0;padding:10px 12px;border:1px solid #524429;border-radius:11px;background:#1b160c;color:#e5c77f;font-size:10px;line-height:1.55}
-.cutoutVerified{margin:10px 0 0;color:#79dfad;font-size:10px;font-weight:800}
-.sheetPrivacyNote{margin:12px 0 0;color:#78869b;font-size:10px;line-height:1.55}
-.colorControl{padding-top:2px}.colorControl input[type="color"]{min-height:38px;padding:4px;cursor:pointer}
+/* Passport maker: cohesive, production-style workflow. */
+.passportStart{position:relative;padding:34px;border:1px solid #20293a;border-radius:30px;background:linear-gradient(155deg,#0c1018,#080b12 68%);box-shadow:0 28px 90px rgba(0,0,0,.26)}
+.passportStart:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.025),transparent 36%)}
+.passportStart>div,.passportStart>button,.passportStart>.errorBox,.passportStart>.passportMemoryNotice,.passportStart>.passportProcessing,.passportStart>.passportFallback{position:relative;z-index:1}
+.sourceModeCards button{min-height:145px;transition:border-color .2s ease,transform .2s ease,background .2s ease}.sourceModeCards button:hover{transform:translateY(-2px);border-color:#3d4c63}.sourceModeCards button.active{border-color:#4b91c4!important;background:linear-gradient(155deg,#101a25,#0d111a)!important;box-shadow:inset 0 0 0 1px rgba(96,188,255,.08)}
+.passportFlowStrip{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:4px 0 20px;color:#7e8b9e;font-size:10px;font-weight:750}.passportFlowStrip span{padding:7px 10px;border:1px solid #252e3f;border-radius:999px;background:#090d14}.passportFlowStrip i{font-style:normal;color:#46556b}
+.passportProcessing,.passportFallback{display:flex;align-items:center;gap:9px;margin-top:12px;padding:11px 13px;border-radius:13px;font-size:11px}.passportProcessing{border:1px solid #263b52;background:#0a1420;color:#a9cbe4}.passportFallback{display:grid;gap:4px;border:1px solid #4a3e28;background:#171309}.passportFallback strong{color:#e7ca86}.passportFallback span{color:#b8a77f;line-height:1.55}
+.passportEngineBar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 0}.passportEngineBar>div{padding:14px 16px;border:1px solid #222c3d;border-radius:16px;background:#090d14}.passportEngineBar span{display:block;color:#6f7e92;font-size:9px;text-transform:uppercase;letter-spacing:.09em}.passportEngineBar strong{display:block;margin-top:6px;color:#dce7f4;font-size:11px;line-height:1.45}
+.passportWorkspace{gap:18px!important;margin-top:18px!important;align-items:stretch}.passportPanel{position:relative;overflow:hidden;padding:24px!important;background:linear-gradient(160deg,#0d121b,#090d14)!important;border:1px solid #252f41!important;box-shadow:0 18px 50px rgba(0,0,0,.18)}.passportPanel:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.panelTitleRow{display:flex;align-items:center;justify-content:space-between;gap:12px}.panelTitleRow .miniButton{margin:0}
+.portraitEditor{background:#05070b!important;border-color:#263249!important;min-height:300px}.portraitEditor canvas{display:block;max-width:100%;height:auto}.zoomControl{display:grid!important;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.zoomControl input{margin:0!important}.colorControl{display:grid!important;grid-template-columns:1fr 54px auto;gap:10px;align-items:center}.colorControl input[type="color"]{min-height:40px;padding:4px;cursor:pointer}
+.capacityRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:14px;padding:11px 12px;border:1px solid #252f42;border-radius:12px;background:#080c13;color:#7f8da1;font-size:10px}.capacityRow strong{color:#eef4fb}.capacityRow .miniButton{margin:0}
+.sheetSection{margin-top:24px!important;padding:28px!important;border:1px solid #202a3b!important;border-radius:28px!important;background:linear-gradient(160deg,#0c1119,#070a10)!important;box-shadow:0 26px 80px rgba(0,0,0,.26)}
+.sheetHeading h2{color:#f3f7fb!important;margin-bottom:8px}.sheetHeading p{color:#8190a4!important}.sheetMeta{padding:12px 14px!important;border:1px solid #273146!important;border-radius:14px!important;background:#090d14!important}.sheetMeta b{color:#e8f0f9!important}.sheetMeta span{color:#738198!important}
+.sheetCanvasShell{background:#05070b!important;border:1px solid #222b3b!important;border-radius:22px!important;padding:22px!important;overflow:auto!important}.sheetCanvasShell canvas{display:block!important;margin:auto!important;background:#fff!important;box-shadow:0 22px 65px rgba(0,0,0,.62)!important;max-width:100%!important;height:auto!important}
+.sheetActions{display:flex!important;justify-content:flex-end!important;gap:10px!important;flex-wrap:wrap!important;margin-top:18px!important}.sheetActions .primaryButton,.sheetActions .secondaryButton{min-width:180px}
+.passportMemoryNotice,.cleanupComplete{display:grid;gap:4px;margin-top:12px;padding:12px 14px;border:1px solid #1e4f3d;border-radius:13px;background:#091b16;color:#8fe8bc;font-size:11px;line-height:1.5}.passportMemoryNotice strong,.cleanupComplete strong{color:#baf5d8}.passportMemoryNotice span,.cleanupComplete span{color:#7fbe9f}
+.memoryGuard{margin:12px 0 0;padding:10px 12px;border:1px solid #524429;border-radius:11px;background:#1b160c;color:#e5c77f;font-size:10px;line-height:1.55}.cutoutVerified{margin:10px 0 0;color:#79dfad;font-size:10px;font-weight:800}.sheetPrivacyNote{margin:12px 0 0;color:#78869b;font-size:10px;line-height:1.55}
 
 /* Brand mark stays crisp on the dark header/footer. */
 .brandMark{object-fit:contain;filter:drop-shadow(0 4px 12px rgba(36,153,239,.22))}
 
-/* Make mobile result comparison readable and preserve preview height. */
-@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}.featureHubGrid,.featureCatalog{grid-template-columns:1fr!important}.featureHubCard,.featureCatalogCard{min-height:330px!important}.sheetCanvasShell{padding:10px!important}}
+/* Make mobile result comparison and editing readable. */
+@media(max-width:980px){.passportWorkspace{grid-template-columns:1fr 1fr!important}.passportPanel.portraitPanel{grid-column:1/-1;grid-row:1}.passportEngineBar{grid-template-columns:1fr}.passportStart{padding:26px}}
+@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}.featureHubGrid,.featureCatalog{grid-template-columns:1fr!important}.featureHubCard,.featureCatalogCard{min-height:330px!important}.passportWorkspace{grid-template-columns:1fr!important}.passportPanel.portraitPanel{grid-column:auto;grid-row:auto}.passportStart{padding:20px;border-radius:22px}.sourceModeCards{grid-template-columns:1fr!important}.passportFlowStrip i{display:none}.passportFlowStrip span{flex:1 1 calc(50% - 8px);text-align:center}.measurementRow,.measurementRow.three{grid-template-columns:1fr 1fr!important}.measurementRow label:last-child{grid-column:1/-1}.passportEngineBar{grid-template-columns:1fr}.sheetSection{padding:18px!important}.sheetCanvasShell{padding:10px!important}.sheetActions{display:grid!important;grid-template-columns:1fr!important}.sheetActions .primaryButton,.sheetActions .secondaryButton{width:100%;min-width:0}.capacityRow{grid-template-columns:1fr auto}.capacityRow .miniButton{grid-column:1/-1}.colorControl{grid-template-columns:1fr 50px!important}.colorControl>span{grid-column:1/-1}}
