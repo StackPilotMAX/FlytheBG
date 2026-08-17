@@ -25,5 +25,30 @@ input::placeholder,textarea::placeholder{color:#68768b}
 .resultRetention{background:#09111b;border:1px solid #1d2b3d;border-radius:12px;padding:10px 12px;color:#8999ae!important;margin-bottom:16px}
 .primaryButton:disabled{opacity:.45;cursor:not-allowed}
 
+/* The landing feature cards are intentionally opaque and isolated from the galaxy canvas. */
+.landingFeatures{position:relative;isolation:isolate;overflow:hidden;background:#05070d!important}
+.landingFeatures:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(180deg,rgba(5,7,13,.98),rgba(7,9,16,.99))}
+.landingFeatures>.shell{position:relative;z-index:1}
+.featureHubGrid,.featureCatalog{position:relative;z-index:2}
+.featureHubCard,.featureCatalogCard,.featureHubCard.featuredTool{isolation:isolate;overflow:hidden;background:linear-gradient(155deg,#101521 0%,#090d16 64%,#080b12 100%)!important;border:1px solid #263044!important;box-shadow:0 22px 64px rgba(0,0,0,.34)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.featureHubCard:before,.featureCatalogCard:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 12% 0,rgba(89,184,255,.07),transparent 30%)}
+.featureHubCard:hover,.featureCatalogCard:hover{border-color:#44536d!important;background:linear-gradient(155deg,#121927,#0a0e17)!important}
+.featureHubCard.futureTool,.featureCatalogCard.planned{opacity:.88!important}
+.featureHubCard h3,.featureCatalogCard h2{color:#f5f7fb!important}.featureHubCard p,.featureCatalogCard p{color:#8f9db0!important}.featureLink{color:#76ccff!important}
+
+/* Passport sheet: white paper, selected color only inside photo cells. */
+.sheetCanvasShell{background:#070a10!important;border:1px solid #222b3b!important;border-radius:24px!important;padding:18px!important;overflow:auto!important}
+.sheetCanvasShell canvas{display:block!important;margin:auto!important;background:#fff!important;box-shadow:0 20px 55px rgba(0,0,0,.55)!important;max-width:100%!important;height:auto!important}
+.passportMemoryNotice,.cleanupComplete{display:grid;gap:4px;margin-top:12px;padding:12px 14px;border:1px solid #1e4f3d;border-radius:13px;background:#091b16;color:#8fe8bc;font-size:11px;line-height:1.5}
+.passportMemoryNotice strong,.cleanupComplete strong{color:#baf5d8}
+.passportMemoryNotice span,.cleanupComplete span{color:#7fbe9f}
+.memoryGuard{margin:12px 0 0;padding:10px 12px;border:1px solid #524429;border-radius:11px;background:#1b160c;color:#e5c77f;font-size:10px;line-height:1.55}
+.cutoutVerified{margin:10px 0 0;color:#79dfad;font-size:10px;font-weight:800}
+.sheetPrivacyNote{margin:12px 0 0;color:#78869b;font-size:10px;line-height:1.55}
+.colorControl{padding-top:2px}.colorControl input[type="color"]{min-height:38px;padding:4px;cursor:pointer}
+
+/* Brand mark stays crisp on the dark header/footer. */
+.brandMark{object-fit:contain;filter:drop-shadow(0 4px 12px rgba(36,153,239,.22))}
+
 /* Make mobile result comparison readable and preserve preview height. */
-@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}}
+@media(max-width:760px){.modelResultGrid{grid-template-columns:1fr!important}.originalStrip .imageStage{height:180px!important}.modelResult .imageStage{height:260px!important}.resultActions{grid-template-columns:1fr!important}.resultMeta{font-size:9px}.featureHubGrid,.featureCatalog{grid-template-columns:1fr!important}.featureHubCard,.featureCatalogCard{min-height:330px!important}.sheetCanvasShell{padding:10px!important}}
