@@ -2,6 +2,7 @@
 
 import { ChangeEvent, ClipboardEvent, DragEvent, useRef, useState } from "react";
 import { CropEditor } from "@/components/CropEditor";
+import { removeBackgroundInBrowser, type BrowserBackgroundModel } from "@/lib/browser-background-removal";
 import { validateUploadBasics } from "@/lib/image-validation";
 
 const configuredMaxMb = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB || "12");
@@ -25,24 +26,9 @@ type ResultState = {
 };
 
 type CropTarget = { blob: Blob; label: string } | null;
+type PreparedImage = { previewUrl: string; width: number; height: number; foregroundCoverage: number };
 
-type PreparedImage = {
-  previewUrl: string;
-  width: number;
-  height: number;
-  foregroundCoverage: number;
-};
-
-const emptyResult = (): ResultState => ({
-  status: "idle",
-  blob: null,
-  previewUrl: "",
-  error: "",
-  width: 0,
-  height: 0,
-  foregroundCoverage: 0,
-  engine: "",
-});
+const emptyResult = (): ResultState => ({ status: "idle", blob: null, previewUrl: "", error: "", width: 0, height: 0, foregroundCoverage: 0, engine: "" });
 
 function percent(value: number) {
   return `${Math.max(0, Math.min(100, value * 100)).toFixed(value < 0.1 ? 1 : 0)}%`;
@@ -72,6 +58,7 @@ async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
       image.onerror = () => reject(new Error(`${label} returned an image the browser could not decode.`));
       image.src = objectUrl;
     });
+    await image.decode().catch(() => undefined);
 
     const width = image.naturalWidth || image.width;
     const height = image.naturalHeight || image.height;
@@ -92,20 +79,12 @@ async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
     const pixels = ctx.getImageData(0, 0, previewWidth, previewHeight).data;
     let foregroundPixels = 0;
     const totalPixels = Math.max(1, previewWidth * previewHeight);
-    for (let i = 3; i < pixels.length; i += 4) {
-      if (pixels[i] >= 18) foregroundPixels += 1;
-    }
+    for (let i = 3; i < pixels.length; i += 4) if (pixels[i] >= 18) foregroundPixels += 1;
 
     const previewUrl = await canvasToPreviewUrl(canvas, label);
     canvas.width = 1;
     canvas.height = 1;
-
-    return {
-      previewUrl,
-      width,
-      height,
-      foregroundCoverage: foregroundPixels / totalPixels,
-    };
+    return { previewUrl, width, height, foregroundCoverage: foregroundPixels / totalPixels };
   } finally {
     image.src = "";
     URL.revokeObjectURL(objectUrl);
@@ -113,16 +92,7 @@ async function prepareImage(blob: Blob, label: string): Promise<PreparedImage> {
 }
 
 function completeResult(blob: Blob, prepared: PreparedImage, engine: string): ResultState {
-  return {
-    status: "complete",
-    blob,
-    previewUrl: prepared.previewUrl,
-    error: "",
-    width: prepared.width,
-    height: prepared.height,
-    foregroundCoverage: prepared.foregroundCoverage,
-    engine,
-  };
+  return { status: "complete", blob, previewUrl: prepared.previewUrl, error: "", width: prepared.width, height: prepared.height, foregroundCoverage: prepared.foregroundCoverage, engine };
 }
 
 export function Uploader() {
@@ -155,60 +125,43 @@ export function Uploader() {
     const prepared = await prepareImage(output, "FlytheBG Precision");
     if (prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
       revokePreview(prepared.previewUrl);
-      throw new Error("FlytheBG Precision could not find a usable foreground in this photo. The empty cutout was rejected instead of showing a blank panel.");
+      throw new Error("FlytheBG Precision could not find a usable foreground. Its empty cutout was rejected.");
     }
 
     setRunId(response.headers.get("x-flythebg-run-id") || "");
     setPrecision(completeResult(output, prepared, "IS-Net precision · private server"));
   }
 
-  async function runImgly(nextFile: File, model: "isnet_quint8" | "isnet_fp16") {
-    const { removeBackground } = await import("@imgly/background-removal");
-    const modelLabel = model === "isnet_fp16" ? "FP16" : "quantized";
-    const output = await removeBackground(nextFile, {
-      debug: false,
-      device: "cpu",
-      model,
-      rescale: true,
-      output: { format: "image/png", quality: 1 },
-      progress: (key: string, current: number, total: number) => {
-        const progressValue = total > 0 ? Math.round((current / total) * 100) : 0;
-        if (key.startsWith("fetch:")) setBrowserProgress(`Downloading ${modelLabel} browser AI ${progressValue}%`);
-        else setBrowserProgress(`${modelLabel} browser AI ${progressValue}%`);
-      },
-    });
-    const prepared = await prepareImage(output, `IMG.LY ${modelLabel}`);
-    return { output, prepared, modelLabel };
+  async function runBrowserCandidate(nextFile: File, model: BrowserBackgroundModel) {
+    const result = await removeBackgroundInBrowser(nextFile, model, setBrowserProgress);
+    const prepared = await prepareImage(result.blob, `IMG.LY ${result.modelLabel}`);
+    return { output: result.blob, prepared, modelLabel: result.modelLabel };
   }
 
   async function runBrowserModel(nextFile: File) {
     setBrowser({ ...emptyResult(), status: "processing", engine: "IMG.LY Browser AI" });
-    setBrowserProgress("Loading browser model…");
+    setBrowserProgress("Loading browser-only model…");
 
-    let candidate = await runImgly(nextFile, "isnet_quint8");
+    let candidate = await runBrowserCandidate(nextFile, "isnet_quint8");
     if (candidate.prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
       revokePreview(candidate.prepared.previewUrl);
-      setBrowserProgress("Quantized result was empty — retrying higher-precision browser AI…");
-      candidate = await runImgly(nextFile, "isnet_fp16");
+      setBrowserProgress("Quantized result was empty — retrying browser FP16…");
+      candidate = await runBrowserCandidate(nextFile, "isnet_fp16");
     }
 
     if (candidate.prepared.foregroundCoverage < EMPTY_FOREGROUND_THRESHOLD) {
       revokePreview(candidate.prepared.previewUrl);
-      throw new Error("Browser AI could not find a usable foreground in this photo. The empty cutout was rejected instead of showing a blank panel.");
+      throw new Error("IMG.LY Browser AI could not find a usable foreground. The empty cutout was rejected.");
     }
 
-    setBrowserProgress("Complete");
-    setBrowser(completeResult(candidate.output, candidate.prepared, `IMG.LY IS-Net ${candidate.modelLabel} · on device`));
+    setBrowserProgress("Complete · processed on this device");
+    setBrowser(completeResult(candidate.output, candidate.prepared, `IMG.LY IS-Net ${candidate.modelLabel} · browser only`));
   }
 
   async function processFile(nextFile: File) {
     if (stage === "processing") return;
     const problem = validateUploadBasics(nextFile, MAX_MB);
-    if (problem) {
-      setError(problem);
-      setStage("error");
-      return;
-    }
+    if (problem) { setError(problem); setStage("error"); return; }
 
     setFileName(nextFile.name);
     setCleanupNotice("");
@@ -218,7 +171,7 @@ export function Uploader() {
     setRunId("");
     setFeedback("");
     setFeedbackState("idle");
-    setBrowserProgress("Starting…");
+    setBrowserProgress("Starting browser AI…");
     setCropTarget(null);
     setError("");
     setStage("processing");
@@ -231,19 +184,21 @@ export function Uploader() {
       return;
     }
 
-    const [first, second] = await Promise.allSettled([runPrecision(nextFile), runBrowserModel(nextFile)]);
-    if (first.status === "rejected") {
-      const message = first.reason instanceof Error ? first.reason.message : "FlytheBG Precision failed.";
+    // The engines are independent. One failure never cancels the other engine.
+    const [serverResult, browserResult] = await Promise.allSettled([runPrecision(nextFile), runBrowserModel(nextFile)]);
+
+    if (serverResult.status === "rejected") {
+      const message = serverResult.reason instanceof Error ? serverResult.reason.message : "FlytheBG Precision failed.";
       setPrecision({ ...emptyResult(), status: "error", error: message, engine: "FlytheBG Precision" });
     }
-    if (second.status === "rejected") {
-      const message = second.reason instanceof Error ? second.reason.message : "Browser AI failed.";
+    if (browserResult.status === "rejected") {
+      const message = browserResult.reason instanceof Error ? browserResult.reason.message : "Browser AI failed.";
       setBrowser({ ...emptyResult(), status: "error", error: message, engine: "IMG.LY Browser AI" });
       setBrowserProgress("Unavailable");
     }
 
-    if (first.status === "rejected" && second.status === "rejected") {
-      setError("Neither model produced a usable cutout for this image. Try a photo with a clearer subject/background boundary.");
+    if (serverResult.status === "rejected" && browserResult.status === "rejected") {
+      setError("Neither engine produced a usable cutout. Try a photo with a clearer subject/background boundary.");
       setStage("error");
     } else {
       setStage("complete");
@@ -255,11 +210,7 @@ export function Uploader() {
     setFeedback(value);
     setFeedbackState("sending");
     try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ runId, feedback: value }),
-      });
+      const response = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId, feedback: value }) });
       if (!response.ok) throw new Error("Feedback could not be saved.");
       setFeedbackState("sent");
     } catch {
@@ -282,17 +233,13 @@ export function Uploader() {
 
   function onPaste(event: ClipboardEvent<HTMLDivElement>) {
     if (stage === "processing") return;
-    let next: File | null = null;
     for (let i = 0; i < event.clipboardData.files.length; i += 1) {
       const item = event.clipboardData.files.item(i);
       if (item?.type.startsWith("image/")) {
-        next = item;
+        event.preventDefault();
+        void processFile(item);
         break;
       }
-    }
-    if (next) {
-      event.preventDefault();
-      void processFile(next);
     }
   }
 
@@ -325,48 +272,42 @@ export function Uploader() {
     document.body.appendChild(link);
     link.click();
     link.remove();
-
     window.setTimeout(() => {
       URL.revokeObjectURL(href);
-      reset("Download started successfully. The uploaded image, both AI results, and previews were released from this tab memory. Your downloaded PNG remains on your device.");
+      reset("Download started successfully. The uploaded image, AI results and previews were released from this tab memory. Your downloaded PNG remains on your device.");
     }, 1500);
   }
+
+  const availableCount = Number(precision.status === "complete" && !!precision.blob) + Number(browser.status === "complete" && !!browser.blob);
 
   if (stage === "complete" && originalPreview) {
     return (
       <div className="toolCard resultCard dualResultCard">
         <div className="toolTop">
-          <div><span className="toolKicker">Two validated results</span><h2>Choose the cleaner cutout.</h2></div>
+          <div><span className="toolKicker">Independent AI results</span><h2>{availableCount === 2 ? "Two usable cutouts. Choose the cleaner one." : "One usable cutout is ready."}</h2></div>
           <button className="textButton" onClick={() => reset()}>New image</button>
         </div>
-        <div className="resultRetention"><span className="liveDot"/>Every preview is decoded and validated before it is shown. Empty model outputs are rejected. Downloading your chosen PNG clears the working images from this tab memory.</div>
+        <div className="resultRetention"><span className="liveDot"/>{availableCount === 2 ? "Both engines completed independently." : "One engine failed, but the other result is still available."} IMG.LY runs on this device; the server model is a separate path. Downloading clears working images from this tab memory.</div>
 
-        <div className="originalStrip">
-          <span>Original · {originalPreview.width} × {originalPreview.height}px</span>
-          <div className="imageStage soft"><img src={originalPreview.previewUrl} alt="Original upload preview" /></div>
-        </div>
+        <div className="originalStrip"><span>Original · {originalPreview.width} × {originalPreview.height}px</span><div className="imageStage soft"><img src={originalPreview.previewUrl} alt="Original upload preview" /></div></div>
 
         <div className="modelResultGrid">
           <article className="modelResult">
-            <div className="modelResultHead"><div><strong>FlytheBG Precision</strong><span>{precision.engine || "Private server · precision pipeline"}</span></div><b className="modelBadge">A</b></div>
-            {precision.status === "complete" && precision.blob ? (
-              <>
-                <div className="imageStage checker"><img src={precision.previewUrl} alt="FlytheBG Precision background removed result" /></div>
-                <div className="resultMeta"><span>{precision.width} × {precision.height}px</span><span>Foreground {percent(precision.foregroundCoverage)}</span></div>
-                <div className="resultActions"><button className="primaryButton" onClick={() => download(precision.blob, "flythebg-precision")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: precision.blob!, label: "FlytheBG Precision" })}>Crop</button></div>
-              </>
-            ) : <div className="modelError"><div><strong>No usable preview</strong><span>{precision.error || "Precision result unavailable."}</span></div></div>}
+            <div className="modelResultHead"><div><strong>FlytheBG Precision</strong><span>{precision.engine || "Private server · independent engine"}</span></div><b className="modelBadge">A</b></div>
+            {precision.status === "complete" && precision.blob ? <>
+              <div className="imageStage checker"><img src={precision.previewUrl} alt="FlytheBG Precision background removed result" /></div>
+              <div className="resultMeta"><span>{precision.width} × {precision.height}px</span><span>Foreground {percent(precision.foregroundCoverage)}</span></div>
+              <div className="resultActions"><button className="primaryButton" onClick={() => download(precision.blob, "flythebg-precision")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: precision.blob!, label: "FlytheBG Precision" })}>Crop</button></div>
+            </> : <div className="modelError"><div><strong>Server result unavailable</strong><span>{precision.error || "FlytheBG Precision did not return a usable image. Browser AI can still be used independently."}</span></div></div>}
           </article>
 
           <article className="modelResult">
-            <div className="modelResultHead"><div><strong>Browser AI</strong><span>{browser.engine || "IMG.LY · processed on this device"}</span></div><b className="modelBadge">B</b></div>
-            {browser.status === "complete" && browser.blob ? (
-              <>
-                <div className="imageStage checker"><img src={browser.previewUrl} alt="Browser AI background removed result" /></div>
-                <div className="resultMeta"><span>{browser.width} × {browser.height}px</span><span>Foreground {percent(browser.foregroundCoverage)}</span></div>
-                <div className="resultActions"><button className="primaryButton" onClick={() => download(browser.blob, "browser-ai")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: browser.blob!, label: "Browser AI" })}>Crop</button></div>
-              </>
-            ) : <div className="modelError"><div><strong>No usable preview</strong><span>{browser.error || browserProgress}</span></div></div>}
+            <div className="modelResultHead"><div><strong>IMG.LY Browser AI</strong><span>{browser.engine || "Runs locally in this browser"}</span></div><b className="modelBadge browserBadge">B</b></div>
+            {browser.status === "complete" && browser.blob ? <>
+              <div className="imageStage checker"><img src={browser.previewUrl} alt="IMG.LY browser background removed result" /></div>
+              <div className="resultMeta"><span>{browser.width} × {browser.height}px</span><span>Foreground {percent(browser.foregroundCoverage)}</span></div>
+              <div className="resultActions"><button className="primaryButton" onClick={() => download(browser.blob, "browser-ai")}>Download PNG & clear ↓</button><button className="secondaryButton" onClick={() => setCropTarget({ blob: browser.blob!, label: "IMG.LY Browser AI" })}>Crop</button></div>
+            </> : <div className="modelError"><div><strong>Browser result unavailable</strong><span>{browser.error || browserProgress}</span></div></div>}
           </article>
         </div>
 
@@ -374,11 +315,7 @@ export function Uploader() {
 
         {runId && <div className="feedbackPanel">
           <div><span className="controlLabel">Rate FlytheBG Precision</span><p>Optional. Sends only the quality category, not your photo.</p></div>
-          <div className="feedbackButtons">
-            <button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "great" ? "selected" : ""} onClick={() => void sendFeedback("great")}>✓ Looks great</button>
-            <button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "too_much_removed" ? "selected" : ""} onClick={() => void sendFeedback("too_much_removed")}>− Too much removed</button>
-            <button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "background_left" ? "selected" : ""} onClick={() => void sendFeedback("background_left")}>+ Background left</button>
-          </div>
+          <div className="feedbackButtons"><button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "great" ? "selected" : ""} onClick={() => void sendFeedback("great")}>✓ Looks great</button><button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "too_much_removed" ? "selected" : ""} onClick={() => void sendFeedback("too_much_removed")}>− Too much removed</button><button disabled={feedbackState === "sending" || feedbackState === "sent"} className={feedback === "background_left" ? "selected" : ""} onClick={() => void sendFeedback("background_left")}>+ Background left</button></div>
           {feedbackState === "sent" && <span className="feedbackNote success">Thanks — aggregate calibration updated.</span>}
           {feedbackState === "error" && <span className="feedbackNote">Feedback could not be saved. Your image result is unaffected.</span>}
         </div>}
@@ -388,18 +325,14 @@ export function Uploader() {
 
   return (
     <div className="toolCard">
-      <div className="toolTop"><div><span className="toolKicker">Dual-model background remover</span><h2>Upload once. Compare twice.</h2></div><span className="securePill"><i/> Privacy-first</span></div>
+      <div className="toolTop"><div><span className="toolKicker">Independent dual-engine remover</span><h2>Upload once. Keep whichever engine succeeds.</h2></div><span className="securePill"><i/> Privacy-first</span></div>
       <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" className="srOnly" onChange={onInput} />
       <div className={`dropZone ${dragging ? "dragging" : ""}`} onDragEnter={(e) => { e.preventDefault(); setDragging(true); }} onDragOver={(e) => e.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={onDrop} onPaste={onPaste} role="button" tabIndex={0} onClick={() => stage !== "processing" && inputRef.current?.click()} onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && stage !== "processing") inputRef.current?.click(); }}>
-        {stage === "processing" ? (
-          <div className="processingState" aria-live="polite"><div className="scanner"><i/></div><strong>Running two AI engines…</strong><p>FlytheBG Precision + browser-side IMG.LY model.</p><span className="fileHint">{browserProgress}</span><div className="indeterminate"><i /></div></div>
-        ) : (
-          <><div className="uploadIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg></div><strong>Choose an image</strong><p>or drag, drop, or paste</p><span className="fileHint">PNG · JPEG · WebP · up to {MAX_MB} MB</span></>
-        )}
+        {stage === "processing" ? <div className="processingState" aria-live="polite"><div className="scanner"><i/></div><strong>Running two independent engines…</strong><p>FlytheBG Precision on the server + IMG.LY entirely in this browser.</p><span className="fileHint">{browserProgress}</span><div className="indeterminate"><i /></div></div> : <><div className="uploadIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg></div><strong>Choose an image</strong><p>or drag, drop, or paste</p><span className="fileHint">PNG · JPEG · WebP · up to {MAX_MB} MB</span></>}
       </div>
       {stage === "error" && <div className="errorBox" role="alert"><strong>Couldn’t produce a usable cutout.</strong><span>{error}</span><button onClick={() => reset()}>Try another image</button></div>}
       {cleanupNotice && stage === "idle" && <div className="cleanupComplete"><strong>Privacy cleanup complete</strong><span>{cleanupNotice}</span></div>}
-      <div className="toolFinePrint"><span>✓ Two outputs</span><span>✓ Empty-result protection</span><span>✓ Lower-memory previews</span><span>✓ Working images cleared after download starts</span><span>✓ No account</span><span>By using FlytheBG you accept our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</span></div>
+      <div className="toolFinePrint"><span>✓ Engines fail independently</span><span>✓ IMG.LY browser-only inference</span><span>✓ Empty-result protection</span><span>✓ Crop by cursor, ratio or pixels</span><span>✓ Working images cleared after download starts</span><span>By using FlytheBG you accept our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</span></div>
     </div>
   );
 }
