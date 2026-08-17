@@ -47,19 +47,24 @@ export async function POST(request: Request) {
   const basicProblem = validateUploadBasics(file, maxMb);
   if (basicProblem) return errorResponse(basicProblem, file.size > maxMb * 1024 * 1024 ? 413 : 415);
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const actualMime = detectedMime(bytes);
+  // Only the first 12 bytes are needed for PNG/JPEG/WebP magic-byte validation.
+  // Avoid copying the entire upload into extra ArrayBuffers in the web process.
+  const signature = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const actualMime = detectedMime(signature);
   if (!actualMime || actualMime !== file.type) return errorResponse("The file contents do not match a supported image format.", 415);
 
   const outbound = new FormData();
-  const exactBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
-  outbound.append("image", new Blob([exactBuffer], { type: actualMime }), "upload");
+  outbound.append("image", file, "upload");
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(`${inferenceUrl.replace(/\/$/, "")}/v1/remove-background`, {
-      method: "POST", headers: { "x-inference-secret": secret }, body: outbound, signal: controller.signal, cache: "no-store",
+      method: "POST",
+      headers: { "x-inference-secret": secret },
+      body: outbound,
+      signal: controller.signal,
+      cache: "no-store",
     });
     if (!response.ok) {
       const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
@@ -67,17 +72,25 @@ export async function POST(request: Request) {
       return errorResponse(safe, response.status >= 400 && response.status < 600 ? response.status : 502);
     }
 
-    const output = await response.arrayBuffer();
     const runId = response.headers.get("x-flythebg-run-id");
-    return new Response(output, {
+    if (!response.body) return errorResponse("Image processing returned an empty response.", 502);
+
+    // Stream the PNG directly to the browser instead of buffering another full copy in RAM.
+    return new Response(response.body, {
       status: 200,
       headers: {
-        "Content-Type": "image/png", "Content-Disposition": "inline; filename=flythebg.png", "Cache-Control": "private, no-store, max-age=0", "X-Content-Type-Options": "nosniff",
+        "Content-Type": "image/png",
+        "Content-Disposition": "inline; filename=flythebg.png",
+        "Cache-Control": "private, no-store, max-age=0",
+        "Pragma": "no-cache",
+        "X-Content-Type-Options": "nosniff",
         ...(runId ? { "X-FlytheBG-Run-Id": runId } : {}),
       },
     });
   } catch (reason) {
     if (reason instanceof Error && reason.name === "AbortError") return errorResponse("Image processing timed out. Try a smaller image.", 504);
     return errorResponse("The image processing service is unavailable.", 502);
-  } finally { clearTimeout(timer); }
+  } finally {
+    clearTimeout(timer);
+  }
 }
