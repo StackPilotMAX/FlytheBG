@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { appConfig } from "@/lib/config";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
@@ -12,11 +14,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/cookies", priority: .4, changeFrequency: "monthly" as const },
     { path: "/contact", priority: .4, changeFrequency: "monthly" as const },
   ];
-
-  return routes.map((route) => ({
-    url: `${appConfig.siteUrl}${route.path}`,
-    lastModified: new Date(),
-    changeFrequency: route.changeFrequency,
-    priority: route.priority,
-  }));
+  return routes.map((route) => ({ url: `${appConfig.siteUrl}${route.path}`, changeFrequency: route.changeFrequency, priority: route.priority }));
 }

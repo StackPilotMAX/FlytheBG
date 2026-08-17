@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { appConfig } from "@/lib/config";
 
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${appConfig.name} Background Remover`,
     short_name: appConfig.name,
-    description: "Remove image backgrounds and create print-ready passport photo sheets with FlytheBG.",
+    description: "Browser background removal and print-ready passport photo sheets with FlytheBG.",
     start_url: "/",
     display: "standalone",
     background_color: "#05060b",
