@@ -6,6 +6,10 @@
     "node": "22.x"
   },
   "workspaces": ["apps/web"],
+  "overrides": {
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
+  },
   "scripts": {
     "dev:web": "npm --workspace apps/web run dev",
     "build:web": "npm --workspace apps/web run build",
