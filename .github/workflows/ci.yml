@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Report production dependency audit
-        run: npm audit --omit=dev || true
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - run: npm run test
       - run: npm run typecheck
       - run: npm run build
