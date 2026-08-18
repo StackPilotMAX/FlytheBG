@@ -104,16 +104,15 @@ export function Uploader() {
     setProgress("Preparing image in this browser…");
     setStage("processing");
 
-    let originalPreview: Prepared | null = null;
     let resultPreview: Prepared | null = null;
     try {
-      originalPreview = await createPreview(file, "Original image");
+      const originalPreview = await createPreview(file, "Original image");
       setOriginal(originalPreview);
       const output = await removeBackgroundWithFallback(file, setProgress);
       resultPreview = await createPreview(output.blob, "Background removed image");
       setResultBlob(output.blob);
       setResult(resultPreview);
-      setEngine(`IMG.LY ${output.modelLabel} · browser only`);
+      setEngine(`IMG.LY ${output.modelLabel}${output.edgeRefined ? " · fine-edge preservation" : ""} · browser only`);
       setProgress("Complete");
       setStage("complete");
     } catch (reason) {
@@ -187,7 +186,7 @@ export function Uploader() {
         </div>
 
         <div className="resultActionsBar">
-          <div><strong>Transparent PNG</strong><span>Crop it first or download the full result.</span></div>
+          <div><strong>Transparent PNG</strong><span>Fine hair and clothing boundaries receive a conservative browser-side edge pass when memory allows.</span></div>
           <div className="buttonRow">
             <button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Browser AI" })}>Crop</button>
             <button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button>
@@ -207,9 +206,9 @@ export function Uploader() {
       </div>
 
       <div className="modelFlow" aria-label="Browser model fallback order">
-        <div><span>01</span><strong>IMG.LY Quantized</strong><small>Fast first attempt</small></div>
+        <div><span>01</span><strong>IMG.LY FP16</strong><small>Quality-first portrait edges</small></div>
         <b>→</b>
-        <div><span>02</span><strong>IMG.LY FP16</strong><small>Automatic fallback</small></div>
+        <div><span>02</span><strong>IMG.LY Quantized</strong><small>Smaller-device fallback</small></div>
       </div>
 
       <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/png,image/jpeg,image/webp" onChange={onInput} disabled={stage === "processing"}/>
@@ -227,7 +226,7 @@ export function Uploader() {
             <span className="spinner" aria-hidden="true"/>
             <strong>Removing the background in your browser…</strong>
             <p>{progress}</p>
-            <small>The first run can take longer while the browser downloads model/runtime assets.</small>
+            <small>The first quality run can take longer while the browser downloads model/runtime assets.</small>
           </div>
         ) : (
           <div className="uploadPrompt">
