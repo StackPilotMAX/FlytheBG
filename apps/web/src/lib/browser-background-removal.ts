@@ -108,7 +108,7 @@ export async function removeBackgroundInBrowser(
       device: "cpu",
       model,
       rescale: true,
-      output: { format: "image/png", quality: 1, type: "foreground" },
+      output: { format: "image/png", quality: 1 },
       progress: (key: string, current: number, total: number) => {
         const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
         onProgress?.(key.startsWith("fetch:")
