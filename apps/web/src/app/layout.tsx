@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import "./production-ui.css";
 import { appConfig } from "@/lib/config";
 
@@ -40,17 +39,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en">
+      <head>
+        {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
+      </head>
       <body>
-        {adsEnabled && (
-          <Script
-            id="flythebg-adsense"
-            async
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
-          />
-        )}
-
         <header className="siteHeader">
           <div className="shell navShell">
             <Logo />
