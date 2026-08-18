@@ -4,7 +4,8 @@ FlytheBG is a privacy-focused, browser-only image toolkit for removing backgroun
 
 ## Live tools
 
-- **Remove Background** — runs IMG.LY IS-Net in the visitor's browser. The quantized model is tried first and FP16 is used automatically if the first attempt fails.
+- **Remove Background** — runs IMG.LY IS-Net in the visitor's browser. FP16 is the quality-first model; the smaller quantized model retries automatically if FP16 cannot finish on the current device.
+- **Fine-edge preservation** — after IMG.LY removal, FlytheBG can conservatively reconstruct fine foreground boundaries from the original pixels to reduce aggressive clipping around hair and clothing when browser memory allows.
 - **Crop** — crops the generated transparent PNG locally in the browser.
 - **Passport Photo Maker** — optional browser background removal, exact physical sizing, framing, background color, multiple copies, A4/4×6/US Letter/custom paper, and memory-safe PNG export.
 - **Galaxy landing experience** — a lightweight Canvas 2D visual that never sits above or intercepts the image-tool controls.
@@ -22,7 +23,7 @@ After a download starts or the tool is reset, FlytheBG releases its working imag
 - Next.js 15.5.x static export
 - React 19
 - `@imgly/background-removal` 1.7.0
-- IMG.LY `isnet_quint8` first, `isnet_fp16` fallback
+- IMG.LY `isnet_fp16` quality-first, `isnet_quint8` fallback
 - `onnxruntime-web` version pinned to the version required by IMG.LY 1.7.0
 - Canvas 2D for the decorative galaxy
 - No server-side image inference service
@@ -70,6 +71,18 @@ NEXT_PUBLIC_ADSENSE_CLIENT=
 
 **Never commit passwords, private API keys, database passwords, service-role keys, access tokens, session cookies, OTPs, recovery codes, private connection strings, or hosting credentials.** Environment files are ignored except for `.env.example`.
 
+## AdSense review mode
+
+The current production layout uses the configured AdSense publisher ID only for the supported `google-adsense-account` verification meta tag and the generated `ads.txt` record. It intentionally does **not** load the global AdSense/Auto Ads JavaScript while the site is being reviewed, so automated top/side placeholders cannot push the real page content below the fold.
+
+No ad unit IDs are committed or invented. After site approval, manual responsive ad units can be added only in reserved layout slots. `adsense-safety.css` includes safe primitives for:
+
+- a top placement capped at 100px on mobile;
+- a desktop sidebar placement that moves below content on mobile;
+- reserved `min-height` / `aspect-ratio` space to reduce layout shift.
+
+Keep ads separated from upload, download, crop, print, and other tool controls.
+
 ## Static deployment
 
 Any static host that can run Node.js 22 during the build can deploy the site.
@@ -77,7 +90,7 @@ Any static host that can run Node.js 22 during the build can deploy the site.
 - Build command: `npm install && npm run build:web`
 - Publish directory: `apps/web/out`
 - Set the production `NEXT_PUBLIC_SITE_URL` in the hosting environment.
-- Set `NEXT_PUBLIC_ADSENSE_CLIENT` only if AdSense is being used.
+- Set `NEXT_PUBLIC_ADSENSE_CLIENT` only if AdSense verification/ads are being used.
 
 No database, background-removal server, GPU instance, Python service, or model API key is required for the current image tools.
 
