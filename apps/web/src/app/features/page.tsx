@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = { title: "Features" };
 
 const tools = [
-  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with a quantized first attempt, automatic FP16 fallback, transparent PNG download, and crop workflow." },
+  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with FP16 quality-first processing, quantized fallback, conservative fine-edge preservation, transparent PNG download, and crop workflow." },
   { index: "02", href: "/features/passport-photo", name: "Passport Photo Maker", status: "Live", icon: "▣", description: "Exact physical sizing, optional local background removal, framing, background color, multiple copies, and measured print-sheet export." },
   { index: "03", href: "#principles", name: "More browser utilities", status: "Planned", icon: "＋", description: "Future utilities should follow the same rule: keep image work on the visitor's device whenever the browser can do it safely." },
 ];
