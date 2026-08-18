@@ -5,13 +5,23 @@ export const metadata = { title: "Remove Background" };
 
 export default function RemoveBackgroundPage() {
   return (
-    <main className="toolPage darkPage browserToolPage">
-      <section className="toolPageHero shell browserToolHero">
-        <div><span className="eyebrow light"><i/> Browser Background Remover</span><h1>Your photo stays<br/>on your device.</h1><p>FlytheBG uses IMG.LY in the browser. The quantized model runs first; if it fails or returns an unusable cutout, FP16 automatically retries. No image upload API is required.</p><div className="heroTrustPills"><span>✓ Browser-only image processing</span><span>✓ Automatic FP16 fallback</span><span>✓ Transparent PNG</span></div></div>
-        <div className="modelLadder"><div><b>01</b><strong>IMG.LY Quantized</strong><span>Fast browser attempt</span></div><i>↓</i><div><b>02</b><strong>IMG.LY FP16</strong><span>Higher-precision fallback</span></div><small>Only used when needed to reduce memory and download cost.</small></div>
+    <main className="toolPage">
+      <section className="pageHero compactHero">
+        <div className="shell pageHeroGrid">
+          <div><span className="eyebrow"><i/> Remove Background</span><h1>Background removal that runs on your device.</h1><p>Choose a photo and FlytheBG runs IMG.LY directly in your browser. The fast quantized model is tried first; FP16 retries automatically only when needed.</p><div className="heroProof inline"><span><strong>No image API</strong><small>static host only</small></span><span><strong>2 browser models</strong><small>automatic fallback</small></span><span><strong>PNG</strong><small>transparent output</small></span></div></div>
+          <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Validate photo</strong><small>type + size in browser</small></span></li><li><b>02</b><span><strong>IMG.LY quantized</strong><small>first local attempt</small></span></li><li><b>03</b><span><strong>FP16 fallback</strong><small>only if required</small></span></li></ol></aside>
+        </div>
       </section>
-      <section className="toolWorkspaceSection"><div className="shell removeWorkspace"><Uploader/></div></section>
-      <section className="toolInfoSection"><div className="shell toolInfoGrid"><article><span>01</span><h2>No image database.</h2><p>The image tools do not intentionally send image bytes to Render, Supabase, or a FlytheBG server. Working data exists in the browser while you edit.</p></article><article><span>02</span><h2>Fallback without a second server.</h2><p>IMG.LY quantized is tried first. If it fails validation, FlytheBG retries the IMG.LY FP16 model in the same browser.</p></article><article><span>03</span><h2>Need print photos?</h2><p>The Passport Photo Maker uses the same browser-only removal flow before building a white print sheet with multiple copies.</p><Link href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article></div></section>
+
+      <section className="toolWorkspace"><div className="shell"><Uploader /></div></section>
+
+      <section className="section toolInfoSection">
+        <div className="shell infoCards">
+          <article><span>Private by architecture</span><h2>The image does not need a FlytheBG server.</h2><p>Source photos and generated cutouts stay in browser memory while you work. The static host serves application files only.</p></article>
+          <article><span>First run</span><h2>Model downloads can take time.</h2><p>The browser downloads IMG.LY runtime/model assets on demand. A slow first run is normal; later runs may reuse cached assets.</p></article>
+          <article><span>Next step</span><h2>Need physical photo sizes?</h2><p>Use the Passport Photo Maker to frame the result, set real-world dimensions, and build a white print sheet.</p><Link className="textLink" href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article>
+        </div>
+      </section>
     </main>
   );
 }

@@ -1,40 +1,93 @@
 # FlytheBG
 
-FlytheBG is a privacy-focused browser image toolkit for removing image backgrounds, cropping transparent PNGs, and creating print-ready passport-photo sheets.
+FlytheBG is a privacy-focused, browser-only image toolkit for removing backgrounds, cropping transparent PNGs, and creating print-ready passport-photo sheets.
 
-## What the public site does
+## Live tools
 
-- **Browser background removal** — IMG.LY IS-Net runs on the visitor's device.
-- **Automatic fallback** — the quantized IMG.LY model is tried first; FP16 is used if the first result fails validation.
-- **Passport Photo Maker** — optional browser background removal, exact cm/mm/in sizing, photo background color, multiple copies, A4/4×6/US Letter/custom paper, and memory-safe PNG export.
-- **Crop tool** — crop a generated transparent PNG before download.
-- **Privacy-first image lifecycle** — the current production image workflow does not intentionally send image bytes to FlytheBG, Render, Supabase, or an image database.
+- **Remove Background** — runs IMG.LY IS-Net in the visitor's browser. The quantized model is tried first and FP16 is used automatically if the first attempt fails.
+- **Crop** — crops the generated transparent PNG locally in the browser.
+- **Passport Photo Maker** — optional browser background removal, exact physical sizing, framing, background color, multiple copies, A4/4×6/US Letter/custom paper, and memory-safe PNG export.
+- **Galaxy landing experience** — a lightweight Canvas 2D visual that never sits above or intercepts the image-tool controls.
 
-## Image privacy
+## Privacy architecture
 
-The current production image tools are designed to keep source images in the browser. IMG.LY model/runtime assets are downloaded so local inference can run, but FlytheBG does not intentionally include the selected photo in those model-asset requests.
+The current production image flow has no image-processing API and no image database. Selected photos and generated image blobs stay in the browser while the tool is being used.
 
-Working image data is held temporarily by the page while the user edits. After a download starts, FlytheBG releases the working source, cutout, previews, object URLs, and generated passport sheet held by the page. The downloaded file remains on the user's device.
+FlytheBG does **not intentionally upload image bytes** to Render, Supabase, or a FlytheBG image database. IMG.LY model/runtime assets are downloaded so browser inference can run; those asset requests do not intentionally contain the selected photo.
 
-See the in-site **Privacy & AI Policy** for the precise description and limitations.
+After a download starts or the tool is reset, FlytheBG releases its working image URLs and in-page image state. A downloaded file, browser/OS caches, extensions, screenshots, or other copies outside the page are outside the application's control.
 
-## Browser compatibility
+## Technology
 
-Background removal requires a modern browser with WebAssembly support. Current Chrome, Edge, Firefox, and other modern Chromium-based browsers are the main target. Model download and processing speed depend on the device and network connection.
+- Next.js 15.5.x static export
+- React 19
+- `@imgly/background-removal` 1.7.0
+- IMG.LY `isnet_quint8` first, `isnet_fp16` fallback
+- `onnxruntime-web` version pinned to the version required by IMG.LY 1.7.0
+- Canvas 2D for the decorative galaxy
+- No server-side image inference service
 
-## Passport-photo note
+The application is exported as static HTML/CSS/JavaScript, so a static host can serve it without paying for image-inference compute.
 
-FlytheBG provides sizing and print-layout tools but does not guarantee acceptance by any passport, visa, government, school, or employer authority. Always check the applicable photo specification before printing or submitting an image.
+## Requirements
+
+- Node.js 22
+- A modern browser with WebAssembly support for background removal
+
+The first background-removal run downloads model/runtime assets and can take noticeably longer than later runs. Speed depends on the user's device and connection.
+
+## Local development
+
+From the repository root:
+
+```bash
+npm install
+npm run dev:web
+```
+
+Production checks:
+
+```bash
+npm run test:web
+npm run typecheck:web
+npm run build:web
+```
+
+The static production output is generated in `apps/web/out`.
 
 ## Public configuration
 
-The frontend may use public build-time values such as the site URL, app name, upload-size limit, and Google AdSense publisher ID. These are not private credentials.
+Copy `.env.example` to a local environment file if configuration is needed. Only browser-safe public values belong in `NEXT_PUBLIC_*` variables.
 
-**Never commit passwords, API secrets, database passwords, service-role keys, access tokens, cookies, OTPs, recovery codes, or private connection strings to this repository.**
+```text
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_APP_NAME=FlytheBG
+NEXT_PUBLIC_UPLOAD_MAX_MB=12
+NEXT_PUBLIC_ADSENSE_CLIENT=
+```
 
-## Third-party software
+`NEXT_PUBLIC_ADSENSE_CLIENT` is a public AdSense publisher identifier, not a secret credential. This repository intentionally does not hard-code the production identifier. `apps/web/scripts/prepare-public.mjs` generates `public/ads.txt` during a configured production build.
 
-FlytheBG currently integrates `@imgly/background-removal`. Third-party components remain subject to their upstream licences and terms. Review those obligations before redistributing or modifying covered software.
+**Never commit passwords, private API keys, database passwords, service-role keys, access tokens, session cookies, OTPs, recovery codes, private connection strings, or hosting credentials.** Environment files are ignored except for `.env.example`.
+
+## Static deployment
+
+Any static host that can run Node.js 22 during the build can deploy the site.
+
+- Build command: `npm install && npm run build:web`
+- Publish directory: `apps/web/out`
+- Set the production `NEXT_PUBLIC_SITE_URL` in the hosting environment.
+- Set `NEXT_PUBLIC_ADSENSE_CLIENT` only if AdSense is being used.
+
+No database, background-removal server, GPU instance, Python service, or model API key is required for the current image tools.
+
+## Passport-photo note
+
+FlytheBG provides sizing and print-layout utilities. It does not guarantee that an image will be accepted by a passport, visa, government, school, employer, or other authority. Always verify the official photo specification for the intended document.
+
+## Third-party licensing
+
+FlytheBG integrates `@imgly/background-removal`. IMG.LY publishes that package under its upstream licence. Review and comply with the upstream licence and terms before redistributing, modifying, or operating covered software. This README is not legal advice.
 
 ## Contact
 

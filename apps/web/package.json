@@ -2,7 +2,30 @@
   "name": "@flythebg/web",
   "version": "1.0.0",
   "private": true,
-  "scripts": {"predev":"node scripts/materialize-media.mjs","dev":"next dev --webpack","prebuild":"node scripts/materialize-media.mjs","build":"next build --webpack","typecheck":"tsc --noEmit","test":"node --test tests/*.test.mjs"},
-  "dependencies": {"@imgly/background-removal":"1.7.0","next":"16.2.12","react":"19.2.8","react-dom":"19.2.8","three":"0.185.1"},
-  "devDependencies": {"@tailwindcss/postcss":"4.3.3","@types/node":"26.1.2","@types/react":"19.2.18","@types/react-dom":"19.2.4","@types/three":"0.185.1","tailwindcss":"4.3.3","typescript":"5.8.3"}
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "predev": "node scripts/prepare-public.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/prepare-public.mjs",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "1.7.0",
+    "next": "15.5.21",
+    "onnxruntime-web": "1.21.0-dev.20250206-d981b153d3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.19.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.8.3"
+  }
 }

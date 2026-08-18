@@ -3,12 +3,12 @@ import { GalaxyWorld } from "@/components/GalaxyWorld";
 import { appConfig } from "@/lib/config";
 
 const faqs = [
-  ["Does FlytheBG upload my photo?", "The current background remover, crop workflow, and passport-photo image processing run in your browser. FlytheBG does not intentionally send image bytes to Render, Supabase, or an image database. IMG.LY model/runtime assets are downloaded so local inference can run."],
-  ["What happens if the first background model fails?", "FlytheBG tries IMG.LY's quantized browser model first. If it fails or returns an unusable result, the site automatically retries with the IMG.LY FP16 browser model."],
-  ["Can I make many passport photos?", "Yes. Upload one photo, optionally remove its background in the browser, set exact dimensions, choose a photo background color, fill the sheet, and download a print-ready PNG."],
-  ["Why does the passport page stay white around the photos?", "The selected color is applied only inside each passport-photo rectangle. The print paper itself stays white."],
-  ["Why can 600 DPI be reduced?", "Large high-DPI sheets can exceed browser memory. FlytheBG applies a memory guard and shows the actual export DPI instead of risking a blank or crashed export."],
-  ["What happens after download?", "After the browser download starts, FlytheBG releases the working source, cutout, previews, and generated sheet from the page's working memory. Your downloaded file remains on your device."],
+  ["Does FlytheBG upload my photo?", "The current background remover, crop tool, and Passport Photo Maker process image content in your browser. FlytheBG does not intentionally send image bytes to Render, Supabase, or an image database."],
+  ["Why can the first background removal take longer?", "The browser must download IMG.LY model/runtime assets on the first run. Later runs can be faster because the browser may cache those software assets."],
+  ["What happens when the fast model fails?", "FlytheBG automatically retries with the IMG.LY FP16 browser model. Both models run on the visitor's device."],
+  ["Can I make a full passport-photo sheet?", "Yes. Set exact physical dimensions, frame the person, choose a photo background, select paper and copies, fill the sheet, then download or print it at Actual Size / 100%."],
+  ["Are the passport-photo sizes guaranteed to be accepted?", "No. Document rules vary by authority. FlytheBG provides measurement and layout tools, but you should verify the official specification for the document you are applying for."],
+  ["What is cleared after download?", "FlytheBG releases the working image references and generated in-page data it controls. The downloaded file and copies outside the page remain on your device."],
 ];
 
 export default function HomePage() {
@@ -16,19 +16,62 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", name: appConfig.name, url: appConfig.siteUrl },
-      { "@type": "SoftwareApplication", name: `${appConfig.name} Image Tools`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "Browser background removal, crop tools, and print-ready passport photo sheets." },
+      { "@type": "SoftwareApplication", name: `${appConfig.name} Image Tools`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "Browser background removal, cropping, and passport-photo sheet generation." },
       { "@type": "FAQPage", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
     ],
   };
 
   return (
-    <main className="darkLanding browserLanding">
+    <main className="homePage">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}/>
-      <GalaxyWorld/>
-      <section className="landingIntro shell"><div className="landingIntroCopy"><span className="eyebrow light"><i/> Private browser image tools</span><h2>Clean images.<br/>No image upload server.</h2><p>Remove backgrounds with IMG.LY directly in your browser, crop precisely, and build print-ready passport sheets without storing photos in a FlytheBG database.</p><div className="landingButtons"><Link className="primaryButton" href="/remove-background">Remove a background <span>↗</span></Link><Link className="secondaryButton" href="/features/passport-photo">Make passport photos</Link></div></div><div className="landingStatGrid"><div><strong>2</strong><span>IMG.LY browser model variants</span></div><div><strong>0</strong><span>image database uploads</span></div><div><strong>300</strong><span>DPI safe passport default</span></div></div></section>
-      <section className="section landingFeatures" id="features"><div className="shell"><div className="sectionHeading wide"><span className="eyebrow light"><i/> Live tools</span><h2>Focused tools. Cleaner workflow.</h2><p>The galaxy stays in the background; the actual workspaces use solid, readable surfaces.</p></div><div className="featureHubGrid"><Link href="/remove-background" className="featureHubCard featuredTool"><span className="featureNumber">01</span><div className="featureIcon">✦</div><h3>Remove Background</h3><p>Browser-only IMG.LY removal with quantized first and automatic FP16 fallback.</p><span className="featureLink">Open remover ↗</span></Link><Link href="/features/passport-photo" className="featureHubCard"><span className="featureNumber">02</span><div className="featureIcon">▣</div><h3>Passport Photo Maker</h3><p>Remove the background locally, choose exact print size and color, then fill a white print sheet with multiple copies.</p><span className="featureLink">Make passport photos ↗</span></Link><Link href="/features" className="featureHubCard futureTool"><span className="featureNumber">03+</span><div className="featureIcon">＋</div><h3>More browser tools</h3><p>Future tools can be added without sending private image data to a permanent image store.</p><span className="featureLink">View feature hub ↗</span></Link></div></div></section>
-      <section className="section darkFaq" id="faq"><div className="shell faqWrap"><div className="sectionHeading compact"><span className="eyebrow light"><i/> FAQ</span><h2>Privacy and output, clearly explained.</h2></div><div className="faqList">{faqs.map(([q,a])=><details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div></div></section>
-      <section className="closingCta"><div className="closingGlow"/><div className="shell closingInner"><div><span className="eyebrow light"><i/> Start in the browser</span><h2>Remove. Frame. Print.</h2><p>No account is required for the current tools.</p></div><Link href="/remove-background" className="primaryButton lightButton">Remove background <span>↗</span></Link></div></section>
+      <GalaxyWorld />
+
+      <section className="section trustSection">
+        <div className="shell">
+          <div className="sectionHeading">
+            <span className="eyebrow"><i/> Built for useful work</span>
+            <h2>The visual stays cinematic. The tools stay readable.</h2>
+            <p>Decorative motion is isolated to the landing hero. Every image workspace uses solid surfaces, clear states, native file selection, and responsive controls.</p>
+          </div>
+          <div className="trustGrid">
+            <article><span>01</span><h3>Browser-only image flow</h3><p>No Python inference server, GPU service, image-processing API, or image database is required for the current tools.</p></article>
+            <article><span>02</span><h3>Automatic model fallback</h3><p>IMG.LY quantized runs first. If it cannot produce a usable cutout, FP16 retries automatically in the same browser.</p></article>
+            <article><span>03</span><h3>Static-host friendly</h3><p>The production app exports to static HTML, CSS, and JavaScript so hosting cost stays focused on serving files and bandwidth.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section toolsSection" id="tools">
+        <div className="shell">
+          <div className="sectionHeading splitHeading"><div><span className="eyebrow"><i/> Live tools</span><h2>Two workflows. One private browser architecture.</h2></div><Link className="textLink" href="/features">View all features ↗</Link></div>
+          <div className="toolCards">
+            <Link href="/remove-background" className="toolFeatureCard primaryFeature">
+              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste a photo. Get a transparent PNG with automatic browser-model fallback, then crop or download.</p><span className="featureCta">Open remover <b>↗</b></span>
+            </Link>
+            <Link href="/features/passport-photo" className="toolFeatureCard">
+              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background locally or keep the original. Set exact size, frame the subject, fill a print sheet, and export at measured DPI.</p><span className="featureCta">Open passport maker <b>↗</b></span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section workflowSection">
+        <div className="shell workflowGrid">
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Simple by design</span><h2>From photo to output without a server round-trip.</h2><p>The browser owns the image lifecycle from selection through download.</p></div>
+          <ol className="workflowSteps"><li><span>01</span><div><strong>Select locally</strong><p>Native file input, drag and drop, or paste where supported.</p></div></li><li><span>02</span><div><strong>Process locally</strong><p>IMG.LY model assets load into the browser only when background removal is requested.</p></div></li><li><span>03</span><div><strong>Edit locally</strong><p>Crop, frame, resize, color, and sheet composition happen with browser APIs.</p></div></li><li><span>04</span><div><strong>Download and clear</strong><p>Start the download, then release working data controlled by the page.</p></div></li></ol>
+        </div>
+      </section>
+
+      <section className="section faqSection" id="faq">
+        <div className="shell faqGrid">
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> FAQ</span><h2>What the browser does—and what it does not.</h2></div>
+          <div className="faqList">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
+        </div>
+      </section>
+
+      <section className="finalCta">
+        <div className="shell finalCtaInner"><div><span className="eyebrow"><i/> No account required</span><h2>Start with one photo.</h2><p>Use the production browser tools without sending the image to a FlytheBG inference server.</p></div><div className="buttonRow"><Link className="buttonPrimary" href="/remove-background">Remove background <span>↗</span></Link><Link className="buttonSecondary" href="/features/passport-photo">Make passport photos</Link></div></div>
+      </section>
     </main>
   );
 }

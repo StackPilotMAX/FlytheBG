@@ -24,5 +24,6 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_SITE_URL: https://example.invalid
+          NEXT_PUBLIC_APP_NAME: FlytheBG
           NEXT_PUBLIC_UPLOAD_MAX_MB: 12
-          NEXT_PUBLIC_ADSENSE_CLIENT: ca-pub-7486274445029717
+          NEXT_PUBLIC_ADSENSE_CLIENT: ca-pub-0000000000000000

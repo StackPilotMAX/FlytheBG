@@ -1,7 +1,10 @@
 {
   "name": "flythebg",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "engines": {
+    "node": "22.x"
+  },
   "workspaces": ["apps/web"],
   "scripts": {
     "dev:web": "npm --workspace apps/web run dev",

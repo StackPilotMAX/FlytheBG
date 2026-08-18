@@ -4,9 +4,9 @@ export const metadata = { title: "Passport Photo Maker" };
 
 export default function PassportPhotoPage() {
   return (
-    <main className="darkPage passportPage">
-      <section className="passportPageShell shell"><PassportPhotoMaker /></section>
-      <section className="passportNotes"><div className="shell passportNotesGrid"><article><span>Print-size accuracy</span><h2>Physical dimensions drive the export.</h2><p>The generated sheet converts your requested centimetres, millimetres, or inches into pixels using the selected DPI. Browser preview size does not determine the downloaded image size.</p></article><article><span>Country requirements</span><h2>Check the official specification.</h2><p>Passport and ID photo rules vary by country and document type. FlytheBG lets you enter exact measurements, but you should use the dimensions and head-position rules published by the issuing authority.</p></article></div></section>
+    <main className="passportPage">
+      <section className="passportWorkspace shell"><PassportPhotoMaker /></section>
+      <section className="section passportNotes"><div className="shell infoCards"><article><span>Physical output</span><h2>Dimensions drive the export.</h2><p>FlytheBG converts centimetres, millimetres, or inches into pixels using the actual export DPI. The on-screen preview size does not define the printed size.</p></article><article><span>Print correctly</span><h2>Use Actual Size / 100%.</h2><p>Printer drivers can scale images automatically. Disable “Fit to page” when accurate physical photo dimensions are required.</p></article><article><span>Document rules</span><h2>Check the issuing authority.</h2><p>Photo size, head position, background, expression, clothing, and recency requirements vary by document and country. FlytheBG does not guarantee acceptance.</p></article></div></section>
     </main>
   );
 }

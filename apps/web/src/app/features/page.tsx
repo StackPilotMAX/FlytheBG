@@ -1,4 +1,34 @@
 import Link from "next/link";
-export const metadata={title:"Features"};
-const tools=[{status:"Live",href:"/remove-background",name:"Remove Background",description:"Browser-only IMG.LY removal with quantized first and automatic FP16 fallback, plus crop and transparent PNG export.",icon:"✦"},{status:"Live",href:"/features/passport-photo",name:"Passport Photo Maker",description:"Browser-only optional background removal, exact physical sizing, photo background color, multiple copies, and memory-safe 300/600 DPI sheets.",icon:"▣"},{status:"Planned",href:"#future",name:"More browser tools",description:"Future resize, compression, format conversion, and other utilities can follow the same privacy-first browser architecture.",icon:"＋"}];
-export default function FeaturesPage(){return <main className="darkPage featurePage"><section className="featurePageHero shell"><span className="eyebrow light"><i/> Feature hub</span><h1>Useful tools.<br/>Solid workspaces.</h1><p>FlytheBG keeps image processing in the browser wherever practical and gives each tool a dedicated workspace instead of mixing everything into one page.</p></section><section className="featureCatalog shell">{tools.map((tool,index)=><Link key={tool.name} href={tool.href} className={`featureCatalogCard ${tool.status==="Planned"?"planned":""}`}><div className="featureCatalogTop"><span className="featureIcon">{tool.icon}</span><span className={`statusPill ${tool.status==="Live"?"live":""}`}>{tool.status}</span></div><span className="featureNumber">0{index+1}</span><h2>{tool.name}</h2><p>{tool.description}</p><span className="featureLink">{tool.status==="Live"?"Open tool ↗":"Reserved for future tools"}</span></Link>)}</section><section className="futureArchitecture" id="future"><div className="shell"><span className="eyebrow light"><i/> Browser-first</span><h2>Private image workflows without an image database.</h2><p>The current public tools do not intentionally upload source or generated image bytes to FlytheBG hosting or Supabase.</p></div></section></main>}
+
+export const metadata = { title: "Features" };
+
+const tools = [
+  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with a quantized first attempt, automatic FP16 fallback, transparent PNG download, and crop workflow." },
+  { index: "02", href: "/features/passport-photo", name: "Passport Photo Maker", status: "Live", icon: "▣", description: "Exact physical sizing, optional local background removal, framing, background color, multiple copies, and measured print-sheet export." },
+  { index: "03", href: "#principles", name: "More browser utilities", status: "Planned", icon: "＋", description: "Future utilities should follow the same rule: keep image work on the visitor's device whenever the browser can do it safely." },
+];
+
+export default function FeaturesPage() {
+  return (
+    <main className="featurePage">
+      <section className="pageHero">
+        <div className="shell narrowHero"><span className="eyebrow"><i/> Feature hub</span><h1>Image tools with a browser-first production model.</h1><p>FlytheBG keeps the catalog focused: each live tool has its own readable workspace, clear privacy behavior, and no dependency on a background-removal server.</p></div>
+      </section>
+
+      <section className="section">
+        <div className="shell featureCatalog">
+          {tools.map((tool) => (
+            <Link key={tool.name} href={tool.href} className={`catalogCard ${tool.status === "Planned" ? "planned" : ""}`}>
+              <div className="catalogTop"><span className="featureIndex">{tool.index}</span><span className={`statusPill ${tool.status === "Live" ? "live" : ""}`}>{tool.status}</span></div>
+              <div className="featureMark">{tool.icon}</div><h2>{tool.name}</h2><p>{tool.description}</p><span className="featureCta">{tool.status === "Live" ? "Open tool ↗" : "Browser-first roadmap"}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="section principlesSection" id="principles">
+        <div className="shell workflowGrid"><div className="sectionHeading compact"><span className="eyebrow"><i/> Product principles</span><h2>New features should not make the current tools harder to use.</h2><p>Operational clarity, responsive behavior, and privacy come before decorative complexity.</p></div><div className="principleList"><article><strong>Readable surfaces</strong><p>Tools use opaque panels and predictable spacing so animated backgrounds never reduce legibility.</p></article><article><strong>Native interactions</strong><p>File selection uses native inputs; drag/drop and paste are additions, not fragile replacements.</p></article><article><strong>Browser compute first</strong><p>Image processing stays client-side when practical, which avoids per-image inference-server cost.</p></article></div></div>
+      </section>
+    </main>
+  );
+}
