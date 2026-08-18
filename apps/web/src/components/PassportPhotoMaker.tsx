@@ -230,11 +230,11 @@ export function PassportPhotoMaker() {
     setProcessing(true);
     setError("");
     setCleanup("");
-    setProgress(sourceMode === "remove" ? "Starting browser background removal…" : "Preparing photo in this browser…");
+    setProgress(sourceMode === "remove" ? "Starting quality-first browser background removal…" : "Preparing photo in this browser…");
     try {
       if (source) URL.revokeObjectURL(source.url);
       const prepared = sourceMode === "remove"
-        ? await removeBackgroundWithFallback(file, setProgress).then((result) => preparePhoto(result.blob, `IMG.LY ${result.modelLabel}`))
+        ? await removeBackgroundWithFallback(file, setProgress).then((result) => preparePhoto(result.blob, `IMG.LY ${result.modelLabel}${result.edgeRefined ? " · fine-edge preserved" : ""}`))
         : await preparePhoto(file, "Original photo");
       setSource(prepared);
       setFileName(file.name);
@@ -367,7 +367,7 @@ export function PassportPhotoMaker() {
 
       <section className="passportUploadCard">
         <div className="modeTabs" role="group" aria-label="Photo preparation mode">
-          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>IMG.LY quantized → FP16 fallback</small></button>
+          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>IMG.LY FP16 → quantized fallback</small></button>
           <button className={sourceMode === "direct" ? "active" : ""} type="button" onClick={() => changeMode("direct")}><span>02</span><strong>Keep original</strong><small>Skip AI and build the sheet</small></button>
         </div>
 
@@ -403,7 +403,7 @@ export function PassportPhotoMaker() {
             <div className="portraitEditor"><canvas ref={portraitCanvasRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onWheel={onWheel}/></div>
             <label className="rangeLabel"><span>Zoom</span><input type="range" min="1" max="3" step="0.01" value={zoom} onChange={(event) => setZoom(Number(event.target.value))}/><strong>{zoom.toFixed(2)}×</strong></label>
             <div className="inlineControl"><label>Photo background<input type="color" value={background} onChange={(event) => setBackground(event.target.value)}/></label><span>{background.toUpperCase()}</span><button className="buttonGhost small" type="button" onClick={() => { setZoom(1.05); setShiftX(0); setShiftY(0); }}>Reset frame</button></div>
-            <p className="helperText">For a removed-background image, this color fills the photo rectangle. With “Keep original,” the original opaque background remains visible.</p>
+            <p className="helperText">For a removed-background image, this color fills the photo rectangle only. Fine foreground edges are preserved when browser memory permits. With “Keep original,” the original opaque background remains visible.</p>
           </section>
 
           <section className="passportPanel">
