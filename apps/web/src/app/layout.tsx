@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./production-ui.css";
+import "./adsense-safety.css";
 import { appConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
