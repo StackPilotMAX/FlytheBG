@@ -1,3 +1,9 @@
 import { LegalPage } from "@/components/LegalPage";
-export const metadata = { title: "Cookie Policy" };
+
+export const metadata = {
+  title: "Cookie Policy",
+  description: "Read how FlytheBG uses browser storage, model/runtime caching, AdSense review configuration, and optional advertising technologies.",
+  alternates: { canonical: "/cookies" },
+};
+
 export default function CookiesPage(){return <LegalPage title="Cookie Policy" updated="19 August 2026"><h2>1. Core image tools</h2><p>FlytheBG&apos;s current background remover and Passport Photo Maker do not require an image database or advertising cookie to process your photo. Image content is handled in the browser.</p><h2>2. Browser model caching</h2><p>Your browser may cache IMG.LY model/runtime assets so later processing can start faster. These cached model files are software assets, not copies of the photo you selected.</p><h2>3. Google AdSense review mode</h2><p>During the current AdSense site-review configuration, FlytheBG uses the public AdSense account identifier for ownership verification and an <code>ads.txt</code> record, but does not intentionally load the global AdSense/Auto Ads JavaScript or render advertising units.</p><h2>4. If advertising is enabled later</h2><p>After site approval, if advertising is enabled, Google and its partners may use cookies, local storage, or similar technologies for ad delivery, measurement, fraud prevention, frequency controls, and personalization where permitted. Applicable consent or opt-out controls should be presented where required.</p><h2>5. Browser controls</h2><p>You can clear or block cookies and site storage using your browser settings. Doing so may remove cached browser-model files and make a later background-removal session download them again.</p><h2>6. Contact</h2><p>Questions may be sent to <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p></LegalPage>}
