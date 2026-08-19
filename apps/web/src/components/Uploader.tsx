@@ -117,7 +117,9 @@ export function Uploader() {
       setProgress("Complete");
       setStage("complete");
     } catch (reason) {
+      if (originalPreview) revoke(originalPreview.url);
       if (resultPreview) revoke(resultPreview.url);
+      setOriginal(null);
       setResult(null);
       setResultBlob(null);
       setError(reason instanceof Error ? reason.message : "Background removal failed in this browser.");
