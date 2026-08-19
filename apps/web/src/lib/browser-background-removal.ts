@@ -22,6 +22,7 @@ const SAMPLE_EDGE = 320;
 const MIN_FOREGROUND = 0.0015;
 const MIN_TRANSPARENCY = 0.00025;
 const MAX_EDGE_REFINEMENT_PIXELS = 8_000_000;
+const DEFAULT_MODEL: BrowserBackgroundModel = "isnet_quint8";
 
 function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -204,6 +205,8 @@ export async function removeBackgroundInBrowser(
       },
     }), MODEL_TIMEOUT_MS, label);
 
+    // Validate the library output before any optional edge reconstruction.
+    await inspectCutout(cutout, label);
     onProgress?.(`${label} finished · preserving fine foreground edges…`);
     const refined = await preserveFineEdges(file, cutout);
     await inspectCutout(refined.blob, label);
@@ -214,30 +217,21 @@ export async function removeBackgroundInBrowser(
 }
 
 /**
- * Quality-first browser path. FP16 is preferred to preserve fine portrait and
- * clothing boundaries. The smaller quantized model is the fallback when FP16
- * cannot initialize or finish on the current device.
+ * Bandwidth-first browser path used by both FlytheBG tools.
+ * The quantized IS-Net model is the only automatic download so visitors do not
+ * have to fetch the much larger FP16 model before background removal can start.
  */
 export async function removeBackgroundWithFallback(
   file: File,
   onProgress?: ProgressHandler,
 ): Promise<BrowserBackgroundResult> {
-  let fp16Error = "";
+  onProgress?.("Starting the smaller IMG.LY quantized background-removal model…");
   try {
-    const result = await removeBackgroundInBrowser(file, "isnet_fp16", onProgress);
-    onProgress?.("Complete · IMG.LY FP16 quality mode · processed on this device");
+    const result = await removeBackgroundInBrowser(file, DEFAULT_MODEL, onProgress);
+    onProgress?.("Complete · IMG.LY quantized model · processed on this device");
     return result;
   } catch (reason) {
-    fp16Error = reason instanceof Error ? reason.message : "IMG.LY FP16 failed.";
-    onProgress?.("The quality model could not finish. Retrying with the smaller IMG.LY quantized model…");
-  }
-
-  try {
-    const result = await removeBackgroundInBrowser(file, "isnet_quint8", onProgress);
-    onProgress?.("Complete · IMG.LY quantized fallback · processed on this device");
-    return result;
-  } catch (reason) {
-    const quantizedError = reason instanceof Error ? reason.message : "IMG.LY quantized failed.";
-    throw new Error(`Browser background removal could not finish. Quality model: ${fp16Error} Fallback: ${quantizedError}`);
+    const message = reason instanceof Error ? reason.message : "IMG.LY quantized model failed.";
+    throw new Error(`Browser background removal could not finish with the small model. ${message}`);
   }
 }
