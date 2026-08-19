@@ -1,3 +1,37 @@
 import { LegalPage } from "@/components/LegalPage";
+
 export const metadata = { title: "Terms of Use" };
-export default function TermsPage(){return <LegalPage title="Terms of Use" updated="18 August 2026"><h2>1. Service</h2><p>FlytheBG provides browser-based image utilities including background removal, cropping, and passport-photo sheet generation. The current production background-removal workflow uses third-party IMG.LY browser software and its quantized and FP16 model variants.</p><h2>2. Your images</h2><p>You are responsible for having the rights and permissions needed to use images with FlytheBG. The current image tools are designed to process image content locally in the browser rather than intentionally store it in a FlytheBG image database.</p><h2>3. Browser AI and third-party software</h2><p>IMG.LY software, model assets, browser runtimes, hosting providers, advertising providers, and other third-party components may have their own terms, licences, availability limits, and policies. FlytheBG does not guarantee that every browser or device can run every model successfully.</p><h2>4. Passport photos</h2><p>The Passport Photo Maker provides sizing, background color, layout, DPI, and print-sheet tools. It does not guarantee acceptance by any passport office, government authority, visa authority, school, employer, or other organization. Users must verify the applicable photo rules themselves.</p><h2>5. Output and printing</h2><p>For physical sizing, print generated passport sheets at Actual Size or 100% unless your printer workflow specifically requires otherwise. Printer drivers, paper, scaling, and device color management are outside FlytheBG&apos;s control.</p><h2>6. Availability</h2><p>FlytheBG may change, suspend, replace, or remove features. Browser AI depends on compatible browser capabilities and availability of required third-party model/runtime assets.</p><h2>7. Prohibited use</h2><p>Do not use FlytheBG to violate law, intellectual-property rights, privacy rights, security restrictions, or the rights of other people. Do not attempt to disrupt, abuse, scrape excessively, or interfere with the service or its providers.</p><h2>8. No warranty</h2><p>FlytheBG is provided on an as-available basis. Automated segmentation may make mistakes, including removing parts of the subject or leaving background areas. Review results before relying on them.</p><h2>9. Contact</h2><p>Questions about these terms may be sent to <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p></LegalPage>}
+
+export default function TermsPage(){
+  return <LegalPage title="Terms of Use" updated="19 August 2026">
+    <h2>1. Service</h2>
+    <p>FlytheBG provides browser-based image utilities including background removal, cropping, and passport-photo sheet generation. The current production background-removal workflow uses third-party IMG.LY browser software and its quantized and FP16 model variants.</p>
+
+    <h2>2. Your images</h2>
+    <p>You are responsible for having the rights and permissions needed to use images with FlytheBG. The current image tools are designed to process image content locally in the browser rather than intentionally upload or store it in a FlytheBG image database.</p>
+
+    <h2>3. Browser AI and third-party software</h2>
+    <p>IMG.LY software, model assets, browser runtimes, hosting providers, advertising providers, and other third-party components may have their own terms, licences, availability limits, and policies. FlytheBG does not guarantee that every browser or device can run every model successfully.</p>
+
+    <h2>4. Passport photos</h2>
+    <p>The Passport Photo Maker provides sizing, background color, layout, DPI, and print-sheet tools. It does not guarantee acceptance by any passport office, government authority, visa authority, school, employer, or other organization. Users must verify the applicable photo rules themselves.</p>
+
+    <h2>5. Output and printing</h2>
+    <p>For physical sizing, print generated passport sheets at Actual Size or 100% unless your printer workflow specifically requires otherwise. Printer drivers, paper, scaling, and device color management are outside FlytheBG&apos;s control.</p>
+
+    <h2>6. Advertising and publisher content</h2>
+    <p>Advertising may be enabled on eligible publisher-content pages. The current production source intentionally keeps operational image-tool workspaces and utility/legal screens separate from the AdSense loader. Advertising availability, review status, and ad placement are also subject to Google&apos;s policies and account settings.</p>
+
+    <h2>7. Availability</h2>
+    <p>FlytheBG may change, suspend, replace, or remove features. Browser AI depends on compatible browser capabilities and availability of required third-party model/runtime assets. Only currently available tools should be presented as live features on the public site.</p>
+
+    <h2>8. Prohibited use</h2>
+    <p>Do not use FlytheBG to violate law, intellectual-property rights, privacy rights, security restrictions, or the rights of other people. Do not attempt to disrupt, abuse, scrape excessively, or interfere with the service or its providers.</p>
+
+    <h2>9. No warranty</h2>
+    <p>FlytheBG is provided on an as-available basis. Automated segmentation may make mistakes, including removing parts of the subject or leaving background areas. Review results before relying on them.</p>
+
+    <h2>10. Contact</h2>
+    <p>Questions about these terms may be sent to <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p>
+  </LegalPage>
+}
