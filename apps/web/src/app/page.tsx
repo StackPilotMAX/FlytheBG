@@ -8,8 +8,8 @@ export const metadata = {
 
 const faqs = [
   ["Does FlytheBG upload my photo?", "The current background remover, crop tool, and Passport Photo Maker process image content in your browser. FlytheBG does not intentionally send image bytes to Render, Supabase, or an image database."],
-  ["Why can the first background removal take longer?", "The browser must download IMG.LY model/runtime assets on the first run. Later runs can be faster because the browser may cache those software assets."],
-  ["What happens when the quality model fails?", "FlytheBG tries IMG.LY FP16 first for better fine-edge quality. If it cannot finish on the device, the smaller quantized browser model retries automatically."],
+  ["Why can the first background removal take longer?", "The browser must download the smaller IMG.LY quantized model and runtime assets on the first run. Later runs can be faster because the browser may cache those software assets."],
+  ["Which background-removal model does FlytheBG use?", "FlytheBG now uses IMG.LY's smaller quantized IS-Net model directly for the automatic browser workflow. The larger FP16 model is not downloaded automatically, which reduces startup bandwidth and memory pressure."],
   ["How does FlytheBG protect hair and clothing edges?", "FlytheBG cannot retrain IMG.LY's pretrained model in your browser. Instead, after removal it can conservatively rebuild fine foreground boundaries from the original image pixels when browser memory allows."],
   ["Can I make a full passport-photo sheet?", "Yes. Set exact physical dimensions, frame the person, choose a photo background, select paper and copies, fill the sheet, then download or print it at Actual Size / 100%."],
   ["Are the passport-photo sizes guaranteed to be accepted?", "No. Document rules vary by authority. FlytheBG provides measurement and layout tools, but you should verify the official specification for the document you are applying for."],
@@ -40,7 +40,7 @@ export default function HomePage() {
           </div>
           <div className="trustGrid">
             <article><span>01</span><h3>Browser-only image flow</h3><p>No Python inference server, GPU service, image-processing API, or image database is required for the current tools.</p></article>
-            <article><span>02</span><h3>Quality-first model fallback</h3><p>IMG.LY FP16 runs first for better portrait boundaries. If the device cannot finish it, the smaller quantized model retries automatically.</p></article>
+            <article><span>02</span><h3>Smaller model download</h3><p>Background removal uses IMG.LY’s quantized IS-Net model directly, avoiding the much larger automatic FP16 download.</p></article>
             <article><span>03</span><h3>Static-host friendly</h3><p>The production app exports to static HTML, CSS, and JavaScript so hosting cost stays focused on serving files and bandwidth.</p></article>
           </div>
         </div>
@@ -51,10 +51,10 @@ export default function HomePage() {
           <div className="sectionHeading splitHeading"><div><span className="eyebrow"><i/> Live tools</span><h2>Two workflows. One private browser architecture.</h2></div><Link className="textLink" href="/features">View all features ↗</Link></div>
           <div className="toolCards">
             <Link href="/remove-background" className="toolFeatureCard primaryFeature">
-              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste a photo. FP16 is quality-first, quantized is the fallback, and a conservative edge pass helps retain fine hair and clothing boundaries.</p><span className="featureCta">Open remover <b>↗</b></span>
+              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste a photo. The smaller quantized model runs directly in the browser, and a conservative edge pass helps retain fine hair and clothing boundaries.</p><span className="featureCta">Open remover <b>↗</b></span>
             </Link>
             <Link href="/features/passport-photo" className="toolFeatureCard">
-              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background locally or keep the original. Set exact size, frame the subject, fill a print sheet, and export at measured DPI.</p><span className="featureCta">Open passport maker <b>↗</b></span>
+              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background locally with the same smaller browser model or keep the original. Set exact size, frame the subject, fill a print sheet, and export at measured DPI.</p><span className="featureCta">Open passport maker <b>↗</b></span>
             </Link>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function HomePage() {
       <section className="section workflowSection">
         <div className="shell workflowGrid">
           <div className="sectionHeading compact"><span className="eyebrow"><i/> Simple by design</span><h2>From photo to output without a server round-trip.</h2><p>The browser owns the image lifecycle from selection through download.</p></div>
-          <ol className="workflowSteps"><li><span>01</span><div><strong>Select locally</strong><p>Native file input, drag and drop, or paste where supported.</p></div></li><li><span>02</span><div><strong>Process locally</strong><p>IMG.LY model assets load into the browser only when background removal is requested.</p></div></li><li><span>03</span><div><strong>Edit locally</strong><p>Crop, frame, resize, color, and sheet composition happen with browser APIs.</p></div></li><li><span>04</span><div><strong>Download and clear</strong><p>Start the download, then release working data controlled by the page.</p></div></li></ol>
+          <ol className="workflowSteps"><li><span>01</span><div><strong>Select locally</strong><p>Native file input, drag and drop, or paste where supported.</p></div></li><li><span>02</span><div><strong>Process locally</strong><p>The smaller IMG.LY quantized model/runtime assets load into the browser only when background removal is requested.</p></div></li><li><span>03</span><div><strong>Edit locally</strong><p>Crop, frame, resize, color, and sheet composition happen with browser APIs.</p></div></li><li><span>04</span><div><strong>Download and clear</strong><p>Start the download, then release working data controlled by the page.</p></div></li></ol>
         </div>
       </section>
 

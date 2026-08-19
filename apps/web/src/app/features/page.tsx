@@ -7,9 +7,9 @@ export const metadata = {
 };
 
 const tools = [
-  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with FP16 quality-first processing, quantized fallback, conservative fine-edge preservation, transparent PNG download, and crop workflow." },
-  { index: "02", href: "/features/passport-photo", name: "Passport Photo Maker", status: "Live", icon: "▣", description: "Exact physical sizing, optional local background removal, framing, background color, multiple copies, and measured print-sheet export." },
-  { index: "03", href: "/about", name: "How FlytheBG Works", status: "Guide", icon: "◎", description: "A plain-language explanation of the browser-first architecture, model fallback, image lifecycle, product limitations, and the principles used for the current production tools." },
+  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with the smaller quantized IS-Net model, conservative fine-edge preservation, transparent PNG download, and crop workflow." },
+  { index: "02", href: "/features/passport-photo", name: "Passport Photo Maker", status: "Live", icon: "▣", description: "Exact physical sizing, optional local background removal with the same smaller browser model, framing, background color, multiple copies, and measured print-sheet export." },
+  { index: "03", href: "/about", name: "How FlytheBG Works", status: "Guide", icon: "◎", description: "A plain-language explanation of the browser-first architecture, small-model image lifecycle, product limitations, and the principles used for the current production tools." },
 ];
 
 export default function FeaturesPage() {
@@ -35,7 +35,7 @@ export default function FeaturesPage() {
       </section>
 
       <section className="section toolInfoSection">
-        <div className="shell infoCards"><article><span>Background removal</span><h2>For transparent cutouts and follow-up design work.</h2><p>Use the remover when the main goal is a transparent PNG. The supporting guide explains difficult edges, source-image choices, why the first run can be slower, and what is retained in browser memory.</p><Link className="textLink" href="/remove-background">Read and use Remove Background ↗</Link></article><article><span>Passport workflow</span><h2>For measured photo rectangles and print sheets.</h2><p>Use the Passport Photo Maker when physical dimensions, DPI, framing, repeated copies, and a printable sheet matter. Always verify the issuing authority’s current rules before submitting a photo.</p><Link className="textLink" href="/features/passport-photo">Read and use Passport Photo Maker ↗</Link></article><article><span>Architecture</span><h2>For the details behind the product.</h2><p>The About page documents what runs in the browser, what model fallback means, what FlytheBG does not promise, and how the current site treats image data and advertising during review.</p><Link className="textLink" href="/about">About FlytheBG ↗</Link></article></div>
+        <div className="shell infoCards"><article><span>Background removal</span><h2>For transparent cutouts and follow-up design work.</h2><p>Use the remover when the main goal is a transparent PNG. The supporting guide explains difficult edges, source-image choices, why the first run can be slower, and what is retained in browser memory.</p><Link className="textLink" href="/remove-background">Read and use Remove Background ↗</Link></article><article><span>Passport workflow</span><h2>For measured photo rectangles and print sheets.</h2><p>Use the Passport Photo Maker when physical dimensions, DPI, framing, repeated copies, and a printable sheet matter. Always verify the issuing authority’s current rules before submitting a photo.</p><Link className="textLink" href="/features/passport-photo">Read and use Passport Photo Maker ↗</Link></article><article><span>Architecture</span><h2>For the details behind the product.</h2><p>The About page documents what runs in the browser, why FlytheBG uses the smaller quantized model, what FlytheBG does not promise, and how the current site treats image data and advertising during review.</p><Link className="textLink" href="/about">About FlytheBG ↗</Link></article></div>
       </section>
     </main>
   );
