@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/features", priority: .9, changeFrequency: "weekly" as const },
     { path: "/remove-background", priority: .95, changeFrequency: "weekly" as const },
     { path: "/features/passport-photo", priority: .9, changeFrequency: "weekly" as const },
+    { path: "/about", priority: .75, changeFrequency: "monthly" as const },
     { path: "/privacy", priority: .4, changeFrequency: "monthly" as const },
     { path: "/terms", priority: .4, changeFrequency: "monthly" as const },
     { path: "/cookies", priority: .4, changeFrequency: "monthly" as const },

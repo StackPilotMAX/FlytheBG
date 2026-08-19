@@ -2,6 +2,10 @@ import Link from "next/link";
 import { GalaxyWorld } from "@/components/GalaxyWorld";
 import { appConfig } from "@/lib/config";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 const faqs = [
   ["Does FlytheBG upload my photo?", "The current background remover, crop tool, and Passport Photo Maker process image content in your browser. FlytheBG does not intentionally send image bytes to Render, Supabase, or an image database."],
   ["Why can the first background removal take longer?", "The browser must download IMG.LY model/runtime assets on the first run. Later runs can be faster because the browser may cache those software assets."],
