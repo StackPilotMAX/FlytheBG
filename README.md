@@ -4,10 +4,13 @@ FlytheBG is a privacy-focused, browser-only image toolkit for removing backgroun
 
 ## Live tools
 
-- **Remove Background** — runs IMG.LY IS-Net in the visitor's browser. The quantized model is tried first and FP16 is used automatically if the first attempt fails.
-- **Crop** — crops the generated transparent PNG locally in the browser.
+- **Remove Background** — runs IMG.LY IS-Net in the visitor's browser. The quantized model is tried first and FP16 is used automatically if the first attempt fails or returns an unusable cutout.
+- **Crop & Refine** — crops a generated transparent PNG locally with free-drag, fixed-ratio, or exact pixel controls.
 - **Passport Photo Maker** — optional browser background removal, exact physical sizing, framing, background color, multiple copies, A4/4×6/US Letter/custom paper, and memory-safe PNG export.
-- **Galaxy landing experience** — a lightweight Canvas 2D visual that never sits above or intercepts the image-tool controls.
+- **Galaxy landing experience** — a lightweight Canvas 2D visual with a CSS fallback. It is decorative and cannot sit above or intercept image-tool controls.
+- **Original guides** — first-party guidance for cleaner cutouts, passport-sheet printing, and browser image privacy.
+
+Only currently working features are presented as live features. The public site does not use "coming soon", planned-tool, or under-construction feature cards.
 
 ## Privacy architecture
 
@@ -23,7 +26,7 @@ After a download starts or the tool is reset, FlytheBG releases its working imag
 - React 19
 - `@imgly/background-removal` 1.7.0
 - IMG.LY `isnet_quint8` first, `isnet_fp16` fallback
-- `onnxruntime-web` version pinned to the version required by IMG.LY 1.7.0
+- `onnxruntime-web` pinned to the peer version required by IMG.LY 1.7.0
 - Canvas 2D for the decorative galaxy
 - No server-side image inference service
 
@@ -70,6 +73,21 @@ NEXT_PUBLIC_ADSENSE_CLIENT=
 
 **Never commit passwords, private API keys, database passwords, service-role keys, access tokens, session cookies, OTPs, recovery codes, private connection strings, or hosting credentials.** Environment files are ignored except for `.env.example`.
 
+## AdSense placement policy in this project
+
+The global layout does **not** load the AdSense script. `PublisherAds` is intentionally used only on substantive publisher-content pages such as the homepage and original guide articles.
+
+The following operational or utility screens intentionally stay ad-free in code:
+
+- Remove Background
+- Passport Photo Maker
+- Features hub
+- Guides hub
+- Privacy, Terms, Cookies, Contact
+- error / not-found / navigation-only states
+
+This separation reduces the risk of Google-served ads appearing on low-value, behavioural, utility-only, or under-construction screens. Account-level Auto Ads page exclusions should still be configured as an additional safeguard when Auto Ads are enabled.
+
 ## Static deployment
 
 Any static host that can run Node.js 22 during the build can deploy the site.
@@ -84,6 +102,10 @@ No database, background-removal server, GPU instance, Python service, or model A
 ## Passport-photo note
 
 FlytheBG provides sizing and print-layout utilities. It does not guarantee that an image will be accepted by a passport, visa, government, school, employer, or other authority. Always verify the official photo specification for the intended document.
+
+## Dependency security
+
+CI reports the production dependency audit rather than automatically applying breaking `npm audit fix --force` upgrades. Security advisories must be reviewed against the browser-model compatibility requirements before framework upgrades are made.
 
 ## Third-party licensing
 
