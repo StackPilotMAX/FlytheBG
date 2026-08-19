@@ -3,7 +3,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata = { title: "Privacy & AI Policy" };
 
 export default function PrivacyPage() {
-  return <LegalPage title="Privacy & AI Policy" updated="18 August 2026">
+  return <LegalPage title="Privacy & AI Policy" updated="19 August 2026">
     <h2>1. Browser-first image processing</h2>
     <p>FlytheBG&apos;s current background remover, crop workflow, and Passport Photo Maker process image content in the visitor&apos;s browser. The live image tools do not intentionally upload source image bytes or generated image bytes to FlytheBG, Render, Supabase, or a FlytheBG image database.</p>
     <p>Because the image is not intentionally sent to the application database, there is no server-side image record waiting to be deleted after download. The browser temporarily holds working image data while the tool is open.</p>
@@ -26,9 +26,10 @@ export default function PrivacyPage() {
     <h2>6. Google AdSense</h2>
     <p>FlytheBG is configured for Google AdSense. The AdSense publisher identifier and <code>ads.txt</code> seller record are public identifiers, not passwords. Google and advertising partners may process browser/device information, IP/network data, cookies or similar identifiers, ad interactions, approximate location derived from network data, and related advertising data according to their policies and applicable consent choices.</p>
     <p>FlytheBG does not intentionally send uploaded image bytes, generated PNG files, private blob URLs, or source filenames to advertising requests.</p>
+    <p>The production site intentionally does not load the AdSense script on the Remove Background workspace, Passport Photo Maker, Features hub, Guides hub, legal pages, Contact page, or error/navigation-only screens. Advertising code is limited in the site source to substantive publisher-content pages such as the homepage and original guide articles.</p>
 
     <h2>7. Cookies and consent</h2>
-    <p>Core image tools do not require advertising cookies to process images. Where required, advertising and consent choices may be presented through Google&apos;s certified consent tooling or other compliant controls.</p>
+    <p>Core image tools do not require advertising cookies to process images. Where required, advertising and consent choices may be presented through Google&apos;s certified consent tooling or other compliant controls. Tool functionality is designed to remain separate from optional advertising storage.</p>
 
     <h2>8. Image metadata</h2>
     <p>Generated background-removal and passport-sheet PNGs are newly encoded browser outputs. FlytheBG does not intentionally copy source EXIF metadata into those generated PNGs.</p>
