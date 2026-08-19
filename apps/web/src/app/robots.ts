@@ -4,5 +4,12 @@ import { appConfig } from "@/lib/config";
 export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
-  return { rules: { userAgent: "*", allow: "/" }, sitemap: `${appConfig.siteUrl}/sitemap.xml` };
+  return {
+    rules: [
+      { userAgent: "*", allow: "/" },
+      { userAgent: "Googlebot", allow: "/" },
+    ],
+    sitemap: `${appConfig.siteUrl}/sitemap.xml`,
+    host: appConfig.siteUrl,
+  };
 }
