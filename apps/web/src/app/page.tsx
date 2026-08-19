@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { GalaxyWorld } from "@/components/GalaxyWorld";
 import { appConfig } from "@/lib/config";
 
-export const metadata = {
+const homeTitle = "FlytheBG — Free Background Remover & Passport Photo Maker";
+const homeDescription = "Remove backgrounds, create transparent PNGs, crop images, and make print-ready passport photo sheets directly in your browser with FlytheBG.";
+
+export const metadata: Metadata = {
+  title: { absolute: homeTitle },
+  description: homeDescription,
   alternates: { canonical: "/" },
+  openGraph: {
+    title: homeTitle,
+    description: homeDescription,
+    url: "/",
+    siteName: appConfig.name,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: homeTitle,
+    description: homeDescription,
+  },
 };
 
 const faqs = [
@@ -20,9 +39,37 @@ export default function HomePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebSite", name: appConfig.name, url: appConfig.siteUrl },
-      { "@type": "SoftwareApplication", name: `${appConfig.name} Image Tools`, applicationCategory: "MultimediaApplication", operatingSystem: "Web", url: appConfig.siteUrl, description: "Browser background removal, cropping, and passport-photo sheet generation." },
-      { "@type": "FAQPage", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
+      {
+        "@type": "WebSite",
+        "@id": `${appConfig.siteUrl}/#website`,
+        name: appConfig.name,
+        alternateName: ["Fly the BG", "FlytheBG Image Tools"],
+        url: appConfig.siteUrl,
+        inLanguage: "en",
+      },
+      {
+        "@type": "Organization",
+        "@id": `${appConfig.siteUrl}/#publisher`,
+        name: appConfig.name,
+        url: appConfig.siteUrl,
+        logo: `${appConfig.siteUrl}/brand/flythebg-mark.svg`,
+        email: appConfig.contactEmail,
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${appConfig.siteUrl}/#app`,
+        name: `${appConfig.name} Image Tools`,
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "Web",
+        url: appConfig.siteUrl,
+        isAccessibleForFree: true,
+        description: "Browser background removal, transparent PNG cropping, and passport-photo sheet generation.",
+        featureList: ["Background removal", "Transparent PNG export", "Image cropping", "Passport photo sizing", "Print-sheet generation"],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })),
+      },
     ],
   };
 
