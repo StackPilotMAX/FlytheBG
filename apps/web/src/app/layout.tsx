@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import "./production-ui.css";
 import { appConfig } from "@/lib/config";
 
@@ -35,22 +34,9 @@ function Logo() {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "";
-  const adsEnabled = /^ca-pub-\d{16}$/.test(adsenseClient);
-
   return (
     <html lang="en">
       <body>
-        {adsEnabled && (
-          <Script
-            id="flythebg-adsense"
-            async
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
-          />
-        )}
-
         <header className="siteHeader">
           <div className="shell navShell">
             <Logo />
@@ -58,6 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/remove-background">Remove BG</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/features">Features</Link>
+              <Link href="/guides">Guides</Link>
               <Link href="/#faq">FAQ</Link>
             </nav>
             <Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link>
@@ -72,6 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="footerLinks">
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
+              <Link href="/guides">Guides</Link>
               <Link href="/privacy">Privacy & AI</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/cookies">Cookies</Link>
