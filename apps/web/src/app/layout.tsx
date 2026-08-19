@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: { default: `${appConfig.name} — Private browser image tools`, template: `%s — ${appConfig.name}` },
   description: "Remove image backgrounds, crop transparent PNGs, and build print-ready passport photo sheets directly in your browser.",
   applicationName: appConfig.name,
-  alternates: { canonical: "/" },
   openGraph: {
     title: `${appConfig.name} — Browser Image Tools`,
     description: "Background removal and passport-photo tools that run on the visitor's device.",
@@ -65,6 +64,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="footerLinks">
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
+              <Link href="/features">Features</Link>
+              <Link href="/about">About</Link>
               <Link href="/privacy">Privacy & AI</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/cookies">Cookies</Link>
