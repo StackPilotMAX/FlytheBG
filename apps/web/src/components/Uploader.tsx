@@ -205,10 +205,8 @@ export function Uploader() {
         <span className="privacyPill">● No image upload</span>
       </div>
 
-      <div className="modelFlow" aria-label="Browser model fallback order">
-        <div><span>01</span><strong>IMG.LY FP16</strong><small>Quality-first portrait edges</small></div>
-        <b>→</b>
-        <div><span>02</span><strong>IMG.LY Quantized</strong><small>Smaller-device fallback</small></div>
+      <div className="modelFlow" aria-label="Browser background-removal model">
+        <div><span>01</span><strong>IMG.LY Quantized</strong><small>Smaller download · browser model</small></div>
       </div>
 
       <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/png,image/jpeg,image/webp" onChange={onInput} disabled={stage === "processing"}/>
@@ -226,7 +224,7 @@ export function Uploader() {
             <span className="spinner" aria-hidden="true"/>
             <strong>Removing the background in your browser…</strong>
             <p>{progress}</p>
-            <small>The first quality run can take longer while the browser downloads model/runtime assets.</small>
+            <small>The first run downloads the smaller quantized model/runtime assets; later runs can reuse browser cache.</small>
           </div>
         ) : (
           <div className="uploadPrompt">
@@ -241,7 +239,7 @@ export function Uploader() {
       {stage === "error" && <div className="errorNotice" role="alert"><div><strong>Browser AI could not finish.</strong><p>{error}</p></div><button className="buttonSecondary" type="button" onClick={() => clearWorkingState()}>Try another photo</button></div>}
       {cleanupNotice && stage === "idle" && <div className="successNotice"><strong>Working image cleared.</strong><span>{cleanupNotice}</span></div>}
 
-      <div className="toolFootnote"><strong>Runs on the visitor's device.</strong><span>FlytheBG only serves the static app. The browser downloads IMG.LY runtime/model assets when needed.</span></div>
+      <div className="toolFootnote"><strong>Runs on the visitor's device.</strong><span>FlytheBG only serves the static app. The browser downloads the smaller IMG.LY quantized model/runtime assets when needed.</span></div>
     </section>
   );
 }
