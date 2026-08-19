@@ -50,6 +50,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/remove-background">Remove BG</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/features">Features</Link>
+              <Link href="/guides">Guides</Link>
               <Link href="/#faq">FAQ</Link>
             </nav>
             <Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link>
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/features">Features</Link>
+              <Link href="/guides">Guides</Link>
               <Link href="/about">About</Link>
               <Link href="/privacy">Privacy & AI</Link>
               <Link href="/terms">Terms</Link>
