@@ -104,9 +104,10 @@ export function Uploader() {
     setProgress("Preparing image in this browser…");
     setStage("processing");
 
+    let originalPreview: Prepared | null = null;
     let resultPreview: Prepared | null = null;
     try {
-      const originalPreview = await createPreview(file, "Original image");
+      originalPreview = await createPreview(file, "Original image");
       setOriginal(originalPreview);
       const output = await removeBackgroundWithFallback(file, setProgress);
       resultPreview = await createPreview(output.blob, "Background removed image");
@@ -116,7 +117,9 @@ export function Uploader() {
       setProgress("Complete");
       setStage("complete");
     } catch (reason) {
+      if (originalPreview) revoke(originalPreview.url);
       if (resultPreview) revoke(resultPreview.url);
+      setOriginal(null);
       setResult(null);
       setResultBlob(null);
       setError(reason instanceof Error ? reason.message : "Background removal failed in this browser.");
