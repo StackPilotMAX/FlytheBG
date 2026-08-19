@@ -9,7 +9,7 @@ export default function PrivacyPage() {
     <p>Because the image is not intentionally sent to the application database, there is no server-side image record waiting to be deleted after download. The browser temporarily holds working image data while the tool is open.</p>
 
     <h2>2. IMG.LY Browser AI</h2>
-    <p>Background removal uses the IMG.LY browser package. FlytheBG currently tries the FP16 IS-Net browser model first for higher-quality foreground boundaries and automatically retries the smaller quantized variant if FP16 cannot finish on the visitor&apos;s device.</p>
+    <p>Background removal uses the IMG.LY browser package. FlytheBG currently uses the smaller quantized IS-Net browser model directly for automatic removal. The larger FP16 model is not downloaded automatically, reducing the first-run model transfer and browser memory pressure.</p>
     <p>After IMG.LY creates a cutout, FlytheBG may perform a conservative local edge-preservation pass. This rebuilds the foreground from the original browser-held pixels using the generated alpha mask and a very small boundary expansion to reduce aggressive clipping around fine hair, sleeves, collars, and similar edges. This does not retrain or modify IMG.LY&apos;s model weights, and it cannot guarantee recovery of foreground regions that the model completely misclassifies.</p>
     <p>The browser may download model, runtime, WebAssembly, or related assets from IMG.LY&apos;s configured distribution infrastructure. Normal network information needed to deliver those assets may therefore be processed by the asset provider. FlytheBG does not intentionally include the source image in those model-asset requests.</p>
 
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
     <p>This cleanup applies to FlytheBG&apos;s own page state. FlytheBG cannot guarantee deletion of copies outside its control, such as the file you downloaded, browser or operating-system caches, screenshots, extensions, network-security products, or backups made by your device.</p>
 
     <h2>4. Passport Photo Maker</h2>
-    <p>If you choose Remove background, the same browser-only IMG.LY FP16-to-quantized fallback and eligible fine-edge preservation are used before the passport sheet is created. If you keep the original photo, background removal is skipped. Framing, selected photo-background color, physical-size conversion, sheet layout, and PNG export are performed in the browser.</p>
+    <p>If you choose Remove background, the same browser-only IMG.LY quantized model and eligible fine-edge preservation are used before the passport sheet is created. If you keep the original photo, background removal is skipped. Framing, selected photo-background color, physical-size conversion, sheet layout, and PNG export are performed in the browser.</p>
     <p>The selected background color is applied only inside each passport-photo rectangle; the print sheet itself remains white. Generated print sheets are not intentionally written to the FlytheBG database.</p>
 
     <h2>5. Database use</h2>
