@@ -1,3 +1,26 @@
 import { LegalPage } from "@/components/LegalPage";
+
 export const metadata = { title: "Cookie Policy" };
-export default function CookiesPage(){return <LegalPage title="Cookie Policy" updated="18 August 2026"><h2>1. Core image tools</h2><p>FlytheBG&apos;s current background remover and Passport Photo Maker do not require an image database or advertising cookie to process your photo. Image content is handled in the browser.</p><h2>2. Browser model caching</h2><p>Your browser may cache IMG.LY model/runtime assets so later processing can start faster. These cached model files are software assets, not copies of the photo you selected.</p><h2>3. Google AdSense</h2><p>When advertising is enabled, Google and its partners may use cookies, local storage, or similar technologies for ad delivery, measurement, fraud prevention, frequency controls, and personalization where permitted.</p><h2>4. Consent choices</h2><p>Where required, advertising consent or opt-out choices may be shown through Google&apos;s certified consent tooling or other compliant controls. Declining optional advertising storage should not prevent the browser image tools themselves from functioning.</p><h2>5. Browser controls</h2><p>You can clear or block cookies and site storage using your browser settings. Doing so may remove cached browser-model files and make a later background-removal session download them again.</p><h2>6. Contact</h2><p>Questions may be sent to <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p></LegalPage>}
+
+export default function CookiesPage(){
+  return <LegalPage title="Cookie Policy" updated="19 August 2026">
+    <h2>1. Core image tools</h2>
+    <p>FlytheBG&apos;s current background remover, crop workflow, and Passport Photo Maker do not require an image database or advertising cookie to process your photo. Image content is handled in the browser.</p>
+
+    <h2>2. Browser model caching</h2>
+    <p>Your browser may cache IMG.LY model/runtime assets so later processing can start faster. These cached model files are software assets, not copies of the photo you selected.</p>
+
+    <h2>3. Google AdSense</h2>
+    <p>When advertising is enabled on eligible publisher-content pages, Google and its partners may use cookies, local storage, or similar technologies for ad delivery, measurement, fraud prevention, frequency controls, and personalization where permitted.</p>
+    <p>The production source intentionally does not load the AdSense script on the Remove Background workspace, Passport Photo Maker, Features hub, Guides hub, legal pages, Contact page, or error/navigation-only screens.</p>
+
+    <h2>4. Consent choices</h2>
+    <p>Where required, advertising consent or opt-out choices may be shown through Google&apos;s certified consent tooling or other compliant controls. Declining optional advertising storage should not prevent the browser image tools themselves from functioning.</p>
+
+    <h2>5. Browser controls</h2>
+    <p>You can clear or block cookies and site storage using your browser settings. Doing so may remove cached browser-model files and make a later background-removal session download them again.</p>
+
+    <h2>6. Contact</h2>
+    <p>Questions may be sent to <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p>
+  </LegalPage>
+}
