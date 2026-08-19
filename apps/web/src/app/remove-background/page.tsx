@@ -11,7 +11,7 @@ const removalFaqs = [
   ["What kind of images work best?", "Clear photos with a visible subject boundary usually produce the most reliable result. Strong lighting, useful resolution, and some contrast between the foreground and background help the model separate fine details."],
   ["Why can hair, fur, glass, or motion blur be difficult?", "Those areas contain partially transparent or ambiguous pixels. A segmentation model must estimate which pixels belong to the foreground, so very fine strands, reflections, transparent objects, smoke, and heavy blur can need manual checking."],
   ["Does FlytheBG send my photo to an image-processing server?", "The current production remover runs IMG.LY in the browser. The page does not intentionally send source or generated image bytes to a FlytheBG inference server or image database."],
-  ["Why is the first run sometimes slower?", "The browser may need to download model and runtime assets before processing the first image. Later attempts can be faster when those software assets are already cached by the browser."],
+  ["Why is the first run sometimes slower?", "The browser may need to download the smaller quantized model and runtime assets before processing the first image. Later attempts can be faster when those software assets are already cached by the browser."],
   ["What file do I download?", "The background-removal workflow exports a PNG so the removed background can remain transparent. Applications that do not display transparency may show the transparent area as white, black, or a checkerboard preview."],
 ];
 
@@ -20,8 +20,8 @@ export default function RemoveBackgroundPage() {
     <main className="toolPage">
       <section className="pageHero compactHero">
         <div className="shell pageHeroGrid">
-          <div><span className="eyebrow"><i/> Remove Background</span><h1>Background removal that runs on your device.</h1><p>Choose a photo and FlytheBG runs IMG.LY directly in your browser. FP16 is tried first for better portrait and fine-edge quality; the smaller quantized model is the automatic fallback.</p><div className="heroProof inline"><span><strong>No image API</strong><small>static host only</small></span><span><strong>2 browser models</strong><small>quality-first fallback</small></span><span><strong>PNG</strong><small>transparent output</small></span></div></div>
-          <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Validate photo</strong><small>type + size in browser</small></span></li><li><b>02</b><span><strong>IMG.LY FP16</strong><small>quality-first local attempt</small></span></li><li><b>03</b><span><strong>Quantized fallback</strong><small>smaller-device retry</small></span></li></ol></aside>
+          <div><span className="eyebrow"><i/> Remove Background</span><h1>Background removal that runs on your device.</h1><p>Choose a photo and FlytheBG runs the smaller IMG.LY quantized model directly in your browser. The large FP16 model is not downloaded automatically, reducing startup bandwidth and browser memory pressure.</p><div className="heroProof inline"><span><strong>No image API</strong><small>static host only</small></span><span><strong>Small browser model</strong><small>quantized IS-Net</small></span><span><strong>PNG</strong><small>transparent output</small></span></div></div>
+          <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Validate photo</strong><small>type + size in browser</small></span></li><li><b>02</b><span><strong>Quantized model</strong><small>smaller browser download</small></span></li><li><b>03</b><span><strong>Transparent PNG</strong><small>validate + export locally</small></span></li></ol></aside>
         </div>
       </section>
 
@@ -32,8 +32,8 @@ export default function RemoveBackgroundPage() {
           <div className="sectionHeading"><span className="eyebrow"><i/> Background removal guide</span><h2>What the tool is actually doing.</h2><p>Background removal is a foreground-segmentation task, not a simple color delete. The browser model estimates an alpha mask that describes how visible each foreground pixel should remain, then FlytheBG uses that mask to create a transparent PNG.</p></div>
           <div className="infoCards">
             <article><span>Step 1</span><h2>The browser validates the image.</h2><p>FlytheBG checks the selected file before processing so obviously unsupported or oversized input can be stopped before expensive model work begins. Selection, drag and drop, and paste all feed the same local workflow.</p></article>
-            <article><span>Step 2</span><h2>A quality-first model creates the mask.</h2><p>The current implementation tries the FP16 IMG.LY model first. FP16 uses more browser memory but can preserve smoother portrait boundaries. If the device cannot complete that attempt, FlytheBG retries with the smaller quantized model.</p></article>
-            <article><span>Step 3</span><h2>The cutout is rebuilt and exported.</h2><p>When browser memory allows, FlytheBG can conservatively rebuild fine foreground boundaries from the original pixels around the generated mask. The finished image is encoded as a PNG so transparent pixels remain transparent after download.</p></article>
+            <article><span>Step 2</span><h2>The smaller quantized model creates the mask.</h2><p>The current implementation uses IMG.LY’s quantized IS-Net model directly. This avoids making every visitor download the much larger FP16 model before background removal starts and is intended to be more practical on normal laptops, phones, and slower connections.</p></article>
+            <article><span>Step 3</span><h2>The cutout is checked, rebuilt, and exported.</h2><p>FlytheBG validates that the model produced a real transparent cutout. When browser memory allows, it can then conservatively rebuild fine foreground boundaries from the original pixels around the generated mask. The finished image is encoded as a PNG so transparent pixels remain transparent after download.</p></article>
           </div>
         </div>
       </section>
