@@ -9,6 +9,7 @@ export type BrowserBackgroundResult = {
 };
 
 type ProgressHandler = (message: string) => void;
+type InferenceDevice = "gpu" | "cpu";
 
 type LoadedImage = {
   image: HTMLImageElement;
@@ -20,9 +21,9 @@ type LoadedImage = {
 const MODEL_TIMEOUT_MS = 180_000;
 const SAMPLE_EDGE = 320;
 const MIN_FOREGROUND = 0.0015;
-const MIN_TRANSPARENCY = 0.00025;
-const MAX_EDGE_REFINEMENT_PIXELS = 8_000_000;
+const MIN_TRANSPARENCY = 0.002;
 const DEFAULT_MODEL: BrowserBackgroundModel = "isnet_quint8";
+const DIRECT_MODEL_MIME = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -37,8 +38,8 @@ function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string
 function friendlyError(reason: unknown, label: string) {
   const message = reason instanceof Error ? reason.message : String(reason || "Unknown browser AI error");
   const lower = message.toLowerCase();
-  if (lower.includes("webassembly") || lower.includes("wasm") || lower.includes("backend")) {
-    return `${label} could not start its browser AI runtime. Use a current Chrome, Edge, or Firefox build and reload the page.`;
+  if (lower.includes("webassembly") || lower.includes("wasm") || lower.includes("backend") || lower.includes("webgpu")) {
+    return `${label} could not start its browser AI runtime. Reload the page in a current Chrome, Edge, Firefox, or Safari build and try again.`;
   }
   if (lower.includes("fetch") || lower.includes("network") || lower.includes("load") || lower.includes("download")) {
     return `${label} could not download its browser model/runtime assets. Check the connection, disable restrictive blockers for this page, and retry.`;
@@ -73,6 +74,33 @@ function releaseImage(loaded: LoadedImage) {
   URL.revokeObjectURL(loaded.url);
 }
 
+async function normalizeInputForModel(file: File, onProgress?: ProgressHandler): Promise<Blob> {
+  if (DIRECT_MODEL_MIME.has(file.type)) return file;
+
+  onProgress?.("Preparing this image format for browser AI…");
+  const loaded = await loadImage(file, "Selected image");
+  const canvas = document.createElement("canvas");
+  canvas.width = loaded.width;
+  canvas.height = loaded.height;
+
+  try {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("This browser cannot prepare the selected image format.");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(loaded.image, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (value) => value ? resolve(value) : reject(new Error("The selected image could not be converted for browser AI.")),
+        "image/png",
+      );
+    });
+  } finally {
+    canvas.width = 1;
+    canvas.height = 1;
+    releaseImage(loaded);
+  }
+}
+
 async function inspectCutout(blob: Blob, label: string) {
   if (!blob || blob.size < 32) throw new Error(`${label} returned an empty image.`);
   if (blob.type && !blob.type.startsWith("image/")) throw new Error(`${label} returned an unsupported result type.`);
@@ -105,74 +133,50 @@ async function inspectCutout(blob: Blob, label: string) {
     const foregroundCoverage = foreground / total;
     const transparencyCoverage = transparent / total;
     if (foregroundCoverage < MIN_FOREGROUND) throw new Error(`${label} produced an empty transparent cutout.`);
-    if (transparencyCoverage < MIN_TRANSPARENCY) throw new Error(`${label} did not produce a usable transparent edge.`);
+    if (transparencyCoverage < MIN_TRANSPARENCY) throw new Error(`${label} did not remove a meaningful amount of background.`);
   } finally {
     releaseImage(loaded);
   }
 }
 
-/**
- * Rebuilds RGB from the original photo while retaining the IMG.LY alpha mask.
- * A very small alpha expansion is used to be less aggressive around wispy hair,
- * sleeves, collars, and other fine foreground boundaries. Large images skip the
- * extra canvases to keep mobile memory use bounded.
- */
-async function preserveFineEdges(source: Blob, cutout: Blob): Promise<{ blob: Blob; refined: boolean }> {
-  const cutoutImage = await loadImage(cutout, "IMG.LY cutout");
-  if (cutoutImage.width * cutoutImage.height > MAX_EDGE_REFINEMENT_PIXELS) {
-    releaseImage(cutoutImage);
-    return { blob: cutout, refined: false };
-  }
+function canUseWebGpu() {
+  if (typeof navigator === "undefined" || !window.isSecureContext) return false;
+  return Boolean((navigator as Navigator & { gpu?: unknown }).gpu);
+}
 
-  const sourceImage = await loadImage(source, "Source photo");
-  const mask = document.createElement("canvas");
-  const output = document.createElement("canvas");
-  mask.width = cutoutImage.width;
-  mask.height = cutoutImage.height;
-  output.width = cutoutImage.width;
-  output.height = cutoutImage.height;
+function shouldRetryOnCpu(reason: unknown) {
+  const message = reason instanceof Error ? reason.message.toLowerCase() : String(reason || "").toLowerCase();
+  if (message.includes("fetch") || message.includes("network") || message.includes("download") || message.includes("timed out")) return false;
+  if (message.includes("empty transparent cutout") || message.includes("meaningful amount of background")) return false;
+  return true;
+}
 
-  try {
-    const maskCtx = mask.getContext("2d");
-    const outputCtx = output.getContext("2d");
-    if (!maskCtx || !outputCtx) return { blob: cutout, refined: false };
+async function runModel(
+  input: Blob,
+  model: BrowserBackgroundModel,
+  device: InferenceDevice,
+  onProgress?: ProgressHandler,
+) {
+  const modelLabel = model === "isnet_fp16" ? "FP16" : "quantized";
+  const deviceLabel = device === "gpu" ? "WebGPU" : "CPU";
+  const label = `IMG.LY ${modelLabel} (${deviceLabel})`;
+  const { removeBackground } = await import("@imgly/background-removal");
 
-    const radius = Math.max(cutoutImage.width, cutoutImage.height) >= 3000 ? 2 : 1;
-    const offsets = [
-      [-radius, 0], [radius, 0], [0, -radius], [0, radius],
-      [-radius, -radius], [radius, -radius], [-radius, radius], [radius, radius],
-    ] as const;
-
-    maskCtx.clearRect(0, 0, mask.width, mask.height);
-    maskCtx.globalCompositeOperation = "source-over";
-    maskCtx.globalAlpha = 0.18;
-    for (const [dx, dy] of offsets) {
-      maskCtx.drawImage(cutoutImage.image, dx, dy, mask.width, mask.height);
-    }
-    maskCtx.globalAlpha = 1;
-    maskCtx.drawImage(cutoutImage.image, 0, 0, mask.width, mask.height);
-
-    outputCtx.clearRect(0, 0, output.width, output.height);
-    outputCtx.globalCompositeOperation = "source-over";
-    outputCtx.drawImage(sourceImage.image, 0, 0, output.width, output.height);
-    outputCtx.globalCompositeOperation = "destination-in";
-    outputCtx.drawImage(mask, 0, 0);
-    outputCtx.globalCompositeOperation = "source-over";
-
-    const refinedBlob = await new Promise<Blob>((resolve, reject) => {
-      output.toBlob((value) => value ? resolve(value) : reject(new Error("Edge-preserved PNG encoding failed.")), "image/png");
-    });
-    return { blob: refinedBlob, refined: true };
-  } catch {
-    return { blob: cutout, refined: false };
-  } finally {
-    mask.width = 1;
-    mask.height = 1;
-    output.width = 1;
-    output.height = 1;
-    releaseImage(sourceImage);
-    releaseImage(cutoutImage);
-  }
+  onProgress?.(`Starting ${modelLabel} model on ${deviceLabel}…`);
+  return withTimeout(removeBackground(input, {
+    debug: false,
+    device,
+    proxyToWorker: true,
+    model,
+    rescale: true,
+    output: { format: "image/png", quality: 1 },
+    progress: (key: string, current: number, total: number) => {
+      const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+      onProgress?.(key.startsWith("fetch:")
+        ? `Downloading small model/runtime assets · ${percentage}%`
+        : `Removing background on ${deviceLabel} · ${percentage}%`);
+    },
+  }), MODEL_TIMEOUT_MS, label);
 }
 
 /** Runs IMG.LY locally in the visitor's browser. No FlytheBG image API is used. */
@@ -185,53 +189,47 @@ export async function removeBackgroundInBrowser(
   if (typeof WebAssembly !== "object") throw new Error("This browser does not provide WebAssembly, which browser AI requires.");
 
   const modelLabel = model === "isnet_fp16" ? "FP16" : "quantized";
-  const label = `IMG.LY ${modelLabel}`;
-  onProgress?.(`Loading ${label}…`);
+  const input = await normalizeInputForModel(file, onProgress);
+  let cutout: Blob;
 
   try {
-    const { removeBackground } = await import("@imgly/background-removal");
-    const cutout = await withTimeout(removeBackground(file, {
-      debug: false,
-      device: "cpu",
-      proxyToWorker: false,
-      model,
-      rescale: true,
-      output: { format: "image/png", quality: 1 },
-      progress: (key: string, current: number, total: number) => {
-        const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
-        onProgress?.(key.startsWith("fetch:")
-          ? `Downloading ${label} assets · ${percentage}%`
-          : `${label} processing · ${percentage}%`);
-      },
-    }), MODEL_TIMEOUT_MS, label);
+    if (canUseWebGpu()) {
+      try {
+        cutout = await runModel(input, model, "gpu", onProgress);
+      } catch (reason) {
+        if (!shouldRetryOnCpu(reason)) throw reason;
+        onProgress?.("WebGPU could not finish. Retrying the same small model on CPU…");
+        cutout = await runModel(input, model, "cpu", onProgress);
+      }
+    } else {
+      cutout = await runModel(input, model, "cpu", onProgress);
+    }
 
-    // Validate the library output before any optional edge reconstruction.
-    await inspectCutout(cutout, label);
-    onProgress?.(`${label} finished · preserving fine foreground edges…`);
-    const refined = await preserveFineEdges(file, cutout);
-    await inspectCutout(refined.blob, label);
-    return { blob: refined.blob, model, modelLabel, edgeRefined: refined.refined };
+    // Return IMG.LY's cutout directly. The previous full-resolution edge expansion
+    // added extra latency and could reintroduce source-background pixels at edges.
+    await inspectCutout(cutout, `IMG.LY ${modelLabel}`);
+    return { blob: cutout, model, modelLabel, edgeRefined: false };
   } catch (reason) {
-    throw new Error(friendlyError(reason, label));
+    throw new Error(friendlyError(reason, `IMG.LY ${modelLabel}`));
   }
 }
 
 /**
- * Bandwidth-first browser path used by both FlytheBG tools.
- * The quantized IS-Net model is the only automatic download so visitors do not
- * have to fetch the much larger FP16 model before background removal can start.
+ * Fast browser path used by both FlytheBG tools. The quantized IS-Net model is
+ * the only automatic model download. WebGPU is preferred when available and the
+ * same small model retries on CPU if the GPU backend cannot initialize.
  */
 export async function removeBackgroundWithFallback(
   file: File,
   onProgress?: ProgressHandler,
 ): Promise<BrowserBackgroundResult> {
-  onProgress?.("Starting the smaller IMG.LY quantized background-removal model…");
+  onProgress?.("Starting fast browser background removal…");
   try {
     const result = await removeBackgroundInBrowser(file, DEFAULT_MODEL, onProgress);
-    onProgress?.("Complete · IMG.LY quantized model · processed on this device");
+    onProgress?.("Complete · small IMG.LY model · transparent PNG ready");
     return result;
   } catch (reason) {
     const message = reason instanceof Error ? reason.message : "IMG.LY quantized model failed.";
-    throw new Error(`Browser background removal could not finish with the small model. ${message}`);
+    throw new Error(`Browser background removal could not finish. ${message}`);
   }
 }
