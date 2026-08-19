@@ -1,7 +1,11 @@
 import { LegalPage } from "@/components/LegalPage";
 import { companyConfig } from "@/lib/config";
 
-export const metadata = { title: "Contact" };
+export const metadata = {
+  title: "Contact",
+  description: "Contact FlytheBG for product support, privacy questions, legal notices, copyright matters, security reports, and other correspondence.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (

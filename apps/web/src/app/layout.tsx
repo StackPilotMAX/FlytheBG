@@ -4,16 +4,56 @@ import "./production-ui.css";
 import "./adsense-safety.css";
 import { appConfig } from "@/lib/config";
 
+const defaultTitle = `${appConfig.name} — Free Background Remover & Passport Photo Maker`;
+const defaultDescription = "Remove image backgrounds, create transparent PNGs, crop images, and build print-ready passport photo sheets directly in your browser with FlytheBG.";
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
+const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
+
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
-  title: { default: `${appConfig.name} — Private browser image tools`, template: `%s — ${appConfig.name}` },
-  description: "Remove image backgrounds, crop transparent PNGs, and build print-ready passport photo sheets directly in your browser.",
+  title: { default: defaultTitle, template: `%s — ${appConfig.name}` },
+  description: defaultDescription,
   applicationName: appConfig.name,
+  authors: [{ name: appConfig.name, url: appConfig.siteUrl }],
+  creator: appConfig.name,
+  publisher: appConfig.name,
+  category: "Image editing tools",
+  referrer: "origin-when-cross-origin",
+  manifest: "/manifest.webmanifest",
+  formatDetection: { telephone: false, address: false, email: false },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: `${appConfig.name} — Browser Image Tools`,
-    description: "Background removal and passport-photo tools that run on the visitor's device.",
+    title: defaultTitle,
+    description: defaultDescription,
+    siteName: appConfig.name,
+    locale: "en_US",
     type: "website",
-    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: defaultTitle,
+    description: defaultDescription,
+  },
+  appleWebApp: {
+    capable: true,
+    title: appConfig.name,
+    statusBarStyle: "black-translucent",
+  },
+  verification: {
+    ...(googleVerification ? { google: googleVerification } : {}),
+    ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
   },
   icons: {
     icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml" }],
