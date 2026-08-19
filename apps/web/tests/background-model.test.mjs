@@ -13,3 +13,14 @@ test("automatic background removal does not directly retry the FP16 model", () =
   assert.ok(automaticPath.includes("removeBackgroundInBrowser(file, DEFAULT_MODEL, onProgress)"));
   assert.ok(!automaticPath.includes('removeBackgroundInBrowser(file, "isnet_fp16"'));
 });
+
+test("small model prefers WebGPU and retries the same model on CPU", () => {
+  assert.ok(source.includes('runModel(input, model, "gpu", onProgress)'));
+  assert.ok(source.includes('runModel(input, model, "cpu", onProgress)'));
+  assert.ok(source.includes("proxyToWorker: true"));
+});
+
+test("result uses the IMG.LY cutout directly without the old edge expansion", () => {
+  assert.ok(!source.includes("preserveFineEdges"));
+  assert.ok(source.includes("return { blob: cutout, model, modelLabel, edgeRefined: false }"));
+});

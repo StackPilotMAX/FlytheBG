@@ -1,7 +1,5 @@
 export type AllowedImageType = "image/png" | "image/jpeg" | "image/webp";
 
-const allowed = new Set<AllowedImageType>(["image/png", "image/jpeg", "image/webp"]);
-
 export function detectedMime(bytes: Uint8Array): AllowedImageType | null {
   if (
     bytes.length >= 8 &&
@@ -22,11 +20,18 @@ export function detectedMime(bytes: Uint8Array): AllowedImageType | null {
   return null;
 }
 
+/**
+ * Let the browser decoder decide which raster formats it can handle. Common
+ * PNG/JPEG/WebP files go straight to IMG.LY; other decodable raster formats
+ * are normalized to PNG in browser memory before inference.
+ */
 export function validateUploadBasics(file: File, maxMb: number) {
-  if (!allowed.has(file.type as AllowedImageType)) {
-    return `Use a PNG, JPEG, or WebP image.`;
-  }
   if (file.size <= 0) return "The selected file is empty.";
   if (file.size > maxMb * 1024 * 1024) return `Image must be ${maxMb} MB or smaller.`;
+
+  const mime = file.type.toLowerCase();
+  if (mime === "image/svg+xml") return "Use a raster image rather than SVG for background removal.";
+  if (mime && !mime.startsWith("image/")) return "Choose an image file.";
+
   return null;
 }

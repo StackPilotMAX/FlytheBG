@@ -230,11 +230,11 @@ export function PassportPhotoMaker() {
     setProcessing(true);
     setError("");
     setCleanup("");
-    setProgress(sourceMode === "remove" ? "Starting quality-first browser background removal…" : "Preparing photo in this browser…");
+    setProgress(sourceMode === "remove" ? "Starting fast browser background removal…" : "Preparing photo in this browser…");
     try {
       if (source) URL.revokeObjectURL(source.url);
       const prepared = sourceMode === "remove"
-        ? await removeBackgroundWithFallback(file, setProgress).then((result) => preparePhoto(result.blob, `IMG.LY ${result.modelLabel}${result.edgeRefined ? " · fine-edge preserved" : ""}`))
+        ? await removeBackgroundWithFallback(file, setProgress).then((result) => preparePhoto(result.blob, `IMG.LY ${result.modelLabel} cutout`))
         : await preparePhoto(file, "Original photo");
       setSource(prepared);
       setFileName(file.name);
@@ -362,16 +362,16 @@ export function PassportPhotoMaker() {
     <div className="passportMaker">
       <section className="passportIntroCard">
         <div><span className="eyebrow"><i/> Passport Photo Maker</span><h1>One photo. Exact size. A clean print sheet.</h1><p>Remove the background locally or keep the original, frame the person, choose physical dimensions, and generate multiple copies entirely in this browser.</p></div>
-        <div className="passportStats"><span><strong>300 DPI</strong><small>safe default</small></span><span><strong>2 models</strong><small>local fallback</small></span><span><strong>0</strong><small>image DB uploads</small></span></div>
+        <div className="passportStats"><span><strong>300 DPI</strong><small>safe default</small></span><span><strong>Small model</strong><small>GPU → CPU fallback</small></span><span><strong>0</strong><small>image DB uploads</small></span></div>
       </section>
 
       <section className="passportUploadCard">
         <div className="modeTabs" role="group" aria-label="Photo preparation mode">
-          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>IMG.LY FP16 → quantized fallback</small></button>
+          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>Quantized · WebGPU/CPU</small></button>
           <button className={sourceMode === "direct" ? "active" : ""} type="button" onClick={() => changeMode("direct")}><span>02</span><strong>Keep original</strong><small>Skip AI and build the sheet</small></button>
         </div>
 
-        <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/png,image/jpeg,image/webp" onChange={onInput} disabled={processing}/>
+        <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/*" onChange={onInput} disabled={processing}/>
         <label
           htmlFor={inputId}
           className={`passportDropZone ${dragging ? "dragging" : ""} ${processing ? "busy" : ""}`}
@@ -380,7 +380,7 @@ export function PassportPhotoMaker() {
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
         >
-          {processing ? <><span className="spinner"/><strong>Preparing photo…</strong><p>{progress}</p></> : <><span className="uploadGlyph">↑</span><strong>{source ? "Choose another photo" : "Choose a photo"}</strong><p>Click or drag & drop · PNG, JPEG, WebP · up to {MAX_MB} MB</p></>}
+          {processing ? <><span className="spinner"/><strong>Preparing photo…</strong><p>{progress}</p></> : <><span className="uploadGlyph">↑</span><strong>{source ? "Choose another image" : "Choose an image"}</strong><p>Click or drag & drop · browser-decodable raster images · up to {MAX_MB} MB</p></>}
         </label>
         {error && <div className="errorNotice"><div><strong>Passport Photo Maker</strong><p>{error}</p></div></div>}
         {cleanup && !source && <div className="successNotice"><strong>Working image cleared.</strong><span>{cleanup}</span></div>}
@@ -403,7 +403,7 @@ export function PassportPhotoMaker() {
             <div className="portraitEditor"><canvas ref={portraitCanvasRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onWheel={onWheel}/></div>
             <label className="rangeLabel"><span>Zoom</span><input type="range" min="1" max="3" step="0.01" value={zoom} onChange={(event) => setZoom(Number(event.target.value))}/><strong>{zoom.toFixed(2)}×</strong></label>
             <div className="inlineControl"><label>Photo background<input type="color" value={background} onChange={(event) => setBackground(event.target.value)}/></label><span>{background.toUpperCase()}</span><button className="buttonGhost small" type="button" onClick={() => { setZoom(1.05); setShiftX(0); setShiftY(0); }}>Reset frame</button></div>
-            <p className="helperText">For a removed-background image, this color fills the photo rectangle only. Fine foreground edges are preserved when browser memory permits. With “Keep original,” the original opaque background remains visible.</p>
+            <p className="helperText">For a removed-background image, this color fills the photo rectangle only. FlytheBG now uses the model cutout directly to avoid reintroducing source-background pixels. With “Keep original,” the original opaque background remains visible.</p>
           </section>
 
           <section className="passportPanel">
