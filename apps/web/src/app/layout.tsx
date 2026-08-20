@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./production-ui.css";
+import "./redesign.css";
 import "./adsense-safety.css";
+import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
 const defaultTitle = `${appConfig.name} — Free Background Remover & Passport Photo Maker`;
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05070b", colorScheme: "dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#04070d", colorScheme: "dark" };
 
 function Logo() {
   return (
@@ -83,6 +85,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
       <body>
+        <MotionLayer />
         <header className="siteHeader">
           <div className="shell navShell">
             <Logo />
