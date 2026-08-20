@@ -1,13 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import "./tailwind-utilities.css";
 import "./production-ui.css";
 import "./redesign.css";
+import "./genz.css";
 import "./adsense-safety.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
 const defaultTitle = `${appConfig.name} — Free Background Remover & Passport Photo Maker`;
-const defaultDescription = "Remove image backgrounds, create transparent PNGs, crop images, and build print-ready passport photo sheets directly in your browser with FlytheBG.";
+const defaultDescription = "Remove image backgrounds locally in your browser, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
 
@@ -42,11 +44,13 @@ export const metadata: Metadata = {
     siteName: appConfig.name,
     locale: "en_US",
     type: "website",
+    images: [{ url: "/brand/icon-512.png", width: 512, height: 512, alt: "FlytheBG logo" }],
   },
   twitter: {
     card: "summary",
     title: defaultTitle,
     description: defaultDescription,
+    images: ["/brand/icon-512.png"],
   },
   appleWebApp: {
     capable: true,
@@ -58,9 +62,14 @@ export const metadata: Metadata = {
     ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
   },
   icons: {
-    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml" }],
-    shortcut: "/brand/flythebg-mark.svg",
-    apple: "/brand/flythebg-mark.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/brand/favicon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/brand/favicon-96.png", type: "image/png", sizes: "96x96" },
+      { url: "/brand/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/brand/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
   },
 };
 
@@ -82,6 +91,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://staticimgly.com" crossOrigin="anonymous" />
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
       <body>
@@ -104,7 +114,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <footer className="siteFooter">
           <div className="shell footerGrid">
-            <div className="footerBrand"><Logo/><p>Browser-first image tools with no image-processing server in the current production workflow.</p></div>
+            <div className="footerBrand"><Logo/><p>FlytheBG (Fly the BG) is a browser-first background remover and passport-photo toolkit. The current image workflow does not require a FlytheBG inference backend.</p></div>
             <div className="footerLinks">
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
