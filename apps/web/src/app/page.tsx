@@ -4,7 +4,7 @@ import { GalaxyWorld } from "@/components/GalaxyWorld";
 import { appConfig } from "@/lib/config";
 
 const homeTitle = "FlytheBG — Free Background Remover & Passport Photo Maker";
-const homeDescription = "Remove backgrounds, create transparent PNGs, crop images, and make print-ready passport photo sheets directly in your browser with FlytheBG.";
+const homeDescription = "Remove backgrounds from portraits, products, landscapes, squares, vertical images, and panoramas while preserving the original aspect ratio with FlytheBG.";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
@@ -26,13 +26,13 @@ export const metadata: Metadata = {
 };
 
 const faqs = [
+  ["Can FlytheBG remove backgrounds from different image ratios?", "Yes. The remover accepts normal portrait, landscape, square, vertical, and panoramic raster images that the browser can decode. FlytheBG preserves the image's aspect ratio instead of forcing a square crop."],
   ["Does FlytheBG upload my photo?", "The current background remover, crop tool, and Passport Photo Maker process image content in your browser. FlytheBG does not intentionally send image bytes to Render, Supabase, or an image database."],
   ["Why can the first background removal take longer?", "The browser must download the smaller IMG.LY quantized model and runtime assets on the first run. Later runs can be faster because the browser may cache those software assets."],
-  ["Which background-removal model does FlytheBG use?", "FlytheBG now uses IMG.LY's smaller quantized IS-Net model directly for the automatic browser workflow. The larger FP16 model is not downloaded automatically, which reduces startup bandwidth and memory pressure."],
-  ["How does FlytheBG protect hair and clothing edges?", "FlytheBG cannot retrain IMG.LY's pretrained model in your browser. Instead, after removal it can conservatively rebuild fine foreground boundaries from the original image pixels when browser memory allows."],
+  ["Which background-removal model does FlytheBG use?", "FlytheBG uses IMG.LY's smaller quantized IS-Net model. Compatible browsers try WebGPU first for faster inference and automatically fall back to CPU/WASM if the GPU path is unavailable."],
+  ["How are difficult edges handled?", "FlytheBG returns the model's transparent cutout directly and validates that meaningful transparency was produced. Hair, fur, glass, smoke, blur, and low-contrast edges can still be difficult for automatic segmentation and should be reviewed at full size."],
   ["Can I make a full passport-photo sheet?", "Yes. Set exact physical dimensions, frame the person, choose a photo background, select paper and copies, fill the sheet, then download or print it at Actual Size / 100%."],
   ["Are the passport-photo sizes guaranteed to be accepted?", "No. Document rules vary by authority. FlytheBG provides measurement and layout tools, but you should verify the official specification for the document you are applying for."],
-  ["What is cleared after download?", "FlytheBG releases the working image references and generated in-page data it controls. The downloaded file and copies outside the page remain on your device."],
 ];
 
 export default function HomePage() {
@@ -63,8 +63,8 @@ export default function HomePage() {
         operatingSystem: "Web",
         url: appConfig.siteUrl,
         isAccessibleForFree: true,
-        description: "Browser background removal, transparent PNG cropping, and passport-photo sheet generation.",
-        featureList: ["Background removal", "Transparent PNG export", "Image cropping", "Passport photo sizing", "Print-sheet generation"],
+        description: "Browser background removal, transparent PNG cropping, and passport-photo sheet generation with original aspect-ratio preservation.",
+        featureList: ["Background removal", "Original aspect-ratio preservation", "Transparent PNG export", "Image cropping", "Passport photo sizing", "Print-sheet generation"],
       },
       {
         "@type": "FAQPage",
@@ -78,30 +78,51 @@ export default function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}/>
       <GalaxyWorld />
 
+      <section className="section showcaseSection">
+        <div className="shell showcaseGrid">
+          <div className="sectionHeading compact">
+            <span className="eyebrow"><i/> Every frame stays yours</span>
+            <h2>No forced square. No stretched subject.</h2>
+            <p>FlytheBG preserves the source aspect ratio. A tall portrait stays tall, a landscape stays wide, and a panorama keeps its full canvas while the model estimates transparency around the subject.</p>
+            <div className="ratioCloud" aria-label="Supported example aspect ratios">
+              <span>1:1 square</span><span>4:3</span><span>3:4</span><span>16:9</span><span>9:16</span><span>3:2</span><span>2:3</span><span>21:9</span><span>custom</span>
+            </div>
+          </div>
+          <div className="demoFrame" aria-label="Animated before and after design preview">
+            <div className="demoToolbar"><span><i/> background removal preview</span><span>drag · drop · paste</span></div>
+            <div className="demoCanvas">
+              <div className="demoSubjectCutout" />
+              <div className="demoDivider"><span>↔</span></div>
+              <div className="demoLabels"><span>Original</span><span>Transparent</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="section trustSection">
         <div className="shell">
           <div className="sectionHeading">
-            <span className="eyebrow"><i/> Built for useful work</span>
-            <h2>The visual stays cinematic. The tools stay readable.</h2>
-            <p>Decorative motion is isolated to the landing hero. Every image workspace uses solid surfaces, clear states, native file selection, and responsive controls.</p>
+            <span className="eyebrow"><i/> Built to feel fast</span>
+            <h2>Cinematic outside. Focused where the work happens.</h2>
+            <p>The homepage uses lightweight canvas and CSS motion inspired by modern 3D landing-page techniques, while the actual image workspace stays readable, responsive, and task-first.</p>
           </div>
           <div className="trustGrid">
-            <article><span>01</span><h3>Browser-only image flow</h3><p>No Python inference server, GPU service, image-processing API, or image database is required for the current tools.</p></article>
-            <article><span>02</span><h3>Smaller model download</h3><p>Background removal uses IMG.LY’s quantized IS-Net model directly, avoiding the much larger automatic FP16 download.</p></article>
-            <article><span>03</span><h3>Static-host friendly</h3><p>The production app exports to static HTML, CSS, and JavaScript so hosting cost stays focused on serving files and bandwidth.</p></article>
+            <article><span>01 · Flexible input</span><h3>Portrait to panorama.</h3><p>Most browser-decodable raster formats can enter the same workflow, with non-standard raster inputs normalized locally when the browser can decode them.</p></article>
+            <article><span>02 · Faster compute</span><h3>WebGPU first, CPU fallback.</h3><p>Compatible browsers try accelerated WebGPU inference first. If that path cannot initialize or finish, FlytheBG retries the same small quantized model on CPU/WASM.</p></article>
+            <article><span>03 · Clean output</span><h3>The model cutout goes straight to PNG.</h3><p>The current flow avoids the old full-resolution edge-expansion pass and validates that the model produced useful transparency before presenting the result.</p></article>
           </div>
         </div>
       </section>
 
       <section className="section toolsSection" id="tools">
         <div className="shell">
-          <div className="sectionHeading splitHeading"><div><span className="eyebrow"><i/> Live tools</span><h2>Two workflows. One private browser architecture.</h2></div><Link className="textLink" href="/features">View all features ↗</Link></div>
+          <div className="sectionHeading splitHeading"><div><span className="eyebrow"><i/> Live tools</span><h2>Two focused workflows. One visual system.</h2></div><Link className="textLink" href="/features">View all features ↗</Link></div>
           <div className="toolCards">
             <Link href="/remove-background" className="toolFeatureCard primaryFeature">
-              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste a photo. The smaller quantized model runs directly in the browser, and a conservative edge pass helps retain fine hair and clothing boundaries.</p><span className="featureCta">Open remover <b>↗</b></span>
+              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste an image. FlytheBG keeps the original aspect ratio, tries accelerated browser inference where available, and exports a transparent PNG.</p><span className="featureCta">Open remover <b>↗</b></span>
             </Link>
             <Link href="/features/passport-photo" className="toolFeatureCard">
-              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background locally with the same smaller browser model or keep the original. Set exact size, frame the subject, fill a print sheet, and export at measured DPI.</p><span className="featureCta">Open passport maker <b>↗</b></span>
+              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background or keep the original, frame the subject, set exact physical dimensions, choose a background color, and fill a print-ready sheet.</p><span className="featureCta">Open passport maker <b>↗</b></span>
             </Link>
           </div>
         </div>
@@ -109,20 +130,25 @@ export default function HomePage() {
 
       <section className="section workflowSection">
         <div className="shell workflowGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Simple by design</span><h2>From photo to output without a server round-trip.</h2><p>The browser owns the image lifecycle from selection through download.</p></div>
-          <ol className="workflowSteps"><li><span>01</span><div><strong>Select locally</strong><p>Native file input, drag and drop, or paste where supported.</p></div></li><li><span>02</span><div><strong>Process locally</strong><p>The smaller IMG.LY quantized model/runtime assets load into the browser only when background removal is requested.</p></div></li><li><span>03</span><div><strong>Edit locally</strong><p>Crop, frame, resize, color, and sheet composition happen with browser APIs.</p></div></li><li><span>04</span><div><strong>Download and clear</strong><p>Start the download, then release working data controlled by the page.</p></div></li></ol>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Simple by design</span><h2>From source image to transparent output.</h2><p>The current production path runs on the visitor's device and keeps the working flow compact.</p></div>
+          <ol className="workflowSteps">
+            <li><span>01</span><div><strong>Select any normal frame</strong><p>Portrait, landscape, square, vertical, panorama, drag and drop, file picker, or paste where supported.</p></div></li>
+            <li><span>02</span><div><strong>Normalize only when needed</strong><p>PNG, JPEG, and WebP can go straight through; other browser-decodable raster formats can be converted locally before inference.</p></div></li>
+            <li><span>03</span><div><strong>Run the small model</strong><p>WebGPU is preferred on supported browsers, with an automatic CPU/WASM retry using the same quantized model.</p></div></li>
+            <li><span>04</span><div><strong>Download and clear</strong><p>The cutout is validated, encoded as transparent PNG, downloaded, and working page references can then be released.</p></div></li>
+          </ol>
         </div>
       </section>
 
       <section className="section faqSection" id="faq">
         <div className="shell faqGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> FAQ</span><h2>What the browser does—and what it does not.</h2></div>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> FAQ</span><h2>What FlytheBG handles—and where AI still has limits.</h2></div>
           <div className="faqList">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
         </div>
       </section>
 
       <section className="finalCta">
-        <div className="shell finalCtaInner"><div><span className="eyebrow"><i/> No account required</span><h2>Start with one photo.</h2><p>Use the production browser tools without sending the image to a FlytheBG inference server.</p></div><div className="buttonRow"><Link className="buttonPrimary" href="/remove-background">Remove background <span>↗</span></Link><Link className="buttonSecondary" href="/features/passport-photo">Make passport photos</Link></div></div>
+        <div className="shell finalCtaInner"><div><span className="eyebrow"><i/> No account required</span><h2>Start with the image you already have.</h2><p>Square, portrait, landscape, or panorama—the frame stays yours.</p></div><div className="buttonRow"><Link className="buttonPrimary" href="/remove-background">Remove background <span>↗</span></Link><Link className="buttonSecondary" href="/features/passport-photo">Make passport photos</Link></div></div>
       </section>
     </main>
   );
