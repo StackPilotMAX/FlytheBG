@@ -1,6 +1,7 @@
 /* Final FlytheBG typography and interaction polish. Loaded after genz.css. */
-body,button,input,select,textarea{font-family:var(--font-josefin),"Trebuchet MS",ui-sans-serif,system-ui,sans-serif}
-h1,h2,h3,h4,.brand,.navCta,.buttonPrimary,.buttonSecondary,.buttonGhost,.kicker,.eyebrow{font-family:var(--font-josefin),"Trebuchet MS",ui-sans-serif,system-ui,sans-serif}
+body,button,input,select,textarea{font-family:var(--font-inter),Inter,ui-sans-serif,system-ui,sans-serif}
+h1,h2,h3,h4{font-family:var(--font-instrument-serif),Georgia,serif}
+.brand,.navCta,.buttonPrimary,.buttonSecondary,.buttonGhost,.kicker,.eyebrow,.navLinks{font-family:var(--font-inter),Inter,ui-sans-serif,system-ui,sans-serif}
 body{letter-spacing:.002em}
 h1,h2,h3{letter-spacing:-.038em}
 .brand span{letter-spacing:-.035em}
