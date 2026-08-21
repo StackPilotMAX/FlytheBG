@@ -7,12 +7,12 @@ export function AdPlaceholder({ slot, format = "responsive" }: AdPlaceholderProp
   return (
     <aside
       className={`adPlacement adPlacement--${format}`}
-      aria-label="Advertisement"
+      aria-label="Advertisements"
       data-ad-placeholder="true"
       data-ad-slot={slot}
       data-ad-providers="adsense monetag"
     >
-      <span className="adPlacementLabel">Advertisement</span>
+      <span className="adPlacementLabel">Advertisements</span>
       <div
         className="adPlacementSlot"
         data-adsense-placeholder={slot}
