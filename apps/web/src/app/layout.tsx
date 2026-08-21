@@ -5,6 +5,7 @@ import "./production-ui.css";
 import "./redesign.css";
 import "./adsense-safety.css";
 import "./genz.css";
+import "./polish.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
