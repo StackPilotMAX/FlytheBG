@@ -183,7 +183,7 @@ export function LocalAISimulator() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const [theme, setTheme] = useState<DemoTheme>("product");
-  const [depth, setDepth] = useState(1.35);
+  const [depth, setDepth] = useState(1.55);
   const [webglReady, setWebglReady] = useState(false);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export function LocalAISimulator() {
 
     const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
     const lowMemory = memory <= 4 || window.innerWidth < 720;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowMemory ? 1.2 : 1.65));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowMemory ? 1.15 : 1.6));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.replaceChildren(renderer.domElement);
     renderer.domElement.className = "localAiCanvas";
@@ -249,14 +249,14 @@ export function LocalAISimulator() {
     controls.minDistance = 5.1;
     controls.maxDistance = 11;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = .45;
+    controls.autoRotateSpeed = .4;
     controls.target.set(0, 0, .5);
     controlsRef.current = controls;
 
     const resize = () => {
       const rect = host.getBoundingClientRect();
       const width = Math.max(280, rect.width);
-      const height = Math.max(360, rect.height);
+      const height = Math.max(340, rect.height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
@@ -344,49 +344,64 @@ export function LocalAISimulator() {
 
   return (
     <section className="localAiHero" aria-labelledby="local-ai-title">
-      <div className="shell localAiHeroGrid">
+      <div className="shell localAiHeroInner">
         <div className="localAiCopy">
-          <span className="eyebrow"><i/> 100% browser-side workflow</span>
-          <h1 id="local-ai-title">See How Local AI <em>Separates Your Images.</em></h1>
-          <p>Your photo stays on your device. FlytheBG downloads the browser model/runtime, then segmentation runs locally using WebGPU when available or WASM/CPU as a fallback.</p>
-          <div className="localGpuBadge">⚡ Rendered via WebGL using your local GPU</div>
+          <span className="heroBadge"><i/> Private AI image editing · no account</span>
+          <h1 id="local-ai-title">Remove the background.<br/><em>Keep everything that matters.</em></h1>
+          <p>FlytheBG turns photos into clean transparent PNGs directly in your browser. No image-processing backend, no forced square crop, and a smarter local AI path for both powerful laptops and budget phones.</p>
           <div className="heroActions">
-            <Link className="buttonPrimary" href="/remove-background">Try Your Own Photo Now <span>↗</span></Link>
+            <Link className="buttonPrimary heroPrimary" href="/remove-background">Remove a background <span>↗</span></Link>
             <Link className="buttonSecondary" href="/features/passport-photo">Make passport photos</Link>
           </div>
-          <div className="heroProof">
-            <span><strong>No image upload</strong><small>processing stays in browser memory</small></span>
-            <span><strong>Low-memory guard</strong><small>mobile-safe processing path</small></span>
-            <span><strong>Any aspect ratio</strong><small>portrait to panorama</small></span>
-          </div>
+          <div className="heroMiniProof"><span>✓ No image upload</span><span>✓ Free to try</span><span>✓ Any aspect ratio</span><span>✓ Transparent PNG</span></div>
         </div>
 
-        <div className="localAiStudio">
-          <div className="localAiViewport">
-            <div ref={hostRef} className="localAiCanvasHost" aria-label="Interactive 3D image layer separation simulation" />
-            {!webglReady && <div className="localAiFallback">WebGL preview loads here. The background remover itself can still use CPU/WASM when WebGPU is unavailable.</div>}
-            <div className="localAiLegend"><span><i className="bgDot"/> Background layer</span><span><i className="fgDot"/> Foreground cutout</span></div>
+        <div className="localAiStudio" aria-label="Interactive local AI background separation demo">
+          <div className="studioChrome">
+            <div className="studioDots"><i/><i/><i/></div>
+            <div className="studioFile"><span>flythebg.local</span><strong>{themes[theme].short}</strong></div>
+            <span className="studioPrivacy">● LOCAL ONLY</span>
           </div>
 
-          <div className="localAiControls">
-            <div className="controlHeader"><div><span>Interactive simulator</span><strong>{themes[theme].label}</strong></div><span className="liveChip">LIVE 3D</span></div>
-
-            <div className="themeTabs" role="group" aria-label="Demo visual theme">
-              {(Object.keys(themes) as DemoTheme[]).map((key) => (
-                <button key={key} type="button" className={theme === key ? "active" : ""} onClick={() => setTheme(key)}>{themes[key].label}</button>
-              ))}
+          <div className="studioBody">
+            <div className="localAiViewport">
+              <div ref={hostRef} className="localAiCanvasHost" aria-label="Interactive 3D image layer separation simulation" />
+              {!webglReady && <div className="localAiFallback">WebGL preview loads here. Background removal can still use CPU/WASM if WebGPU is unavailable.</div>}
+              <div className="localAiFloatingBadge">⚡ WebGL preview · drag to orbit</div>
+              <div className="localAiLegend"><span><i className="bgDot"/> Background</span><span><i className="fgDot"/> Subject</span></div>
             </div>
 
-            <label className="separationControl">
-              <span><strong>Separation Depth</strong><b>{depth.toFixed(2)}×</b></span>
-              <input type="range" min="0.12" max="2.8" step="0.01" value={depth} onChange={(event) => setDepth(Number(event.target.value))}/>
-              <small>Drag the scene with mouse or touch to orbit around the layers.</small>
-            </label>
+            <div className="localAiControls">
+              <div className="controlHeader"><div><span>Live separation demo</span><strong>{themes[theme].label}</strong></div><span className="liveChip">LIVE 3D</span></div>
 
-            <div className="presetAngles">
-              <button type="button" onClick={frontView}>Front View <span>Flat Image</span></button>
-              <button type="button" onClick={explodedView}>3D Exploded View <span>Show depth</span></button>
+              <div className="themeTabs" role="group" aria-label="Demo visual theme">
+                {(Object.keys(themes) as DemoTheme[]).map((key) => (
+                  <button key={key} type="button" className={theme === key ? "active" : ""} onClick={() => setTheme(key)}>
+                    <span>{key === "product" ? "✦" : key === "portrait" ? "◉" : "◆"}</span>{themes[key].label}
+                  </button>
+                ))}
+              </div>
+
+              <label className="separationControl">
+                <span><strong>Separation Depth</strong><b>{depth.toFixed(2)}×</b></span>
+                <input type="range" min="0.12" max="2.8" step="0.01" value={depth} onChange={(event) => setDepth(Number(event.target.value))}/>
+                <small>Pull the subject away from the background to see the extraction metaphor.</small>
+              </label>
+
+              <div className="presetAngles">
+                <button type="button" onClick={frontView}>Front View <span>Flat image</span></button>
+                <button type="button" onClick={explodedView}>3D Exploded <span>Show depth</span></button>
+              </div>
+
+              <div className="studioAccuracyCard"><span className="accuracyOrb">98</span><div><strong>Smart local pipeline</strong><small>FP16 when capable · quantized fallback · refined alpha edges</small></div></div>
             </div>
+          </div>
+
+          <div className="studioStatus">
+            <span><b>01</b> Detect device</span>
+            <span><b>02</b> Segment subject</span>
+            <span><b>03</b> Refine alpha</span>
+            <span><b>04</b> Export PNG</span>
           </div>
         </div>
       </div>
