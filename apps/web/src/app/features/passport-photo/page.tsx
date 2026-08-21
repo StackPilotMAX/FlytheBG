@@ -1,3 +1,4 @@
+import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { PassportPhotoMaker } from "@/components/PassportPhotoMaker";
 
@@ -43,6 +44,8 @@ export default function PassportPhotoPage() {
         </div>
       </section>
 
+      <section className="section"><div className="shell"><AdPlaceholder slot="passport-inline-1" format="leaderboard" /></div></section>
+
       <section className="section workflowSection">
         <div className="shell workflowGrid">
           <div className="sectionHeading compact"><span className="eyebrow"><i/> Acceptance depends on more than size</span><h2>Check the issuing authority before relying on any preset.</h2><p>FlytheBG can help with measurement and layout, but it cannot know every current document rule or guarantee acceptance.</p></div>
@@ -55,11 +58,11 @@ export default function PassportPhotoPage() {
         </div>
       </section>
 
-      <section className="section passportNotes"><div className="shell infoCards"><article><span>Optional background removal</span><h2>Keep the original or remove locally.</h2><p>If you choose background removal, the same browser IMG.LY workflow used by FlytheBG’s remover is applied before framing. If you keep the original background, that processing step is skipped.</p></article><article><span>Sheet composition</span><h2>Copies are arranged on a white print sheet.</h2><p>FlytheBG places repeated photo rectangles onto the selected sheet while preserving the requested dimensions. Individual framing adjustments are included in both direct printing and PNG export.</p></article><article><span>Privacy</span><h2>The current sheet workflow is browser-first.</h2><p>Framing, per-copy edits, physical-size conversion, sheet layout, PNG generation, and print preparation happen in the browser. No paid image-processing backend is required.</p></article></div></section>
+      <section className="section passportNotes"><div className="shell infoCards"><article><span>Optional background removal</span><h2>Keep the original or remove locally.</h2><p>If you choose background removal, the same browser IMG.LY workflow used by FlytheBG&apos;s remover is applied before framing. If you keep the original background, that processing step is skipped.</p></article><article><span>Model disclosure</span><h2>Third-party AI is attributed clearly.</h2><p>When background removal is selected, FlytheBG uses IMG.LY&apos;s browser package with IS-Net model variants. FlytheBG does not claim ownership of those model/runtime assets.</p><a className="textLink" href="/model-disclosure">Read Model & Open Source Disclosure ↗</a></article><article><span>Privacy</span><h2>The current sheet workflow is browser-first.</h2><p>Framing, per-copy edits, physical-size conversion, sheet layout, PNG generation, and print preparation happen in the browser. No paid image-processing backend is required.</p></article></div></section>
 
-      <section className="section faqSection">
+      <section className="section faqSection" id="faq">
         <div className="shell faqGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Passport photo FAQ</span><h2>Hover a question to open it.</h2><p>Desktop pointer users get automatic open/close animation. Touch and keyboard users keep the normal accessible tap/click behavior.</p></div>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Passport photo FAQ</span><h2>Click a question for a smooth answer.</h2><p>Opening and closing now animate smoothly. Desktop hover is optional; touch, mouse click, and keyboard activation all use the same accessible accordion.</p><a className="textLink" href="/faq">Open the full FlytheBG FAQ ↗</a></div>
           <HoverFaqList items={passportFaqs} />
         </div>
       </section>

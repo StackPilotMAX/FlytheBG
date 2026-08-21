@@ -1,0 +1,18 @@
+.landingScrollCue{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:22px;
+  color:rgba(57,52,90,.58);
+  font-size:10.5px;
+  font-weight:600;
+  text-decoration:none;
+  letter-spacing:.02em;
+}
+.landingScrollCue span{display:inline-block;animation:landingCue 1.8s ease-in-out infinite}
+.landingFaqGrid{position:relative;z-index:1;margin-top:28px}
+.landingFaqActions{position:relative;z-index:1;display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:22px}
+.landingFaqActions .cinematicCta{margin-top:0}
+.landingFaqActions .textLink{color:#6258a7!important;font-size:11px;font-weight:600;text-decoration:none}
+@keyframes landingCue{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){.landingScrollCue span{animation:none}}
