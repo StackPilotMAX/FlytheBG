@@ -393,7 +393,7 @@ export function LocalAISimulator() {
                 <button type="button" onClick={explodedView}>3D Exploded <span>Show depth</span></button>
               </div>
 
-              <div className="studioAccuracyCard"><span className="accuracyOrb">98</span><div><strong>Smart local pipeline</strong><small>FP16 when capable · quantized fallback · refined alpha edges</small></div></div>
+              <div className="studioAccuracyCard"><span className="accuracyOrb">AI</span><div><strong>Smart local pipeline</strong><small>FP16 when capable · quantized fallback · refined alpha edges</small></div></div>
             </div>
           </div>
 
