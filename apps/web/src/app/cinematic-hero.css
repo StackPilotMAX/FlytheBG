@@ -1,11 +1,12 @@
 /* FlytheBG cinematic homepage inspired by the uploaded reference composition. */
 :root{
   --fly-ink:#1B133C;
-  --fly-glass:rgba(255,255,255,.70);
-  --fly-glass-strong:rgba(255,255,255,.84);
+  --fly-glass:rgba(255,255,255,.62);
+  --fly-glass-strong:rgba(255,255,255,.9);
+  --fly-edge:rgba(27,19,60,.075);
+  --fly-shadow:rgba(36,24,73,.12);
 }
 
-/* Requested type system across FlytheBG. next/font self-hosts both families. */
 html,body,button,input,select,textarea{font-family:var(--font-inter),Inter,ui-sans-serif,system-ui,sans-serif}
 h1,h2,h3,h4,.displaySerif{font-family:var(--font-instrument-serif),Georgia,serif}
 
@@ -29,6 +30,24 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   background:#d9d5ef;
 }
 
+.cinematicHero::before,
+.cinematicHero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.cinematicHero::before{
+  z-index:2;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 28%,transparent 72%,rgba(27,19,60,.06));
+}
+
+.cinematicHero::after{
+  z-index:3;
+  box-shadow:inset 0 0 110px rgba(35,24,69,.08);
+}
+
 .cinematicHeroVideo{
   position:absolute;
   inset:0 auto auto 0;
@@ -39,6 +58,8 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   object-position:50% 0%;
   pointer-events:none;
   user-select:none;
+  transform:scale(1.015);
+  animation:cinematicVideoDrift 18s ease-in-out infinite alternate;
 }
 
 .cinematicHeroWash{
@@ -47,8 +68,9 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   z-index:1;
   pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(249,248,255,.22) 0%,rgba(249,248,255,.08) 38%,rgba(249,248,255,0) 68%),
-    radial-gradient(circle at 50% 12%,rgba(255,255,255,.18),transparent 42%);
+    linear-gradient(180deg,rgba(249,248,255,.34) 0%,rgba(249,248,255,.12) 30%,rgba(249,248,255,.02) 65%,rgba(249,248,255,0) 78%),
+    radial-gradient(circle at 50% 10%,rgba(255,255,255,.34),transparent 36%),
+    radial-gradient(circle at 50% 66%,rgba(255,255,255,.08),transparent 54%);
 }
 
 .cinematicHeroLayer{
@@ -59,21 +81,22 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding:16px 20px 28px;
+  padding:14px 22px 28px;
 }
 
 .cinematicNav{
   display:inline-flex;
   align-items:center;
-  gap:12px;
-  min-height:48px;
-  padding:8px 10px;
-  border:1px solid rgba(27,19,60,.055);
-  border-radius:14px;
+  gap:8px;
+  min-height:46px;
+  padding:6px 8px;
+  border:1px solid var(--fly-edge);
+  border-radius:16px;
   background:var(--fly-glass);
-  box-shadow:0 7px 24px rgba(42,31,79,.08),inset 0 1px 0 rgba(255,255,255,.62);
-  backdrop-filter:blur(15px) saturate(125%);
-  -webkit-backdrop-filter:blur(15px) saturate(125%);
+  box-shadow:0 8px 28px rgba(42,31,79,.09),inset 0 1px 0 rgba(255,255,255,.72);
+  backdrop-filter:blur(18px) saturate(138%);
+  -webkit-backdrop-filter:blur(18px) saturate(138%);
+  animation:cinematicNavIn .7s cubic-bezier(.2,.8,.2,1) both;
 }
 
 .cinematicLogo{
@@ -82,10 +105,18 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   width:32px;
   height:32px;
   color:var(--fly-ink);
-  border-radius:9px;
-  transition:background .22s ease,transform .22s ease;
+  border-radius:10px;
+  background:rgba(255,255,255,.28);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.32);
+  transition:background .22s ease,transform .22s ease,box-shadow .22s ease;
 }
-.cinematicLogo:hover{background:rgba(27,19,60,.055);transform:translateY(-1px)}
+.cinematicLogo:hover,
+.cinematicLogo:focus-visible{
+  background:rgba(255,255,255,.56);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.72),0 4px 12px rgba(42,31,79,.08);
+  transform:translateY(-1px);
+  outline:none;
+}
 
 .cinematicTabs{display:flex;align-items:center;gap:2px}
 .cinematicTabs a{
@@ -95,28 +126,30 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   min-height:32px;
   padding:0 10px;
   border-radius:9px;
-  color:rgba(27,19,60,.72);
-  font-size:12px;
+  color:rgba(27,19,60,.69);
+  font-size:11.5px;
   font-weight:500;
   letter-spacing:-.01em;
   text-decoration:none;
-  transition:color .2s ease,background .2s ease,transform .2s ease;
+  transition:color .2s ease,background .2s ease,transform .2s ease,box-shadow .2s ease;
 }
 .cinematicTabs a:hover,
 .cinematicTabs a:focus-visible{
   color:var(--fly-ink);
-  background:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.58);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.34);
   transform:translateY(-1px);
   outline:none;
 }
 
 .cinematicHeroContent{
-  width:min(100%,980px);
-  margin-top:clamp(42px,7vh,76px);
+  width:min(100%,920px);
+  margin-top:clamp(50px,8.5vh,92px);
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
+  animation:cinematicContentIn .82s .08s cubic-bezier(.2,.8,.2,1) both;
 }
 
 .cinematicBadge{
@@ -125,13 +158,13 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   gap:9px;
   margin-bottom:24px;
   padding:7px 11px 7px 8px;
-  border:1px solid rgba(27,19,60,.09);
-  border-radius:11px;
-  background:rgba(255,255,255,.68);
-  box-shadow:0 5px 18px rgba(46,34,85,.055);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  color:rgba(27,19,60,.79);
+  border:1px solid rgba(27,19,60,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.66);
+  box-shadow:0 6px 22px rgba(46,34,85,.06),inset 0 1px 0 rgba(255,255,255,.74);
+  backdrop-filter:blur(14px) saturate(125%);
+  -webkit-backdrop-filter:blur(14px) saturate(125%);
+  color:rgba(27,19,60,.78);
   font-size:11px;
   font-weight:500;
   letter-spacing:-.01em;
@@ -142,36 +175,36 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   place-items:center;
   width:20px;
   height:20px;
-  border-radius:5px;
+  border-radius:6px;
   background:#f17d43;
   color:#fff;
   font-size:10px;
   font-weight:600;
   line-height:1;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 2px 8px rgba(241,125,67,.22);
 }
 
 .cinematicHeroContent h1{
   margin:0;
-  max-width:940px;
+  max-width:900px;
   color:var(--fly-ink);
   font-family:var(--font-instrument-serif),Georgia,serif;
-  font-size:clamp(54px,7.1vw,104px);
+  font-size:clamp(58px,7vw,102px);
   font-weight:400;
-  line-height:.91;
+  line-height:.9;
   letter-spacing:-.052em;
   text-wrap:balance;
-  text-shadow:0 1px 0 rgba(255,255,255,.12);
+  text-shadow:0 1px 0 rgba(255,255,255,.16),0 18px 60px rgba(34,23,70,.08);
 }
 .cinematicHeroContent h1 em{font-style:italic;font-weight:400}
 
 .cinematicHeroContent p{
-  max-width:670px;
+  max-width:620px;
   margin:20px 0 0;
-  color:rgba(27,19,60,.68);
-  font-size:clamp(12px,1.15vw,15px);
+  color:rgba(27,19,60,.67);
+  font-size:clamp(12px,1.1vw,15px);
   font-weight:400;
-  line-height:1.55;
+  line-height:1.58;
   letter-spacing:-.012em;
   text-wrap:balance;
 }
@@ -180,14 +213,15 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:45px;
-  margin-top:26px;
-  padding:0 24px;
+  gap:11px;
+  min-height:47px;
+  margin-top:27px;
+  padding:0 10px 0 21px;
   border:1px solid rgba(27,19,60,.035);
-  border-radius:12px;
-  background:rgba(254,254,254,.94);
+  border-radius:14px;
+  background:rgba(254,254,254,.95);
   color:var(--fly-ink);
-  box-shadow:0 4px 12px rgba(0,0,0,.14),inset 0 1px 0 #fff;
+  box-shadow:0 5px 14px rgba(0,0,0,.14),inset 0 1px 0 #fff;
   font-size:12px;
   font-weight:600;
   text-decoration:none;
@@ -197,22 +231,70 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
 .cinematicCta:focus-visible{
   transform:translateY(-2px);
   background:#fff;
-  box-shadow:0 8px 20px rgba(0,0,0,.18),inset 0 1px 0 #fff;
+  box-shadow:0 10px 24px rgba(0,0,0,.18),inset 0 1px 0 #fff;
   outline:none;
 }
 .cinematicCta:active{transform:translateY(0)}
 
+.cinematicCtaLabel{white-space:nowrap}
+.cinematicCtaArrow{
+  display:grid;
+  place-items:center;
+  width:29px;
+  height:29px;
+  border-radius:10px;
+  background:rgba(27,19,60,.055);
+  font-size:15px;
+  line-height:1;
+  transition:transform .28s ease,background .28s ease;
+}
+.cinematicCta:hover .cinematicCtaArrow,
+.cinematicCta:focus-visible .cinematicCtaArrow{
+  transform:translateX(2px);
+  background:rgba(27,19,60,.08);
+}
+
+.cinematicTrust{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:13px;
+  color:rgba(27,19,60,.52);
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:.005em;
+}
+
+@keyframes cinematicNavIn{
+  from{opacity:0;transform:translateY(-10px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+@keyframes cinematicContentIn{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes cinematicVideoDrift{
+  from{transform:scale(1.015) translate3d(0,0,0)}
+  to{transform:scale(1.035) translate3d(0,-.5%,0)}
+}
+
 @media (max-width:720px){
   .cinematicHero{min-height:540px}
+  .cinematicHero::after{box-shadow:inset 0 0 70px rgba(35,24,69,.06)}
   .cinematicHeroLayer{padding:12px 14px 22px}
-  .cinematicNav{min-height:44px;padding:6px 7px;border-radius:13px}
+  .cinematicNav{min-height:44px;padding:6px 7px;border-radius:14px}
   .cinematicLogo{width:32px;height:32px}
   .cinematicTabs{display:none}
-  .cinematicHeroContent{margin-top:clamp(58px,10vh,92px);padding:0 8px}
+  .cinematicHeroContent{margin-top:clamp(56px,9.5vh,86px);padding:0 8px}
   .cinematicBadge{margin-bottom:20px;font-size:10px}
   .cinematicHeroContent h1{font-size:clamp(46px,14vw,72px);line-height:.93;letter-spacing:-.045em}
-  .cinematicHeroContent p{max-width:520px;margin-top:18px;font-size:12px;line-height:1.55}
-  .cinematicCta{margin-top:24px;min-height:44px;padding-inline:22px}
+  .cinematicHeroContent p{max-width:500px;margin-top:18px;font-size:12px;line-height:1.55}
+  .cinematicCta{margin-top:24px;min-height:45px;padding-left:20px}
+  .cinematicTrust{max-width:300px;font-size:10px;gap:6px}
   .cinematicHeroVideo{height:118%;object-position:50% 0%}
 }
 
@@ -222,9 +304,11 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   .cinematicHeroContent h1{font-size:clamp(48px,7vw,76px)}
   .cinematicHeroContent p{margin-top:14px}
   .cinematicCta{margin-top:18px}
+  .cinematicTrust{margin-top:9px}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .cinematicLogo,.cinematicTabs a,.cinematicCta{transition:none}
-  .cinematicHeroVideo{animation:none}
+  .cinematicLogo,.cinematicTabs a,.cinematicCta,.cinematicCtaArrow{transition:none}
+  .cinematicNav,.cinematicHeroContent,.cinematicHeroVideo{animation:none}
+  .cinematicHeroVideo{transform:none}
 }
