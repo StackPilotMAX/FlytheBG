@@ -113,7 +113,13 @@ export function Uploader() {
       resultPreview = await createPreview(output.blob, "Background removed image");
       setResultBlob(output.blob);
       setResult(resultPreview);
-      setEngine(`IMG.LY ${output.modelLabel} · ${output.optimizedForMemory ? "low-memory working copy" : "full working resolution"} · local GPU/CPU path`);
+      const qualityNotes = [
+        `IMG.LY ${output.modelLabel}`,
+        output.edgeRefined ? "refined alpha edges" : "model alpha",
+        output.restoredResolution ? "source detail restored" : output.optimizedForMemory ? "memory-safe output" : "full working resolution",
+        "local GPU/CPU path",
+      ];
+      setEngine(qualityNotes.join(" · "));
       setProgress("Complete");
       setStage("complete");
     } catch (reason) {
@@ -189,7 +195,7 @@ export function Uploader() {
         </div>
 
         <div className="resultActionsBar">
-          <div><strong>Transparent PNG</strong><span>Powerful devices can use the higher-quality FP16 mask; constrained devices use the smaller quantized model and may process a reduced working copy to avoid memory crashes.</span></div>
+          <div><strong>Transparent PNG</strong><span>Eligible results now receive conservative alpha-matte cleanup. When a resized inference mask was used and memory allows, FlytheBG can reapply that refined mask to higher-resolution source detail.</span></div>
           <div className="buttonRow">
             <button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Browser AI" })}>Crop</button>
             <button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button>
@@ -227,7 +233,7 @@ export function Uploader() {
             <span className="spinner" aria-hidden="true"/>
             <strong>Removing the background in your browser…</strong>
             <p>{progress}</p>
-            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, and retries with CPU/WASM if WebGPU cannot finish.</small>
+            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, refines eligible transparency edges, and retries with CPU/WASM if WebGPU cannot finish.</small>
           </div>
         ) : (
           <div className="uploadPrompt">
