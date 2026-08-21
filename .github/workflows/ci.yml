@@ -2,7 +2,15 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -10,19 +18,24 @@ permissions:
 jobs:
   web:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - run: npm install
+      - name: Install dependencies
+        run: npm install --no-fund --no-audit
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
-      - run: npm run test:web
-      - run: npm run typecheck:web
-      - run: npm run build:web
+      - name: Run tests
+        run: npm run test:web
+      - name: TypeScript check
+        run: npm run typecheck:web
+      - name: Production static build
+        run: npm run build:web
         env:
-          NEXT_PUBLIC_SITE_URL: https://example.invalid
+          NEXT_PUBLIC_SITE_URL: https://flythebg.com
           NEXT_PUBLIC_APP_NAME: FlytheBG
           NEXT_PUBLIC_UPLOAD_MAX_MB: 12
           NEXT_PUBLIC_ADSENSE_CLIENT: ca-pub-0000000000000000
