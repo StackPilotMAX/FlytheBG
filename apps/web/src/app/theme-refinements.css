@@ -1,0 +1,278 @@
+/* Final light cinematic overrides: scrolling landing, smooth FAQ accordions and reserved ad placements. */
+:root{
+  --fly-text:#39345a;
+  --fly-text-soft:rgba(57,52,90,.72);
+  --fly-panel:rgba(255,255,255,.68);
+  --fly-panel-strong:rgba(255,255,255,.82);
+  --fly-panel-line:rgba(72,62,112,.10);
+  --fly-lavender:#8f82e8;
+  --fly-blue:#7db8e9;
+}
+
+html{scroll-behavior:smooth}
+body{color:var(--fly-text)!important}
+body:has(.cinematicHero){overflow-x:hidden!important;overflow-y:auto!important;background:#d9d5ef!important}
+body:has(.cinematicHero) .siteVideoBackdrop{display:block!important}
+body:has(.cinematicHero) .scrollProgress,
+body:has(.cinematicHero) .cursorGlow{display:block!important}
+body:has(.cinematicHero) .siteHeader,
+body:has(.cinematicHero) .siteFooter{display:none!important}
+
+/* The shared fixed video is the only landing-page video layer. */
+.cinematicHeroVideo{display:none!important}
+.cinematicHero{height:100dvh;min-height:620px;background:transparent!important}
+.cinematicHeroLayer{min-height:100%;justify-content:flex-start}
+
+.cinematicLanding{
+  position:relative;
+  z-index:2;
+  min-height:100vh;
+  color:var(--fly-text);
+}
+.cinematicLandingSection{
+  position:relative;
+  padding:clamp(24px,5vw,72px) 14px;
+}
+.cinematicLandingSection:first-of-type{padding-top:18px}
+.landingSectionShell{
+  position:relative;
+  width:min(1120px,calc(100% - 6px));
+  margin:0 auto;
+  overflow:hidden;
+  padding:clamp(28px,5vw,66px);
+  border:1px solid var(--fly-panel-line);
+  border-radius:32px;
+  background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(247,245,255,.54));
+  box-shadow:0 28px 88px rgba(48,40,90,.13),inset 0 1px 0 rgba(255,255,255,.82);
+  backdrop-filter:blur(26px) saturate(132%);
+  -webkit-backdrop-filter:blur(26px) saturate(132%);
+}
+.landingSectionShell::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(125deg,rgba(255,255,255,.30),transparent 36%,transparent 70%,rgba(196,218,255,.14));
+}
+.landingSectionHeader{position:relative;z-index:1;max-width:780px}
+.landingSectionHeader .eyebrow{margin-bottom:12px}
+.landingSectionHeader h2{
+  margin:0;
+  color:var(--fly-text)!important;
+  font-family:var(--font-instrument-serif),Georgia,serif;
+  font-size:clamp(38px,5vw,68px);
+  font-weight:400;
+  line-height:.98;
+  letter-spacing:-.045em;
+}
+.landingSectionHeader p{max-width:690px;margin:15px 0 0;color:var(--fly-text-soft)!important;line-height:1.7}
+.landingCards{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:30px}
+.landingCard{
+  min-height:220px;
+  padding:24px;
+  border:1px solid var(--fly-panel-line);
+  border-radius:22px;
+  background:rgba(255,255,255,.58);
+  box-shadow:0 14px 38px rgba(54,44,99,.075),inset 0 1px 0 rgba(255,255,255,.72);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s ease,box-shadow .35s ease;
+}
+.landingCard span{color:rgba(57,52,90,.55);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.landingCard h3{margin:14px 0 8px;color:var(--fly-text)!important;font-size:clamp(26px,2.7vw,38px);font-weight:400;line-height:1.02;letter-spacing:-.035em}
+.landingCard p{margin:0;color:var(--fly-text-soft)!important;line-height:1.65;font-size:13px}
+.landingCard a{display:inline-flex;margin-top:16px;color:#6258a7;font-size:12px;font-weight:600;text-decoration:none}
+@media (hover:hover) and (pointer:fine){
+  .landingCard:hover{transform:translateY(-6px);background:rgba(255,255,255,.72);box-shadow:0 22px 52px rgba(54,44,99,.12),inset 0 1px 0 rgba(255,255,255,.80)}
+}
+
+.cinematicLandingFooter{
+  width:min(1120px,calc(100% - 28px));
+  margin:18px auto 28px;
+  padding:22px 26px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  border:1px solid var(--fly-panel-line);
+  border-radius:22px;
+  background:rgba(255,255,255,.70);
+  box-shadow:0 18px 55px rgba(50,42,92,.10);
+  backdrop-filter:blur(22px) saturate(130%);
+  -webkit-backdrop-filter:blur(22px) saturate(130%);
+}
+.cinematicLandingFooter img{width:132px;height:auto}
+.cinematicLandingFooter nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 15px}
+.cinematicLandingFooter a{color:rgba(57,52,90,.68);font-size:11px;text-decoration:none}
+.cinematicLandingFooter a:hover,.cinematicLandingFooter a:focus-visible{color:#51488f;text-decoration:underline;text-underline-offset:4px}
+
+/* Remove old near-black panels and inputs while retaining readable contrast. */
+body > main:not(.cinematicHero) h1,
+body > main:not(.cinematicHero) h2,
+body > main:not(.cinematicHero) h3,
+body > main:not(.cinematicHero) strong,
+.legalMain h1,.legalMain h2,.legalMain h3{color:var(--fly-text)!important}
+body > main:not(.cinematicHero) p,
+body > main:not(.cinematicHero) li,
+body > main:not(.cinematicHero) small,
+.legalMain p,.legalMain li{color:var(--fly-text-soft)!important}
+
+.toolSurface,.passportPanel,.sheetPreviewSection,.pageHeroAside,
+.infoCards article,.principleList article,.trustGrid article,.toolFeatureCard,
+.compareCard,.modelFlow > div,.privacyBar,.resultActionsBar,.errorNotice,.successNotice,
+.legalShell,.legalBody,.legalIdentity{
+  color:var(--fly-text)!important;
+  border-color:var(--fly-panel-line)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(247,245,255,.58))!important;
+}
+
+input,select,textarea,
+.toolSurface input,.toolSurface select,.toolSurface textarea,
+.passportPanel input,.passportPanel select,.passportPanel textarea{
+  color:var(--fly-text)!important;
+  border-color:rgba(72,62,112,.13)!important;
+  background:rgba(255,255,255,.82)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72)!important;
+}
+input::placeholder,textarea::placeholder{color:rgba(57,52,90,.45)!important}
+code,pre{
+  color:#514a86!important;
+  border-color:rgba(102,87,167,.10)!important;
+  background:rgba(235,231,255,.68)!important;
+}
+
+.buttonPrimary,.siteHeader .navCta{
+  border-color:rgba(112,101,202,.20)!important;
+  background:linear-gradient(135deg,#7eaee4,#9180df)!important;
+  color:#fff!important;
+  box-shadow:0 10px 28px rgba(109,95,194,.22)!important;
+}
+.buttonSecondary,.buttonGhost{
+  color:var(--fly-text)!important;
+  background:rgba(255,255,255,.74)!important;
+}
+
+/* Dedicated FAQ destination and smoothly animated click/hover accordion. */
+.faqJumpLinks{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.faqJumpLinks a{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:0 13px;
+  border:1px solid var(--fly-panel-line);
+  border-radius:12px;
+  background:rgba(255,255,255,.60);
+  color:#6258a7!important;
+  font-size:11px;
+  font-weight:600;
+  text-decoration:none;
+}
+.animatedFaqList{display:grid;gap:10px}
+.animatedFaqList .faqItem{
+  overflow:hidden;
+  border:1px solid var(--fly-panel-line)!important;
+  border-radius:17px!important;
+  background:rgba(255,255,255,.58)!important;
+  box-shadow:0 10px 30px rgba(54,44,99,.06),inset 0 1px 0 rgba(255,255,255,.70)!important;
+  transition:background .42s ease,box-shadow .42s ease,transform .42s cubic-bezier(.2,.8,.2,1)!important;
+}
+.animatedFaqList .faqItem.is-open{
+  background:rgba(255,255,255,.76)!important;
+  box-shadow:0 18px 42px rgba(54,44,99,.10),inset 0 1px 0 rgba(255,255,255,.80)!important;
+}
+.faqQuestion{
+  appearance:none;
+  width:100%;
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:17px 19px;
+  border:0;
+  background:transparent;
+  color:var(--fly-text)!important;
+  text-align:left;
+  font:600 13px/1.45 var(--font-inter),Inter,sans-serif;
+  cursor:pointer;
+}
+.faqQuestion:focus-visible{outline:2px solid rgba(126,112,218,.48);outline-offset:-4px;border-radius:15px}
+.faqPlus{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:29px;
+  height:29px;
+  border-radius:9px;
+  background:rgba(226,221,250,.75);
+  color:#665da5;
+  font-size:19px;
+  line-height:1;
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),background .35s ease;
+}
+.faqItem.is-open .faqPlus{transform:rotate(45deg);background:rgba(211,224,252,.88)}
+.faqAnswerMotion{
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  transform:translateY(-6px);
+  transition:grid-template-rows .52s cubic-bezier(.2,.8,.2,1),opacity .36s ease,transform .52s cubic-bezier(.2,.8,.2,1);
+}
+.faqItem.is-open .faqAnswerMotion{grid-template-rows:1fr;opacity:1;transform:translateY(0)}
+.faqAnswerInner{min-height:0;overflow:hidden}
+.faqAnswerInner p{margin:0;padding:0 19px 19px;color:var(--fly-text-soft)!important;line-height:1.68;font-size:12.5px}
+
+/* Reserved advertisement inventory. No hover or entrance animation: ads must look like ads. */
+.adPlacement{
+  width:min(100%,970px);
+  margin:6px auto;
+  padding:8px;
+  border:1px dashed rgba(91,79,142,.18);
+  border-radius:16px;
+  background:rgba(255,255,255,.34);
+  box-shadow:none;
+  text-align:center;
+}
+.adPlacementLabel{
+  display:block;
+  margin:0 0 6px;
+  color:rgba(57,52,90,.48)!important;
+  font:500 9px/1.2 var(--font-inter),Inter,sans-serif;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.adPlacementSlot{
+  min-height:90px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:rgba(255,255,255,.20);
+}
+.adPlacement--rectangle{max-width:360px}.adPlacement--rectangle .adPlacementSlot{min-height:250px}
+.adPlacement--leaderboard .adPlacementSlot{min-height:90px}
+.adPlacement--responsive .adPlacementSlot{min-height:120px}
+.adPlacementSlot::after{content:"Reserved ad space";color:rgba(57,52,90,.34);font-size:10px;letter-spacing:.03em}
+
+/* Legal pages stay in the same video/glass family. */
+.legalMain{position:relative;z-index:2;background:transparent!important;color:var(--fly-text)!important}
+.legalShell{border-radius:30px!important;box-shadow:0 26px 82px rgba(48,40,90,.12)!important;backdrop-filter:blur(24px) saturate(130%);-webkit-backdrop-filter:blur(24px) saturate(130%)}
+.legalBody a,.legalIdentity a,.backLink{color:#6258a7!important}
+
+@media (max-width:860px){
+  .landingCards{grid-template-columns:1fr}
+  .landingCard{min-height:auto}
+  .cinematicLandingFooter{align-items:flex-start;flex-direction:column}
+  .cinematicLandingFooter nav{justify-content:flex-start}
+}
+@media (max-width:720px){
+  .cinematicHero{min-height:600px}
+  .cinematicLandingSection{padding:18px 10px 34px}
+  .landingSectionShell{width:100%;padding:26px 20px;border-radius:24px}
+  .landingSectionHeader h2{font-size:clamp(36px,11vw,52px)}
+  .faqQuestion{min-height:58px;padding:15px 15px;font-size:12px}
+  .faqAnswerInner p{padding:0 15px 16px}
+  .adPlacement{border-radius:13px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .landingCard,.faqItem,.faqPlus,.faqAnswerMotion{transition:none!important}
+}
