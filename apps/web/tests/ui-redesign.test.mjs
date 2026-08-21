@@ -6,10 +6,19 @@ const home = await readFile(new URL("../src/app/page.tsx", import.meta.url), "ut
 const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
 const cinematic = await readFile(new URL("../src/app/cinematic-hero.css", import.meta.url), "utf8");
 const immersive = await readFile(new URL("../src/app/immersive-theme.css", import.meta.url), "utf8");
+const monetizationCss = await readFile(new URL("../src/app/monetization.css", import.meta.url), "utf8");
 const motion = await readFile(new URL("../src/components/MotionLayer.tsx", import.meta.url), "utf8");
+const announcement = await readFile(new URL("../src/components/FeatureAnnouncement.tsx", import.meta.url), "utf8");
+const monetizationScripts = await readFile(new URL("../src/components/MonetizationScripts.tsx", import.meta.url), "utf8");
+const monetizationConfig = await readFile(new URL("../src/lib/monetization.ts", import.meta.url), "utf8");
 const faq = await readFile(new URL("../src/components/HoverFaqList.tsx", import.meta.url), "utf8");
 const polish = await readFile(new URL("../src/app/polish.css", import.meta.url), "utf8");
 const remover = await readFile(new URL("../src/app/remove-background/page.tsx", import.meta.url), "utf8");
+const privacy = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
+const cookies = await readFile(new URL("../src/app/cookies/page.tsx", import.meta.url), "utf8");
+const terms = await readFile(new URL("../src/app/terms/page.tsx", import.meta.url), "utf8");
+const preparePublic = await readFile(new URL("../scripts/prepare-public.mjs", import.meta.url), "utf8");
+const envExample = await readFile(new URL("../../../.env.example", import.meta.url), "utf8");
 
 test("homepage is a single cinematic video hero", () => {
   assert.match(home, /className="cinematicHero"/);
@@ -22,9 +31,11 @@ test("homepage is a single cinematic video hero", () => {
   assert.doesNotMatch(home, /landingFinalCta/);
 });
 
-test("hero uses the requested custom chevron mark and functional FlytheBG tabs", () => {
-  assert.match(home, /M 256 256 L 128 256 L 0 128 L 128 128 Z/);
-  assert.match(home, /M 256 128 L 128 128 L 0 0 L 128 0 Z/);
+test("landing and shared chrome use the official FlytheBG lockup", () => {
+  assert.match(home, /\/brand\/flythebg-lockup\.svg/);
+  assert.match(home, /className="cinematicBrandLockup"/);
+  assert.match(layout, /className="brandLockup" src="\/brand\/flythebg-lockup\.svg"/);
+  assert.match(monetizationCss, /\.cinematicBrandLockup/);
   assert.match(home, /href="\/remove-background"/);
   assert.match(home, /href="\/features\/passport-photo"/);
   assert.match(home, /href="\/privacy"/);
@@ -43,6 +54,7 @@ test("Instrument Serif and Inter are self-hosted through next font and applied g
   assert.match(layout, /variable: "--font-inter"/);
   assert.match(layout, /immersive-theme\.css/);
   assert.match(layout, /cinematic-hero\.css/);
+  assert.match(layout, /monetization\.css/);
   assert.match(cinematic, /font-family:var\(--font-inter\)/);
   assert.match(cinematic, /font-family:var\(--font-instrument-serif\)/);
 });
@@ -75,6 +87,36 @@ test("scroll motion reveals page sections and parallax-shifts the shared video",
   assert.match(motion, /--video-scale/);
   assert.match(immersive, /\.motion-ready \.revealItem/);
   assert.match(immersive, /prefers-reduced-motion:reduce/);
+});
+
+test("October 2026 feature notice is visible and dismissible", () => {
+  assert.match(layout, /<FeatureAnnouncement \/>/);
+  assert.match(announcement, /New FlytheBG features are coming in October 2026\./);
+  assert.match(announcement, /localStorage\.getItem/);
+  assert.match(announcement, /localStorage\.setItem/);
+  assert.match(announcement, /Dismiss October feature announcement/);
+  assert.match(monetizationCss, /\.featureAnnouncement/);
+});
+
+test("AdSense and Monetag are disabled by default and gated for safe co-use", () => {
+  assert.match(envExample, /NEXT_PUBLIC_ADSENSE_ENABLED=false/);
+  assert.match(envExample, /NEXT_PUBLIC_MONETAG_ENABLED=false/);
+  assert.match(envExample, /NEXT_PUBLIC_MONETAG_ADSENSE_SAFE=false/);
+  assert.match(envExample, /NEXT_PUBLIC_MONETAG_SCRIPT_SRC=/);
+  assert.match(envExample, /MONETAG_ADS_TXT_LINES=/);
+  assert.match(monetizationConfig, /!adsenseEnabled \|\| monetagAdsenseSafe/);
+  assert.match(monetizationConfig, /Do not use[\s\S]*OnClick\/pop-under formats together with AdSense/);
+  assert.match(monetizationScripts, /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js/);
+  assert.match(monetizationScripts, /strategy="lazyOnload"/);
+  assert.match(preparePublic, /MONETAG_ADS_TXT_LINES/);
+});
+
+test("legal pages disclose both ad networks without hard-coded contact email", () => {
+  for (const source of [privacy, cookies, terms]) {
+    assert.match(source, /Monetag/);
+    assert.match(source, /appConfig\.contactEmail/);
+    assert.doesNotMatch(source, /stackpilotfe@outlook\.com/);
+  }
 });
 
 test("FAQs on tool pages still support automatic pointer hover opening", () => {

@@ -8,6 +8,9 @@ import "./genz.css";
 import "./polish.css";
 import "./immersive-theme.css";
 import "./cinematic-hero.css";
+import "./monetization.css";
+import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
+import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
@@ -116,20 +119,16 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 function Logo() {
   return (
     <Link className="brand" href="/" aria-label={`${appConfig.name} home`}>
-      <img src="/icon.svg" alt="" width="38" height="38" />
-      <span>{appConfig.name}</span>
+      <img className="brandLockup" src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="142" height="31" />
     </Link>
   );
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "";
-  const adsEnabled = /^ca-pub-\d{16}$/.test(adsenseClient);
-
   return (
     <html lang="en">
       <head>
-        {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
+        <MonetizationHead />
       </head>
       <body className={`${instrumentSerif.variable} ${inter.variable}`}>
         <div className="siteVideoBackdrop" aria-hidden="true">
@@ -140,6 +139,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </div>
 
         <MotionLayer />
+        <FeatureAnnouncement />
         <header className="siteHeader">
           <div className="shell navShell">
             <Logo />
@@ -173,6 +173,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
           <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div>
         </footer>
+
+        <MonetizationScripts />
       </body>
     </html>
   );
