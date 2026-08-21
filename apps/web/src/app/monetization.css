@@ -1,0 +1,138 @@
+/* Monetization-ready UI and October 2026 product notice. */
+
+.cinematicLogo{
+  width:auto!important;
+  min-width:142px;
+  height:34px!important;
+  padding:2px 7px 2px 3px;
+  border-radius:11px;
+}
+.cinematicBrandLockup{
+  display:block;
+  width:138px;
+  height:auto;
+  max-height:30px;
+}
+
+.siteHeader .brand,
+.siteFooter .brand{
+  display:inline-flex;
+  align-items:center;
+  line-height:1;
+}
+.siteHeader .brand img.brandLockup,
+.siteFooter .brand img.brandLockup{
+  width:142px!important;
+  height:auto!important;
+  max-height:31px;
+  object-fit:contain;
+}
+.siteHeader .brand span,
+.siteFooter .brand span{display:none}
+
+.featureAnnouncement{
+  position:fixed;
+  top:86px;
+  left:50%;
+  z-index:90;
+  width:min(calc(100% - 28px),720px);
+  min-height:58px;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:10px 11px 10px 12px;
+  border:1px solid rgba(27,19,60,.09);
+  border-radius:17px;
+  background:rgba(255,255,255,.78);
+  color:#1b133c;
+  box-shadow:0 18px 54px rgba(35,24,69,.15),inset 0 1px 0 rgba(255,255,255,.78);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  animation:featureNoticeIn .55s cubic-bezier(.2,.8,.2,1) both;
+}
+.featureAnnouncementSpark{
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:11px;
+  background:linear-gradient(145deg,#f58b53,#8a7ee9);
+  color:#fff;
+  font-size:15px;
+  box-shadow:0 7px 18px rgba(95,70,167,.20);
+}
+.featureAnnouncementCopy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.featureAnnouncementCopy strong{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:-.015em;
+}
+.featureAnnouncementCopy span{
+  color:rgba(27,19,60,.62);
+  font-size:10.5px;
+  line-height:1.35;
+}
+.featureAnnouncement button{
+  appearance:none;
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  border:1px solid rgba(27,19,60,.08);
+  border-radius:10px;
+  background:rgba(255,255,255,.54);
+  color:#1b133c;
+  font:500 19px/1 var(--font-inter),Inter,sans-serif;
+  cursor:pointer;
+  transition:transform .2s ease,background .2s ease,box-shadow .2s ease;
+}
+.featureAnnouncement button:hover,
+.featureAnnouncement button:focus-visible{
+  transform:translateY(-1px);
+  background:#fff;
+  box-shadow:0 7px 18px rgba(35,24,69,.10);
+  outline:none;
+}
+
+body:has(.cinematicHero) .featureAnnouncement{
+  top:auto;
+  bottom:16px;
+  width:min(calc(100% - 28px),660px);
+  background:rgba(255,255,255,.70);
+}
+
+@keyframes featureNoticeIn{
+  from{opacity:0;transform:translate(-50%,-10px) scale(.985)}
+  to{opacity:1;transform:translate(-50%,0) scale(1)}
+}
+
+@media (max-width:720px){
+  .cinematicLogo{min-width:126px;height:34px!important}
+  .cinematicBrandLockup{width:122px;max-height:28px}
+  .siteHeader .brand img.brandLockup,.siteFooter .brand img.brandLockup{width:122px!important;max-height:28px}
+  .featureAnnouncement{
+    top:76px;
+    width:calc(100% - 20px);
+    grid-template-columns:auto 1fr auto;
+    gap:9px;
+    padding:9px 9px 9px 10px;
+    border-radius:15px;
+  }
+  .featureAnnouncementSpark{width:30px;height:30px;border-radius:9px;font-size:13px}
+  .featureAnnouncementCopy strong{font-size:11px}
+  .featureAnnouncementCopy span{font-size:9.5px}
+  .featureAnnouncement button{width:30px;height:30px}
+  body:has(.cinematicHero) .featureAnnouncement{bottom:10px;width:calc(100% - 20px)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .featureAnnouncement{animation:none}
+  .featureAnnouncement button{transition:none}
+}
