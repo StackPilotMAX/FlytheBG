@@ -127,13 +127,22 @@ export default function HomePage() {
           </h1>
 
           <p>
-            Turn everyday photos into transparent cutouts or print-ready passport sheets directly in your browser.
-            Fast local processing, manual framing controls, and no image-processing upload required.
+            Create clean transparent cutouts and print-ready passport sheets directly in your browser.
+            Fast local processing, precise framing controls, and no image-processing upload required.
           </p>
 
           <Link className="cinematicCta" href="/remove-background">
-            Start with your photo
+            <span className="cinematicCtaLabel">Start with your photo</span>
+            <span className="cinematicCtaArrow" aria-hidden="true">→</span>
           </Link>
+
+          <div className="cinematicTrust" aria-label="FlytheBG benefits">
+            <span>Free to use</span>
+            <span aria-hidden="true">·</span>
+            <span>No account</span>
+            <span aria-hidden="true">·</span>
+            <span>Images stay local</span>
+          </div>
         </section>
       </div>
     </main>
