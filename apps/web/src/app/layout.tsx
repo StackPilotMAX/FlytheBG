@@ -9,6 +9,7 @@ import "./polish.css";
 import "./immersive-theme.css";
 import "./cinematic-hero.css";
 import "./monetization.css";
+import "./theme-refinements.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
@@ -104,9 +105,9 @@ export const metadata: Metadata = {
     ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "64x64" }],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }],
+    shortcut: "/brand/flythebg-mark.svg",
+    apple: "/brand/flythebg-mark.svg",
   },
   other: {
     "application-name": appConfig.name,
@@ -114,7 +115,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light" };
 
 function Logo() {
   return (
@@ -148,7 +149,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/features">Features</Link>
               <Link href="/guides">Guides</Link>
-              <Link href="/#faq">FAQ</Link>
+              <Link href="/faq">FAQ</Link>
             </nav>
             <Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link>
           </div>
@@ -164,7 +165,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/features/passport-photo">Passport Photo</Link>
               <Link href="/features">Features</Link>
               <Link href="/guides">Guides</Link>
+              <Link href="/faq">FAQ</Link>
               <Link href="/about">About</Link>
+              <Link href="/model-disclosure">Model Disclosure</Link>
               <Link href="/privacy">Privacy & AI</Link>
               <Link href="/terms">Terms</Link>
               <Link href="/cookies">Cookies</Link>
