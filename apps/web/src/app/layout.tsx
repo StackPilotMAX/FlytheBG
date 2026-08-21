@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { Josefin_Sans } from "next/font/google";
 import "./production-ui.css";
 import "./redesign.css";
 import "./adsense-safety.css";
 import "./genz.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
+
+const josefinSans = Josefin_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-josefin",
+});
 
 const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
 const defaultDescription = "Remove image backgrounds online with local browser AI, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
@@ -111,7 +118,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
-      <body>
+      <body className={josefinSans.variable}>
         <MotionLayer />
         <header className="siteHeader">
           <div className="shell navShell">
