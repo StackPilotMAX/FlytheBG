@@ -5,6 +5,8 @@ FlytheBG is a privacy-focused, browser-only image toolkit for removing backgroun
 ## Live tools
 
 - **Remove Background** — runs IMG.LY IS-Net locally in the browser. Low-memory devices use the smaller quantized model; capable WebGPU devices can try FP16 for a higher-quality mask and automatically fall back if needed.
+- **Local alpha-matte refinement** — eligible cutouts receive a lightweight transparency cleanup pass that reduces isolated faint speckles, fills tiny pinholes inside opaque foreground regions, and modestly increases boundary contrast while preserving semi-transparent pixels.
+- **Source-detail restoration** — when inference used a reduced working image and the device has enough memory, FlytheBG can reapply the refined segmentation mask to the higher-resolution source image. Constrained devices skip this extra memory-heavy step.
 - **Low-memory mobile guard** — oversized working images are reduced before inference on constrained devices while preserving their aspect ratio. This lowers browser memory pressure on budget phones and older laptops.
 - **Crop** — crops the generated transparent PNG locally in the browser.
 - **Passport Photo Maker** — optional local background removal, manual drag-to-position framing, zoom, exact physical sizing, background color, multiple copies, A4/4×6/US Letter/custom paper, PNG export, and direct printing at 100% / Actual Size.
@@ -26,14 +28,16 @@ The model/runtime path can use:
 
 After a download starts or the tool is reset, FlytheBG releases its working image URLs and in-page image state. A downloaded file, browser/OS caches, extensions, screenshots, or other copies outside the page are outside the application's control.
 
-## Smart model selection
+## Smart model selection and refinement
 
 FlytheBG uses browser capability signals to balance accuracy and reliability:
 
 - reported device memory **8 GB or higher + WebGPU**: try `isnet_fp16` first;
 - other devices: use `isnet_quint8` first;
 - if FP16 fails: retry with the quantized model;
-- if WebGPU fails: retry with CPU/WASM.
+- if WebGPU fails: retry with CPU/WASM;
+- successful cutouts up to the refinement pixel guard can receive local alpha-matte cleanup;
+- resized inference masks can be reapplied to higher-resolution source imagery when the device-memory guard permits it.
 
 The low-memory working-edge guard currently uses approximately:
 
@@ -41,6 +45,10 @@ The low-memory working-edge guard currently uses approximately:
 - 4 GB or less: 1800 px;
 - 6 GB or less: 2400 px;
 - higher-memory devices: no automatic edge reduction from this guard.
+
+The source-detail restoration guard is deliberately stricter than normal inference. Devices reporting 4 GB or less skip full-resolution restoration, while higher-memory devices can restore source detail only up to bounded pixel counts. This avoids turning an optional quality enhancement into a mobile memory crash.
+
+Alpha refinement is conservative post-processing, not a second AI model. It improves the presentation of the model's transparency mask but cannot recreate foreground detail that the segmentation model did not detect.
 
 This is a reliability strategy, not a guarantee that every image will process successfully on every 3 GB phone. Browser memory limits, other open tabs, browser versions, image dimensions, and device GPU/CPU capabilities still matter.
 
@@ -52,7 +60,7 @@ This is a reliability strategy, not a guarantee that every image will process su
 - `@imgly/background-removal` 1.7.0
 - IMG.LY `isnet_quint8` for the lightweight path and `isnet_fp16` for capable WebGPU devices
 - `onnxruntime-web` pinned for the IMG.LY runtime
-- Canvas APIs for local previews, cropping, passport framing, and print-sheet generation
+- Canvas APIs for local previews, alpha cleanup, cropping, passport framing, and print-sheet generation
 - No server-side image inference service
 
 The application is exported as static HTML/CSS/JavaScript, so a static host can serve it without paying for image-inference compute.
@@ -138,7 +146,9 @@ After deploying a production build:
 5. Confirm `https://flythebg.com/icon.svg` and `https://flythebg.com/robots.txt` load publicly.
 6. Use `site:flythebg.com` only as a rough spot-check; Search Console's indexing reports are more authoritative.
 
-Search ranking for broad phrases such as “remove bg” cannot be forced by Search Console. FlytheBG includes brand variants such as “FlytheBG” and “Fly the BG” in metadata/structured data, but ranking depends on crawling, indexing, relevance, competition, content quality, links, and time.
+The homepage and remover route contain focused metadata for natural queries such as `free background remover`, `remove background online`, `AI background remover`, `transparent background maker`, `no upload background remover`, and the brand variants `FlytheBG` / `Fly the BG`. These tags help describe the page but do not guarantee rankings by themselves.
+
+Search ranking for broad phrases such as “remove bg” cannot be forced by Search Console. Ranking depends on crawling, indexing, relevance, competition, content quality, links, page experience, and time.
 
 ## AdSense review mode
 
