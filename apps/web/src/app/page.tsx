@@ -38,15 +38,6 @@ export const metadata: Metadata = {
 
 const heroVideo = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4";
 
-function FlytheBGMark() {
-  return (
-    <svg viewBox="0 0 256 256" width="24" height="24" aria-hidden="true" focusable="false">
-      <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor" />
-      <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" />
-    </svg>
-  );
-}
-
 export default function HomePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -65,7 +56,7 @@ export default function HomePage() {
         "@id": `${appConfig.siteUrl}/#publisher`,
         name: appConfig.name,
         url: appConfig.siteUrl,
-        logo: `${appConfig.siteUrl}/icon.svg`,
+        logo: `${appConfig.siteUrl}/brand/flythebg-mark.svg`,
         ...(appConfig.contactEmail ? { email: appConfig.contactEmail } : {}),
       },
       {
@@ -105,7 +96,13 @@ export default function HomePage() {
       <div className="cinematicHeroLayer">
         <nav className="cinematicNav" aria-label="FlytheBG tools">
           <Link className="cinematicLogo" href="/" aria-label="FlytheBG home">
-            <FlytheBGMark />
+            <img
+              className="cinematicBrandLockup"
+              src="/brand/flythebg-lockup.svg"
+              alt="FlytheBG"
+              width="138"
+              height="30"
+            />
           </Link>
           <div className="cinematicTabs">
             <Link href="/remove-background">Remove BG</Link>
