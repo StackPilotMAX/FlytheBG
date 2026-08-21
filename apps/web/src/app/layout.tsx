@@ -3,11 +3,12 @@ import Link from "next/link";
 import "./production-ui.css";
 import "./redesign.css";
 import "./adsense-safety.css";
+import "./genz.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
-const defaultTitle = `${appConfig.name} — Free Background Remover & Passport Photo Maker`;
-const defaultDescription = "Remove image backgrounds, create transparent PNGs, crop images, and build print-ready passport photo sheets directly in your browser with FlytheBG.";
+const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
+const defaultDescription = "Remove image backgrounds locally in your browser, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
 
@@ -16,6 +17,18 @@ export const metadata: Metadata = {
   title: { default: defaultTitle, template: `%s — ${appConfig.name}` },
   description: defaultDescription,
   applicationName: appConfig.name,
+  keywords: [
+    "FlytheBG",
+    "Fly the BG",
+    "FlytheBG.com",
+    "remove bg",
+    "remove background",
+    "free background remover",
+    "browser background remover",
+    "local AI background remover",
+    "transparent PNG",
+    "passport photo maker",
+  ],
   authors: [{ name: appConfig.name, url: appConfig.siteUrl }],
   creator: appConfig.name,
   publisher: appConfig.name,
@@ -42,6 +55,7 @@ export const metadata: Metadata = {
     siteName: appConfig.name,
     locale: "en_US",
     type: "website",
+    url: "/",
   },
   twitter: {
     card: "summary",
@@ -58,18 +72,18 @@ export const metadata: Metadata = {
     ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
   },
   icons: {
-    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml" }],
-    shortcut: "/brand/flythebg-mark.svg",
-    apple: "/brand/flythebg-mark.svg",
+    icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "64x64" }],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#04070d", colorScheme: "dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05070d", colorScheme: "dark" };
 
 function Logo() {
   return (
     <Link className="brand" href="/" aria-label={`${appConfig.name} home`}>
-      <img src="/brand/flythebg-mark.svg" alt="" width="38" height="38" />
+      <img src="/icon.svg" alt="" width="38" height="38" />
       <span>{appConfig.name}</span>
     </Link>
   );
@@ -104,7 +118,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <footer className="siteFooter">
           <div className="shell footerGrid">
-            <div className="footerBrand"><Logo/><p>Browser-first image tools with no image-processing server in the current production workflow.</p></div>
+            <div className="footerBrand"><Logo/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div>
             <div className="footerLinks">
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
