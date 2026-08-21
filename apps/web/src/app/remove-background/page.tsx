@@ -1,38 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { Uploader } from "@/components/Uploader";
 
 export const metadata: Metadata = {
   title: "Free Background Remover Online — Local AI, No Upload",
   description: "Remove image backgrounds online for free with FlytheBG. Local browser AI preserves portrait, landscape, square, vertical, and panoramic ratios, refines transparent PNG edges, and needs no image-processing backend.",
-  keywords: [
-    "free background remover online",
-    "remove background online",
-    "remove image background",
-    "remove bg free",
-    "AI background remover",
-    "background eraser",
-    "transparent background maker",
-    "transparent PNG",
-    "browser background remover",
-    "no upload background remover",
-    "local AI background remover",
-    "FlytheBG",
-    "Fly the BG",
-  ],
+  keywords: ["free background remover online","remove background online","remove image background","remove bg free","AI background remover","background eraser","transparent background maker","transparent PNG","browser background remover","no upload background remover","local AI background remover","FlytheBG","Fly the BG"],
   alternates: { canonical: "/remove-background" },
-  openGraph: {
-    title: "Free Background Remover Online — FlytheBG",
-    description: "Remove image backgrounds locally in your browser and export a refined transparent PNG without uploading the working photo to an inference server.",
-    url: "/remove-background",
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "Free Background Remover Online — FlytheBG",
-    description: "Browser-side AI background removal with low-memory safeguards and refined transparent PNG output.",
-  },
+  openGraph: { title: "Free Background Remover Online — FlytheBG", description: "Remove image backgrounds locally in your browser and export a refined transparent PNG without uploading the working photo to an inference server.", url: "/remove-background", type: "website" },
+  twitter: { card: "summary", title: "Free Background Remover Online — FlytheBG", description: "Browser-side AI background removal with low-memory safeguards and refined transparent PNG output." },
 };
 
 const removalFaqs = [
@@ -73,6 +51,8 @@ export default function RemoveBackgroundPage() {
         </div>
       </section>
 
+      <section className="section"><div className="shell"><AdPlaceholder slot="remove-bg-inline-1" format="leaderboard" /></div></section>
+
       <section className="section workflowSection">
         <div className="shell workflowGrid">
           <div className="sectionHeading compact"><span className="eyebrow"><i/> Better source photos</span><h2>How to get cleaner edges before you upload.</h2><p>The model can only work with detail that exists in the source image. A few photography choices make difficult boundaries easier to identify.</p></div>
@@ -88,14 +68,14 @@ export default function RemoveBackgroundPage() {
       <section className="section toolInfoSection">
         <div className="shell infoCards">
           <article><span>Privacy by architecture</span><h2>The working image remains browser-side.</h2><p>Source photos and generated cutouts stay in browser memory while you work. Model/runtime assets are downloaded separately and do not need your source photo attached to those requests.</p></article>
-          <article><span>Know the limits</span><h2>AI segmentation is an estimate, not a guarantee.</h2><p>No automatic remover can guarantee a perfect result for every image. Edge refinement improves presentation but cannot recreate foreground detail the segmentation model never found.</p></article>
+          <article><span>Model disclosure</span><h2>Third-party AI is explicitly attributed.</h2><p>FlytheBG uses IMG.LY&apos;s browser package with IS-Net model variants and does not claim ownership of those third-party model/runtime assets.</p><Link className="textLink" href="/model-disclosure">Read Model & Open Source Disclosure ↗</Link></article>
           <article><span>Next step</span><h2>Need physical photo sizes?</h2><p>Use the Passport Photo Maker to manually frame the person, set real-world dimensions, choose a photo background, fill a print sheet, and print at 100%.</p><Link className="textLink" href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article>
         </div>
       </section>
 
-      <section className="section faqSection">
+      <section className="section faqSection" id="faq">
         <div className="shell faqGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Remove BG FAQ</span><h2>Common questions before you process an image.</h2><p>Hovering a question opens it automatically on desktop. Touch and keyboard users can still use the normal accessible details control.</p></div>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Remove BG FAQ</span><h2>Click a question for a smooth answer.</h2><p>Opening and closing now animate smoothly. Desktop hover is optional; touch, mouse click, and keyboard activation all use the same accessible accordion.</p><Link className="textLink" href="/faq">Open the full FlytheBG FAQ ↗</Link></div>
           <HoverFaqList items={removalFaqs} />
         </div>
       </section>
