@@ -7,6 +7,7 @@ const home = await readFile(new URL("../src/app/page.tsx", import.meta.url), "ut
 const remover = await readFile(new URL("../src/app/remove-background/page.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
 const faq = await readFile(new URL("../src/components/HoverFaqList.tsx", import.meta.url), "utf8");
+const polish = await readFile(new URL("../src/app/polish.css", import.meta.url), "utf8");
 
 test("homepage hero is the interactive local AI product demo", () => {
   assert.match(hero, /Remove the background/);
@@ -30,8 +31,15 @@ test("homepage and remover describe aspect-ratio preservation", () => {
   assert.match(remover, /aspect ratio/i);
 });
 
-test("visual layer is wired after the base production styles", () => {
-  assert.match(layout, /import "\.\/production-ui\.css";[\s\S]*import "\.\/genz\.css";/);
+test("Josefin Sans and final polish are applied site-wide", () => {
+  assert.match(layout, /Josefin_Sans/);
+  assert.match(layout, /variable: "--font-josefin"/);
+  assert.match(layout, /className=\{josefinSans\.variable\}/);
+  assert.match(layout, /import "\.\/genz\.css";\s*import "\.\/polish\.css";/);
+  assert.match(polish, /var\(--font-josefin\)/);
+});
+
+test("premium motion layer remains wired", () => {
   assert.match(layout, /<MotionLayer \/>/);
 });
 
@@ -39,6 +47,9 @@ test("FAQs support automatic pointer hover opening without breaking native detai
   assert.match(faq, /onMouseEnter/);
   assert.match(faq, /onMouseLeave/);
   assert.match(faq, /event\.currentTarget\.open = true/);
+  assert.match(faq, /event\.currentTarget\.open = false/);
+  assert.match(polish, /\.animatedFaqList details\[open\]/);
+  assert.match(polish, /grid-template-rows:1fr/);
 });
 
 test("homepage includes public-domain before and after sample treatment", () => {
