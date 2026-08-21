@@ -5,6 +5,8 @@ import { readFile } from "node:fs/promises";
 const home = await readFile(new URL("../src/app/page.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
 const cinematic = await readFile(new URL("../src/app/cinematic-hero.css", import.meta.url), "utf8");
+const immersive = await readFile(new URL("../src/app/immersive-theme.css", import.meta.url), "utf8");
+const motion = await readFile(new URL("../src/components/MotionLayer.tsx", import.meta.url), "utf8");
 const faq = await readFile(new URL("../src/components/HoverFaqList.tsx", import.meta.url), "utf8");
 const polish = await readFile(new URL("../src/app/polish.css", import.meta.url), "utf8");
 const remover = await readFile(new URL("../src/app/remove-background/page.tsx", import.meta.url), "utf8");
@@ -39,6 +41,7 @@ test("Instrument Serif and Inter are self-hosted through next font and applied g
   assert.match(layout, /Instrument_Serif, Inter/);
   assert.match(layout, /variable: "--font-instrument-serif"/);
   assert.match(layout, /variable: "--font-inter"/);
+  assert.match(layout, /immersive-theme\.css/);
   assert.match(layout, /cinematic-hero\.css/);
   assert.match(cinematic, /font-family:var\(--font-inter\)/);
   assert.match(cinematic, /font-family:var\(--font-instrument-serif\)/);
@@ -53,8 +56,25 @@ test("cinematic hero hides the normal site chrome and remains full viewport", ()
   assert.match(cinematic, /backdrop-filter:blur/);
 });
 
-test("premium motion layer remains wired on non-home routes", () => {
+test("all non-home public pages reuse the supplied cinematic video theme", () => {
+  assert.match(layout, /className="siteVideoBackdrop"/);
+  assert.match(layout, /className="siteBackdropVideo" autoPlay muted loop playsInline/);
+  assert.match(layout, /hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea\.mp4/);
+  assert.match(immersive, /\.siteVideoBackdrop\{[\s\S]*position:fixed/);
+  assert.match(immersive, /body > main:not\(\.cinematicHero\) > section > \.shell/);
+  assert.match(immersive, /backdrop-filter:blur\(24px\)/);
+  assert.match(immersive, /body:has\(\.cinematicHero\) \.siteVideoBackdrop\{display:none\}/);
+});
+
+test("scroll motion reveals page sections and parallax-shifts the shared video", () => {
   assert.match(layout, /<MotionLayer \/>/);
+  assert.match(motion, /main:not\(\.cinematicHero\) > section > \.shell > \*/);
+  assert.match(motion, /reveal-left/);
+  assert.match(motion, /reveal-right/);
+  assert.match(motion, /--video-y/);
+  assert.match(motion, /--video-scale/);
+  assert.match(immersive, /\.motion-ready \.revealItem/);
+  assert.match(immersive, /prefers-reduced-motion:reduce/);
 });
 
 test("FAQs on tool pages still support automatic pointer hover opening", () => {

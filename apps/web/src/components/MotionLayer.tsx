@@ -3,16 +3,21 @@
 import { useEffect } from "react";
 
 const REVEAL_SELECTOR = [
+  "main:not(.cinematicHero) > section > .shell > *",
+  "main:not(.cinematicHero) > .shell > *",
   ".sectionHeading",
   ".trustGrid article",
   ".toolFeatureCard",
   ".workflowSteps li",
   ".faqList details",
+  ".animatedFaqList details",
   ".infoCards article",
   ".principleList article",
   ".passportPanel",
   ".sheetPreviewSection",
+  ".toolSurface",
   ".pageHeroGrid > *",
+  ".footerGrid > *",
 ].join(",");
 
 export function MotionLayer() {
@@ -21,9 +26,14 @@ export function MotionLayer() {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     root.classList.add("motion-ready");
 
-    const revealNodes = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
+    const backdropVideo = document.querySelector<HTMLVideoElement>(".siteBackdropVideo");
+    if (reducedMotion && backdropVideo) backdropVideo.pause();
+
+    const revealNodes = Array.from(new Set(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR)));
     revealNodes.forEach((node, index) => {
       node.classList.add("revealItem");
+      if (index % 4 === 1) node.classList.add("reveal-left");
+      if (index % 4 === 2) node.classList.add("reveal-right");
       node.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 55}ms`);
     });
 
@@ -38,7 +48,7 @@ export function MotionLayer() {
             }
           }
         },
-        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+        { threshold: 0.1, rootMargin: "0px 0px -7% 0px" },
       );
       revealNodes.forEach((node) => observer?.observe(node));
     } else {
@@ -51,7 +61,10 @@ export function MotionLayer() {
       raf = window.requestAnimationFrame(() => {
         raf = 0;
         const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-        root.style.setProperty("--scroll-progress", String(Math.min(1, window.scrollY / max)));
+        const progress = Math.min(1, window.scrollY / max);
+        root.style.setProperty("--scroll-progress", String(progress));
+        root.style.setProperty("--video-y", `${Math.max(-46, -window.scrollY * .04)}px`);
+        root.style.setProperty("--video-scale", String(1.035 + progress * .025));
       });
     };
 

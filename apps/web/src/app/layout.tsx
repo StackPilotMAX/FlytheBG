@@ -6,6 +6,7 @@ import "./redesign.css";
 import "./adsense-safety.css";
 import "./genz.css";
 import "./polish.css";
+import "./immersive-theme.css";
 import "./cinematic-hero.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
@@ -25,6 +26,7 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const siteVideo = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4";
 const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
 const defaultDescription = "Remove image backgrounds online with local browser AI, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
@@ -130,6 +132,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
       <body className={`${instrumentSerif.variable} ${inter.variable}`}>
+        <div className="siteVideoBackdrop" aria-hidden="true">
+          <video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata">
+            <source src={siteVideo} type="video/mp4" />
+          </video>
+          <div className="siteBackdropWash" />
+        </div>
+
         <MotionLayer />
         <header className="siteHeader">
           <div className="shell navShell">
