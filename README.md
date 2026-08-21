@@ -4,7 +4,7 @@
 
 <h1 align="center">FlytheBG</h1>
 
-<p align="center"><strong>Private, browser-side AI background removal + passport photo tools.</strong></p>
+<p align="center"><strong>Private browser-side background removal + passport photo tools.</strong></p>
 
 <p align="center">
   <a href="https://github.com/StackPilotMAX/FlytheBG/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/StackPilotMAX/FlytheBG/actions/workflows/ci.yml/badge.svg" /></a>
@@ -17,36 +17,54 @@
   <img src="apps/web/public/icon.svg" alt="FlytheBG app mark" width="96" />
 </p>
 
-FlytheBG removes image backgrounds locally in the visitor's browser, exports transparent PNGs, crops results, and builds print-ready passport-photo sheets. The production image path does **not require a FlytheBG inference server, database, GPU instance, or model API key**.
+FlytheBG removes image backgrounds locally in the visitor's browser, exports transparent PNGs, and builds print-ready passport-photo sheets. The current production image path does **not require a FlytheBG inference server, database, paid GPU, or model API key**.
 
 > ⭐ If FlytheBG is useful to you, starring the repository is the easiest way to support the project and help other people discover it.
 
-## Why FlytheBG?
+## What makes FlytheBG different?
 
-- **Private by architecture** — working photos stay in browser memory during image processing.
-- **No paid inference backend required** — AI inference runs on the visitor's device.
-- **Adaptive local AI** — capable WebGPU devices can try FP16; constrained devices use a smaller quantized path with CPU/WASM fallback.
-- **Low-memory protection** — oversized working images can be reduced before inference on budget phones.
-- **Alpha refinement** — lightweight local mask cleanup can reduce faint speckles and tiny pinholes.
-- **Source-detail restoration** — eligible devices can reapply a refined segmentation mask to higher-resolution source detail.
-- **Any normal aspect ratio** — portrait, landscape, square, vertical, and panorama inputs are not forced into a square.
-- **Passport Photo Maker** — exact physical dimensions, DPI-aware sheets, individual copy positioning, direct printing, and PNG export.
-- **Interactive landing experience** — Three.js/WebGL layer-separation demo with touch/orbit controls.
-- **Accessible FAQs** — hover-to-open on desktop while preserving native tap and keyboard interaction.
-- **Josefin Sans UI** — loaded through Next.js font optimization and self-hosted with the built site.
+- **Browser-side AI** — the current background-removal pipeline runs on the visitor's device.
+- **No paid inference backend required** — there is no Render/GPU image-processing service in the current architecture.
+- **Adaptive local inference** — capable WebGPU devices can try FP16 while constrained devices use a smaller quantized path with CPU/WASM fallback.
+- **Low-memory guards** — oversized working images can be reduced before inference on budget phones.
+- **Alpha refinement** — lightweight local cleanup can reduce faint speckles and tiny pinholes in the generated transparency mask.
+- **Source-detail restoration** — eligible devices can reapply a refined mask to higher-resolution source detail.
+- **Any normal aspect ratio** — portrait, landscape, square, vertical, and panoramic inputs are not forced into a square.
+- **Passport Photo Maker** — exact physical dimensions, DPI-aware sheets, per-copy manual positioning, direct printing, and PNG export.
+- **Cinematic landing page** — a single full-screen looping landscape video with glass navigation and product-focused hero copy.
+- **Instrument Serif + Inter** — loaded through `next/font` and self-hosted with the built application.
+- **Accessible FAQs on tool pages** — desktop hover opens the focused item while native tap and keyboard interaction remains available.
+
+## Homepage design
+
+The homepage intentionally uses one full-viewport hero instead of a long marketing page. Its visual direction comes from a supplied motion reference while the visible wording is original to FlytheBG.
+
+The hero includes:
+
+- a looping full-screen landscape MP4;
+- a small centered translucent navigation pill;
+- the FlytheBG geometric chevron mark;
+- direct tabs for Remove BG, Passport, Security, and About;
+- an Instrument Serif editorial headline;
+- Inter body copy and controls;
+- one clear CTA into the actual remover.
+
+The MP4 is referenced from the public CloudFront URL supplied for the project instead of storing a large video binary in Git. This keeps clones and repository history lightweight.
 
 ## Passport Photo Maker
 
-The passport tool is more than a repeated-copy generator:
+The passport tool supports both fast master framing and individual copy editing:
 
 1. choose exact physical dimensions such as 35 × 45 mm or 2 × 2 in;
 2. remove the background locally or keep the original;
-3. set one master crop/zoom;
-4. build a print sheet;
-5. **select any individual photo in the final preview and drag it independently**;
-6. scroll over a selected copy to adjust only that copy's zoom;
-7. use arrow nudges for fine positioning;
-8. **Print directly at Actual Size / 100%** or **Download PNG**.
+3. set a master crop and zoom;
+4. build the print sheet;
+5. select any individual photo in the final preview;
+6. drag only that copy without moving the others;
+7. scroll over the selected copy to adjust only its zoom;
+8. use arrow nudges for fine positioning;
+9. reset one copy or copy the master framing back to it;
+10. **Print directly at Actual Size / 100%** or **Download PNG**.
 
 Per-photo adjustments are included in both printing and PNG export.
 
@@ -72,9 +90,9 @@ The current runtime can use:
 - bundled `@imgly/background-removal`;
 - WebGPU where available;
 - CPU/WASM fallback;
-- a browser-safe ESM runtime fallback for common bundled worker/WASM initialization failures.
+- a browser-safe ESM runtime fallback for common worker/WASM initialization failures.
 
-Alpha cleanup is conservative post-processing, not a second AI model. It cannot recreate foreground pixels the segmentation model never detected.
+Alpha cleanup is conservative post-processing, not another AI model. It cannot recreate foreground pixels the segmentation model never detected.
 
 ## Low-memory behavior
 
@@ -87,13 +105,13 @@ Approximate maximum inference working edge:
 | ≤ 6 GB | 2400 px |
 | Higher | No automatic edge reduction from this guard |
 
-This improves reliability but cannot guarantee that every enormous image will succeed on every low-end phone. Browser memory, other tabs, image dimensions, browser version, and device hardware still matter.
+This improves reliability but cannot guarantee that every enormous image will succeed on every low-end phone. Browser memory, open tabs, image dimensions, browser version, and device hardware still matter.
 
-## Zero-cost architecture
+## $0 image-compute architecture
 
 FlytheBG is a **Next.js static export**. The current image tools do not require:
 
-- Render web services;
+- a Render web service;
 - server-side image inference;
 - a paid GPU;
 - Supabase or another image database;
@@ -101,9 +119,7 @@ FlytheBG is a **Next.js static export**. The current image tools do not require:
 - a model API key;
 - a Python background-removal server.
 
-The production output is static HTML/CSS/JavaScript in `apps/web/out` and can be served by a static host. A third-party hosting provider can still charge if an account owner chooses a paid plan or exceeds that provider's free limits; the FlytheBG code itself does not require paid image-compute infrastructure.
-
-For a public open-source project, GitHub Pages or another free static-host plan can be considered if its current limits and custom-domain support fit your needs.
+The production output is static HTML/CSS/JavaScript in `apps/web/out`. A hosting provider can still charge if an account owner chooses a paid plan or exceeds that provider's free limits; the FlytheBG code itself does not require paid image-compute infrastructure.
 
 ## Run locally
 
@@ -153,17 +169,7 @@ NEXT_PUBLIC_BING_SITE_VERIFICATION=
 
 ### ⚠️ Never put secrets in `NEXT_PUBLIC_*`
 
-Every `NEXT_PUBLIC_*` value is compiled into browser-visible JavaScript and must be treated as public. Never commit or expose:
-
-- passwords or OTPs;
-- private API keys or tokens;
-- database passwords or private connection strings;
-- service-role credentials;
-- hosting access tokens;
-- session cookies;
-- recovery codes;
-- private signing keys/certificates;
-- private addresses or personal data you do not intend to publish.
+Every `NEXT_PUBLIC_*` value is compiled into browser-visible JavaScript and must be treated as public. Never commit or expose passwords, OTPs, private API keys, database credentials, service-role credentials, hosting tokens, session cookies, recovery codes, private signing keys, or personal data you do not intend to publish.
 
 `.env*` files are ignored except the deliberately safe `.env.example`. See [SECURITY.md](SECURITY.md) for the project security policy.
 
@@ -171,29 +177,31 @@ Every `NEXT_PUBLIC_*` value is compiled into browser-visible JavaScript and must
 
 ```text
 FlytheBG/
-├─ apps/web/                  # Next.js static web app
+├─ apps/web/
 │  ├─ public/                 # Brand/static assets
-│  ├─ src/app/                # Routes, metadata, styles
-│  ├─ src/components/         # Remover, passport editor, 3D UI
+│  ├─ src/app/                # Routes, metadata, hero + styles
+│  ├─ src/components/         # Remover, passport editor, shared UI
 │  ├─ src/lib/                # Browser AI + validation
 │  └─ tests/                  # Regression checks
 ├─ .github/workflows/         # CI
+├─ .github/ISSUE_TEMPLATE/    # Privacy-safe issue templates
 ├─ CONTRIBUTING.md
 ├─ SECURITY.md
+├─ SUPPORT.md
 └─ README.md
 ```
 
 ## Google Search Console
 
-After a production deployment:
+After production deployment:
 
 1. verify the `flythebg.com` property;
-2. inspect `https://flythebg.com/` and request indexing after major changes;
+2. inspect `https://flythebg.com/` and request indexing after important changes;
 3. submit `https://flythebg.com/sitemap.xml`;
-4. review Page Indexing for canonical/crawl problems;
+4. review Page Indexing for canonical or crawl issues;
 5. confirm `/icon.svg`, `/robots.txt`, and `/sitemap.xml` load publicly.
 
-FlytheBG includes focused metadata and visible content for terms such as `free background remover`, `remove background online`, `AI background remover`, `transparent PNG maker`, `passport photo maker`, and brand variants including `FlytheBG` / `Fly the BG`. Metadata describes the content but cannot guarantee a search ranking.
+FlytheBG includes focused metadata for terms such as `free background remover`, `remove background online`, `transparent PNG maker`, `passport photo maker`, and the brand variants `FlytheBG` / `Fly the BG`. Metadata describes the product but cannot guarantee a search ranking.
 
 ## Privacy and security
 
@@ -202,13 +210,14 @@ The intended production architecture keeps image processing browser-side. Source
 Please read:
 
 - [Security Policy](SECURITY.md)
+- [Support](SUPPORT.md)
 - [Contributing](CONTRIBUTING.md)
 - the in-app Privacy & AI page
 - the in-app Terms and Cookie pages
 
 ## Contributing
 
-Bug fixes, browser-compatibility improvements, accessibility work, tests, documentation, performance optimizations, and careful image-processing improvements are welcome.
+Bug fixes, browser-compatibility improvements, accessibility work, tests, documentation, performance optimization, and careful image-processing improvements are welcome.
 
 Before submitting a PR:
 
@@ -220,14 +229,10 @@ npm run build:web
 
 Please never attach sensitive personal photos or credentials to a public issue.
 
-## Demo image licensing
-
-Homepage sample subjects are intentionally public-domain / CC0 Wikimedia Commons assets. Synthetic “before” backgrounds are generated by the site's styling and are not presented as original source photographs.
-
 ## Third-party software
 
-FlytheBG integrates `@imgly/background-removal`, ONNX Runtime Web, Three.js, Next.js, React, and Josefin Sans. Review and comply with each upstream project's license/terms when redistributing or operating the project. Josefin Sans is used under the SIL Open Font License.
+FlytheBG integrates `@imgly/background-removal`, ONNX Runtime Web, Next.js, React, Three.js, Instrument Serif, and Inter. Review and comply with upstream licenses/terms when redistributing or operating the project. Instrument Serif and Inter are used through their Google Fonts/open-font distribution and are self-hosted by the Next.js build.
 
 ## Support
 
-A public support address is **not hard-coded into the repository**. The deployer can intentionally publish one using `NEXT_PUBLIC_CONTACT_EMAIL`. Remember: that value is public once configured.
+A public support address is **not hard-coded into the repository**. A deployer can intentionally publish one using `NEXT_PUBLIC_CONTACT_EMAIL`. Remember that value becomes public once configured.
