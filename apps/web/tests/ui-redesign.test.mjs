@@ -58,7 +58,7 @@ test("dark legacy panels are overridden with the light video glass theme", () =>
   assert.match(refinements, /background:linear-gradient\(145deg,rgba\(255,255,255,\.76\),rgba\(247,245,255,\.58\)\)!important/);
   assert.match(refinements, /input,select,textarea/);
   assert.match(refinements, /background:linear-gradient\(135deg,#7eaee4,#9180df\)!important/);
-  assert.match(refinements, /colorScheme: "light"|color:var\(--fly-text\)/);
+  assert.match(refinements, /color:var\(--fly-text\)/);
 });
 
 test("FAQ navigation has a dedicated destination and tool anchors", () => {
@@ -81,7 +81,8 @@ test("FAQ opens and closes with controlled smooth animation", () => {
 });
 
 test("ad inventory is a reserved labelled placement rather than a content-like box", () => {
-  assert.match(adPlaceholder, /aria-label="Advertisement"/);
+  assert.match(adPlaceholder, /aria-label="Advertisements"/);
+  assert.match(adPlaceholder, />Advertisements<\/span>/);
   assert.match(adPlaceholder, /data-ad-placeholder="true"/);
   assert.match(adPlaceholder, /data-ad-providers="adsense monetag"/);
   assert.match(adPlaceholder, /data-adsense-placeholder/);
