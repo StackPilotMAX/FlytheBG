@@ -4,12 +4,27 @@ import { HoverFaqList } from "@/components/HoverFaqList";
 import { LocalAISimulator } from "@/components/LocalAISimulator";
 import { appConfig } from "@/lib/config";
 
-const homeTitle = "FlytheBG — Free Local AI Background Remover & Passport Photo Maker";
-const homeDescription = "Remove image backgrounds locally in your browser with FlytheBG. Keep portrait, landscape, square, vertical, and panoramic aspect ratios, export transparent PNGs, and make printable passport-photo sheets.";
+const homeTitle = "FlytheBG — Free AI Background Remover in Your Browser";
+const homeDescription = "Remove image backgrounds online for free with FlytheBG. Local browser AI keeps photos on your device, preserves any aspect ratio, refines transparent PNG edges, and includes a passport photo maker.";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
   description: homeDescription,
+  keywords: [
+    "FlytheBG",
+    "Fly the BG",
+    "free background remover",
+    "remove background online",
+    "AI background remover",
+    "remove image background",
+    "background eraser online",
+    "transparent background maker",
+    "transparent PNG maker",
+    "local AI background remover",
+    "private background remover",
+    "no upload background remover",
+    "passport photo maker online",
+  ],
   alternates: { canonical: "/" },
   openGraph: {
     title: homeTitle,
@@ -27,30 +42,37 @@ export const metadata: Metadata = {
 };
 
 const faqs = [
-  ["Is FlytheBG really 100% browser-side for image processing?", "Yes. The current remover and passport-photo workflow process the working image in browser memory. The browser still downloads application code, the AI model, and runtime assets, but FlytheBG does not intentionally upload your source photo to an image-processing server."],
-  ["Can FlytheBG remove backgrounds on a 3 GB RAM phone?", "FlytheBG now uses a low-memory guard that reduces the working image size before inference on constrained devices and defaults to the smaller quantized model. Very old browsers or extremely large photos can still hit device limits, but the path is designed to fail less often on budget phones."],
-  ["Does FlytheBG use a higher-quality model on powerful devices?", "On devices with enough reported memory and WebGPU support, FlytheBG can try the FP16 model for a higher-quality mask. If it cannot finish, the app automatically falls back to the smaller quantized model."],
-  ["Can FlytheBG remove backgrounds from different image ratios?", "Yes. Portrait, landscape, square, vertical, and panoramic browser-decodable raster images are accepted without forcing a square crop. Low-memory devices may use a smaller working resolution while preserving the aspect ratio."],
-  ["Why can the first background removal take longer?", "The browser must download the local model and runtime assets on the first run. Later runs can be faster because the browser may cache those assets."],
-  ["What if WebGPU does not work?", "FlytheBG automatically retries using CPU/WASM. The runtime also has a browser-safe ESM fallback for common bundled WASM or worker initialization failures."],
-  ["How are difficult edges handled?", "Hair, fur, glass, smoke, motion blur, and low-contrast boundaries remain difficult for any automatic segmentation model. Powerful devices can try the FP16 path for a better mask, while low-memory devices prioritize reliability."],
-  ["Can I manually move and zoom a passport photo?", "Yes. In the Passport Photo Maker, drag the person to reposition, scroll or use the slider to zoom, choose the background color, set exact dimensions, and preview the final print sheet."],
-  ["Can I print passport photos directly?", "Yes. Build the sheet and choose Print at 100%. FlytheBG opens a print-ready page sized to your selected paper. In the print dialog, keep scaling at Actual Size or 100%."],
-  ["Are passport-photo sizes guaranteed to be accepted?", "No. Authorities can have requirements beyond width and height, including head size, eye position, expression, lighting, clothing, and background rules. Always verify the official requirements for your document."],
-  ["Why might Google show FlytheBG without the logo for a while?", "Google controls when a favicon is refreshed in search results. FlytheBG exposes a square favicon and structured site information, but Google must recrawl and process the homepage before the search appearance changes."],
+  ["Is FlytheBG really browser-side?", "Yes. Your working image is processed in browser memory. The site still downloads application code, the AI model, and runtime assets, but FlytheBG does not intentionally upload your source photo to an image-processing backend."],
+  ["Is FlytheBG a free background remover?", "The current browser background-removal workflow can be used without creating an account. The site may add optional paid features later, but the current local remover does not require a backend inference subscription."],
+  ["Can it remove a background on a 3 GB or 4 GB RAM phone?", "FlytheBG uses a smaller quantized model and a reduced working resolution on constrained devices. This lowers memory pressure substantially, although extremely large photos or old browsers can still exceed device limits."],
+  ["How does FlytheBG improve the cutout edges?", "After the segmentation model produces transparency, FlytheBG can run lightweight local alpha-matte cleanup to reduce isolated low-alpha speckles, fill tiny pinholes, and slightly improve boundary contrast without sending the image to a server."],
+  ["Does FlytheBG restore image detail after low-memory processing?", "When a device has enough memory, FlytheBG can reapply the refined segmentation mask to the higher-resolution source image. On constrained phones it skips that extra memory-heavy step and prioritizes a stable result."],
+  ["Does FlytheBG use a higher-quality model on powerful devices?", "On devices with enough reported memory and WebGPU support, FlytheBG can try the FP16 model. If it cannot finish, the app automatically falls back to the smaller quantized model."],
+  ["Can I remove backgrounds from portrait, landscape, square, or panoramic images?", "Yes. FlytheBG does not force a square crop. The browser workflow keeps the input proportions for portrait, landscape, square, vertical, and panoramic images."],
+  ["What happens if WebGPU does not work?", "FlytheBG retries using CPU/WASM. It also includes a browser-safe ESM runtime fallback for common bundled WASM or worker initialization failures."],
+  ["Can I manually move and zoom a passport photo?", "Yes. In the Passport Photo Maker you can drag the person, zoom, choose a background color, set exact physical dimensions, choose paper, fill the sheet, download PNG, and print at 100%."],
+  ["Why can hair, fur, glass, smoke, or motion blur still be difficult?", "Those boundaries contain partially transparent or ambiguous pixels. Local alpha cleanup can improve presentation, but it cannot recover detail that the segmentation model never detected. Important results should still be inspected at full size."],
+  ["Why might Google still show an old title or favicon?", "Google controls recrawling and search-result rendering. FlytheBG exposes canonical metadata, structured data, a square favicon, robots.txt, and a sitemap, but search appearance can take time to refresh."],
 ] as const;
 
 const publicDomainSamples = [
   {
-    title: "Historic portrait cutout",
+    title: "Portrait",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Eliza_Cook_0S_1860s.png?width=520",
-    note: "Public-domain/CC0 transparent portrait from Wikimedia Commons",
+    note: "Public-domain / CC0 transparent portrait from Wikimedia Commons",
   },
   {
-    title: "Butterfly cutout",
+    title: "Fine edges",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Danaus_genutia_transparent_background.png?width=520",
-    note: "Public-domain/CC0 transparent specimen from Wikimedia Commons",
+    note: "Public-domain / CC0 transparent specimen from Wikimedia Commons",
   },
+] as const;
+
+const useCases = [
+  ["Product photos", "Create clean transparent product PNGs for stores, marketplaces, catalogs, and social posts."],
+  ["Portraits", "Remove distracting backgrounds from headshots, profile photos, thumbnails, and personal images."],
+  ["Passport photos", "Remove the background, reposition the person manually, set exact dimensions, and build a print sheet."],
+  ["Creative assets", "Turn subjects into transparent layers for posters, presentations, memes, stickers, and design work."],
 ] as const;
 
 export default function HomePage() {
@@ -64,6 +86,7 @@ export default function HomePage() {
         alternateName: ["Fly the BG", "Fly The BG", "Flythebg", "FlytheBG.com", "FlytheBG Image Tools"],
         url: appConfig.siteUrl,
         inLanguage: "en",
+        description: homeDescription,
       },
       {
         "@type": "Organization",
@@ -77,13 +100,25 @@ export default function HomePage() {
       {
         "@type": "SoftwareApplication",
         "@id": `${appConfig.siteUrl}/#app`,
-        name: `${appConfig.name} Local AI Image Tools`,
+        name: `${appConfig.name} AI Background Remover`,
         applicationCategory: "MultimediaApplication",
+        applicationSubCategory: "Background remover and image editing tool",
         operatingSystem: "Web",
+        browserRequirements: "JavaScript and WebAssembly; WebGPU optional",
         url: appConfig.siteUrl,
         isAccessibleForFree: true,
-        description: "Browser-only background removal, transparent PNG cropping, and passport-photo sheet generation with aspect-ratio preservation and local AI inference.",
-        featureList: ["Browser-only background removal", "WebGPU and CPU/WASM inference", "Low-memory mobile mode", "Transparent PNG export", "Image cropping", "Passport photo positioning", "Print-sheet generation"],
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        description: homeDescription,
+        featureList: [
+          "Browser-side AI background removal",
+          "Transparent PNG export",
+          "Alpha-edge refinement",
+          "WebGPU and CPU/WASM inference",
+          "Low-memory mobile processing",
+          "Original aspect-ratio preservation",
+          "Image cropping",
+          "Passport photo positioning and print sheets",
+        ],
       },
       {
         "@type": "FAQPage",
@@ -93,14 +128,63 @@ export default function HomePage() {
   };
 
   return (
-    <main className="homePage">
+    <main className="homePage landingHome">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}/>
       <LocalAISimulator />
 
-      <section className="section publicDomainSamples">
+      <section className="landingProofStrip" aria-label="FlytheBG benefits">
+        <div className="shell landingProofInner">
+          <span><i>01</i><strong>Browser-side AI</strong><small>No image-processing server</small></span>
+          <span><i>02</i><strong>Cleaner alpha edges</strong><small>Local matte refinement</small></span>
+          <span><i>03</i><strong>Low-RAM aware</strong><small>Adaptive working resolution</small></span>
+          <span><i>04</i><strong>Useful output</strong><small>PNG, crop, passport print</small></span>
+        </div>
+      </section>
+
+      <section className="section landingBentoSection">
         <div className="shell">
-          <div className="sectionHeading splitHeading">
-            <div><span className="eyebrow"><i/> Real sample subjects</span><h2>Before vs. transparent cutout.</h2><p>These sample subjects use public-domain / CC0 transparent images. The “before” panel places the same real subject over a synthetic background; the “after” panel shows the transparent cutout on a checkerboard.</p></div>
+          <div className="landingSectionHeading">
+            <span className="eyebrow"><i/> Made for the browser you already have</span>
+            <h2>Private by default.<br/><em>Polished on purpose.</em></h2>
+            <p>A lightweight local workflow that adapts model size, memory use, edge cleanup, and output detail to the device in front of it.</p>
+          </div>
+
+          <div className="landingBento">
+            <article className="bentoCard bentoPrivacy">
+              <span className="bentoIndex">01 · Privacy</span>
+              <h3>Your image does not need a round trip.</h3>
+              <p>The AI model runs in the browser. FlytheBG serves the app and model assets; the working photo stays in local browser memory.</p>
+              <div className="privacyDiagram"><span>YOUR PHOTO</span><b>→</b><span>LOCAL AI</span><b>→</b><span>PNG</span></div>
+            </article>
+
+            <article className="bentoCard bentoAccuracy">
+              <span className="bentoIndex">02 · Accuracy</span>
+              <h3>A better finish after segmentation.</h3>
+              <p>FlytheBG now runs lightweight alpha cleanup after the model to reduce faint speckles, fill tiny pinholes, and improve boundary contrast.</p>
+              <div className="maskVisual" aria-hidden="true"><i/><i/><i/><span>refined alpha</span></div>
+            </article>
+
+            <article className="bentoCard bentoMobile">
+              <span className="bentoIndex">03 · Low memory</span>
+              <h3>Budget phone? Use a smaller working frame.</h3>
+              <p>Constrained devices reduce inference resolution and keep the quantized model. Stronger devices can spend more memory on image detail.</p>
+              <div className="memoryMeter"><span>2 GB</span><i/><i/><i/><i className="active"/><b>8 GB+</b></div>
+            </article>
+
+            <Link href="/features/passport-photo" className="bentoCard bentoPassport">
+              <span className="bentoIndex">04 · Passport tool</span>
+              <h3>Remove. Reposition. Size. Print.</h3>
+              <p>Build 35 × 45 mm, 2 × 2 inch, and custom photo sheets with manual positioning, zoom, paper controls, and print at 100%.</p>
+              <span className="bentoLink">Open Passport Photo Maker ↗</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section publicDomainSamples landingSamples">
+        <div className="shell">
+          <div className="landingSectionHeading splitLandingHeading">
+            <div><span className="eyebrow"><i/> See the idea instantly</span><h2>From scene to <em>transparent layer.</em></h2><p>Real public-domain / CC0 subjects demonstrate the before-and-after presentation without using copyrighted commercial samples.</p></div>
             <Link className="textLink" href="/remove-background">Try your own photo ↗</Link>
           </div>
           <div className="sampleComparisonGrid">
@@ -108,8 +192,8 @@ export default function HomePage() {
               <article className="sampleComparison" key={sample.title}>
                 <div className="sampleTop"><strong>{sample.title}</strong><span>Public-domain demo</span></div>
                 <div className="sampleBeforeAfter">
-                  <div className="samplePane"><label>Before</label><img src={sample.image} alt={`${sample.title} placed over a sample background`} loading="lazy" /></div>
-                  <div className="samplePane after"><label>After</label><img src={sample.image} alt={`${sample.title} on a transparent checkerboard`} loading="lazy" /></div>
+                  <div className="samplePane"><label>Before</label><img src={sample.image} alt={`${sample.title} subject placed over a sample background`} loading="lazy" /></div>
+                  <div className="samplePane after"><label>After</label><img src={sample.image} alt={`${sample.title} subject on a transparent checkerboard`} loading="lazy" /></div>
                 </div>
                 <div className="sampleLicense">{sample.note}</div>
               </article>
@@ -118,56 +202,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section trustSection">
+      <section className="section landingUseCases">
         <div className="shell">
-          <div className="sectionHeading">
-            <span className="eyebrow"><i/> Local AI, tuned for real devices</span>
-            <h2>One browser workflow, two quality levels.</h2>
-            <p>FlytheBG prioritizes a smaller model and reduced working resolution on constrained devices, while stronger WebGPU devices can try the FP16 path before falling back automatically.</p>
+          <div className="landingSectionHeading centeredHeading">
+            <span className="eyebrow"><i/> One remover, lots of everyday jobs</span>
+            <h2>A free background remover for <em>real images.</em></h2>
+            <p>Use FlytheBG for product photos, portraits, passport-photo preparation, and transparent creative assets without forcing every image into the same ratio.</p>
           </div>
-          <div className="trustGrid">
-            <article><span>01 · Low-memory mode</span><h3>Budget-phone friendly.</h3><p>On low-RAM devices, oversized images are reduced to a safer working edge before inference. The image ratio is preserved and the UI clearly reports the model path being used.</p></article>
-            <article><span>02 · Smart quality</span><h3>FP16 when the device can handle it.</h3><p>Higher-memory WebGPU devices can try the larger FP16 mask model. If it fails, FlytheBG drops back to the smaller quantized model rather than requiring a backend.</p></article>
-            <article><span>03 · Runtime recovery</span><h3>GPU → CPU → browser-safe ESM.</h3><p>WebGPU remains the fast path. CPU/WASM is the compute fallback, and the app can recover from common bundled runtime initialization failures using a browser-safe ESM loader.</p></article>
+          <div className="useCaseGrid">
+            {useCases.map(([title, copy], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{copy}</p></article>)}
           </div>
         </div>
       </section>
 
-      <section className="section toolsSection" id="tools">
+      <section className="section landingWorkflow">
         <div className="shell">
-          <div className="sectionHeading splitHeading"><div><span className="eyebrow"><i/> Live tools</span><h2>Remove the BG. Then make the output useful.</h2></div><Link className="textLink" href="/features">View all features ↗</Link></div>
-          <div className="toolCards">
-            <Link href="/remove-background" className="toolFeatureCard primaryFeature">
-              <span className="featureIndex">01</span><div className="featureMark">✦</div><h3>Remove Background</h3><p>Choose, drag, drop, or paste an image. FlytheBG preserves its ratio, selects a browser model based on device capability, and exports a transparent PNG.</p><span className="featureCta">Open remover <b>↗</b></span>
-            </Link>
-            <Link href="/features/passport-photo" className="toolFeatureCard">
-              <span className="featureIndex">02</span><div className="featureMark">▣</div><h3>Passport Photo Maker</h3><p>Remove the background or keep the original, manually move and zoom the person, set exact physical dimensions, choose a background, fill a print sheet, and print at 100%.</p><span className="featureCta">Open passport maker <b>↗</b></span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section workflowSection">
-        <div className="shell workflowGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Simple by design</span><h2>From source image to transparent PNG.</h2><p>The current production path remains on the visitor’s device and adapts to the hardware it finds.</p></div>
-          <ol className="workflowSteps">
-            <li><span>01</span><div><strong>Select any normal frame</strong><p>Portrait, landscape, square, vertical, panorama, drag and drop, file picker, or paste where supported.</p></div></li>
-            <li><span>02</span><div><strong>Protect low-memory devices</strong><p>Large working images are reduced only when the device is likely to struggle. The aspect ratio remains unchanged.</p></div></li>
-            <li><span>03</span><div><strong>Run local AI</strong><p>Strong WebGPU devices can try FP16. Constrained devices use the smaller quantized model. CPU/WASM remains available when WebGPU is unavailable.</p></div></li>
-            <li><span>04</span><div><strong>Download, crop, or print</strong><p>Use the transparent result directly, crop it, or move into the Passport Photo Maker for exact physical sizing and print layout.</p></div></li>
+          <div className="landingSectionHeading centeredHeading"><span className="eyebrow"><i/> Three steps</span><h2>Drop it. Separate it. <em>Use it.</em></h2></div>
+          <ol className="landingSteps">
+            <li><span>01</span><div><strong>Choose any normal image</strong><p>Drag, drop, paste, or browse. Portrait, landscape, square, vertical, and panoramic frames keep their proportions.</p></div></li>
+            <li><span>02</span><div><strong>Local AI adapts to the device</strong><p>WebGPU is preferred where available. Lower-memory hardware uses a smaller working frame and quantized model; stronger devices can try FP16.</p></div></li>
+            <li><span>03</span><div><strong>Refine and export</strong><p>The result is validated, eligible masks receive local alpha cleanup, and the transparent PNG can be downloaded, cropped, or used for passport sheets.</p></div></li>
           </ol>
         </div>
       </section>
 
-      <section className="section faqSection" id="faq">
+      <section className="section faqSection landingFaq" id="faq">
         <div className="shell faqGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> FAQ</span><h2>Hover to peek. Tap to keep it open.</h2><p>Desktop pointer users get automatic open/close behavior. Touch and keyboard users keep the normal accessible details interaction.</p></div>
+          <div className="landingSectionHeading faqHeading"><span className="eyebrow"><i/> FAQ</span><h2>Questions before your first <em>cutout.</em></h2><p>Hover to preview answers on desktop. Tap or use the keyboard to keep the normal accessible details behavior.</p></div>
           <HoverFaqList items={faqs} />
         </div>
       </section>
 
-      <section className="finalCta">
-        <div className="shell finalCtaInner"><div><span className="eyebrow"><i/> No account required</span><h2>Try the image already on your device.</h2><p>Keep your frame, remove the background, and stay browser-side.</p></div><div className="buttonRow"><Link className="buttonPrimary" href="/remove-background">Remove background <span>↗</span></Link><Link className="buttonSecondary" href="/features/passport-photo">Make passport photos</Link></div></div>
+      <section className="finalCta landingFinalCta">
+        <div className="shell landingFinalInner">
+          <span className="heroBadge"><i/> No signup needed</span>
+          <h2>Your next transparent PNG<br/><em>can stay on your device.</em></h2>
+          <p>Open the remover, choose a photo, and let the browser do the work.</p>
+          <div className="buttonRow"><Link className="buttonPrimary" href="/remove-background">Remove background <span>↗</span></Link><Link className="buttonSecondary" href="/features/passport-photo">Passport photo maker</Link></div>
+        </div>
       </section>
     </main>
   );
