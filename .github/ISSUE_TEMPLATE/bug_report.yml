@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a reproducible FlytheBG problem without sharing private images or credentials.
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve FlytheBG. Please do not attach API keys, passwords, cookies, identity documents, private addresses, or sensitive photos.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and the result you expected.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Background remover
+        - Passport Photo Maker
+        - Print / PNG export
+        - Landing page / UI
+        - SEO / metadata
+        - Local development / build
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Use a non-sensitive or public-domain image when an image is necessary.
+      placeholder: |
+        1. Open ...
+        2. Choose ...
+        3. Click ...
+        4. See ...
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 151 / Safari ...
+  - type: input
+    id: device
+    attributes:
+      label: Device / OS and approximate RAM
+      placeholder: Android phone, 4 GB RAM / Windows laptop ...
+  - type: dropdown
+    id: webgpu
+    attributes:
+      label: WebGPU available?
+      options:
+        - Yes
+        - No
+        - Not sure
+  - type: textarea
+    id: error
+    attributes:
+      label: Visible error message
+      description: Paste only non-sensitive error text. Remove tokens, URLs with credentials, and personal data.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I have removed secrets, credentials, private URLs, personal data, and sensitive images from this report.
+          required: true
