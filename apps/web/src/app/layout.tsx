@@ -10,25 +10,14 @@ import "./immersive-theme.css";
 import "./cinematic-hero.css";
 import "./monetization.css";
 import "./theme-refinements.css";
+import "./landing-extras.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-instrument-serif",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-  variable: "--font-inter",
-});
+const instrumentSerif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], display: "swap", variable: "--font-instrument-serif" });
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", variable: "--font-inter" });
 
 const siteVideo = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4";
 const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
@@ -41,142 +30,36 @@ export const metadata: Metadata = {
   title: { default: defaultTitle, template: `%s — ${appConfig.name}` },
   description: defaultDescription,
   applicationName: appConfig.name,
-  keywords: [
-    "FlytheBG",
-    "Fly the BG",
-    "FlytheBG.com",
-    "remove bg",
-    "remove background",
-    "remove background online",
-    "remove image background",
-    "free background remover",
-    "AI background remover",
-    "background eraser online",
-    "transparent background maker",
-    "transparent PNG maker",
-    "browser background remover",
-    "local AI background remover",
-    "private background remover",
-    "no upload background remover",
-    "passport photo maker",
-    "passport photo maker online",
-  ],
-  authors: [{ name: appConfig.name, url: appConfig.siteUrl }],
-  creator: appConfig.name,
-  publisher: appConfig.name,
-  category: "Image editing tools",
-  classification: "Browser-based image editing and background removal",
-  referrer: "origin-when-cross-origin",
-  manifest: "/manifest.webmanifest",
-  formatDetection: { telephone: false, address: false, email: false },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      noimageindex: false,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  openGraph: {
-    title: defaultTitle,
-    description: defaultDescription,
-    siteName: appConfig.name,
-    locale: "en_US",
-    type: "website",
-    url: "/",
-  },
-  twitter: {
-    card: "summary",
-    title: defaultTitle,
-    description: defaultDescription,
-  },
-  appleWebApp: {
-    capable: true,
-    title: appConfig.name,
-    statusBarStyle: "default",
-  },
-  verification: {
-    ...(googleVerification ? { google: googleVerification } : {}),
-    ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
-  },
-  icons: {
-    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }],
-    shortcut: "/brand/flythebg-mark.svg",
-    apple: "/brand/flythebg-mark.svg",
-  },
-  other: {
-    "application-name": appConfig.name,
-    "apple-mobile-web-app-title": appConfig.name,
-  },
+  keywords: ["FlytheBG","Fly the BG","FlytheBG.com","remove bg","remove background","remove background online","remove image background","free background remover","AI background remover","background eraser online","transparent background maker","transparent PNG maker","browser background remover","local AI background remover","private background remover","no upload background remover","passport photo maker","passport photo maker online"],
+  authors: [{ name: appConfig.name, url: appConfig.siteUrl }], creator: appConfig.name, publisher: appConfig.name,
+  category: "Image editing tools", classification: "Browser-based image editing and background removal", referrer: "origin-when-cross-origin",
+  manifest: "/manifest.webmanifest", formatDetection: { telephone: false, address: false, email: false },
+  robots: { index: true, follow: true, nocache: false, googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: { title: defaultTitle, description: defaultDescription, siteName: appConfig.name, locale: "en_US", type: "website", url: "/" },
+  twitter: { card: "summary", title: defaultTitle, description: defaultDescription },
+  appleWebApp: { capable: true, title: appConfig.name, statusBarStyle: "default" },
+  verification: { ...(googleVerification ? { google: googleVerification } : {}), ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}) },
+  icons: { icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }], shortcut: "/brand/flythebg-mark.svg", apple: "/brand/flythebg-mark.svg" },
+  other: { "application-name": appConfig.name, "apple-mobile-web-app-title": appConfig.name },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light" };
 
 function Logo() {
-  return (
-    <Link className="brand" href="/" aria-label={`${appConfig.name} home`}>
-      <img className="brandLockup" src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="142" height="31" />
-    </Link>
-  );
+  return <Link className="brand" href="/" aria-label={`${appConfig.name} home`}><img className="brandLockup" src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="142" height="31" /></Link>;
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <MonetizationHead />
-      </head>
+      <head><MonetizationHead /></head>
       <body className={`${instrumentSerif.variable} ${inter.variable}`}>
-        <div className="siteVideoBackdrop" aria-hidden="true">
-          <video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata">
-            <source src={siteVideo} type="video/mp4" />
-          </video>
-          <div className="siteBackdropWash" />
-        </div>
-
+        <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
         <MotionLayer />
         <FeatureAnnouncement />
-        <header className="siteHeader">
-          <div className="shell navShell">
-            <Logo />
-            <nav className="navLinks" aria-label="Primary navigation">
-              <Link href="/remove-background">Remove BG</Link>
-              <Link href="/features/passport-photo">Passport Photo</Link>
-              <Link href="/features">Features</Link>
-              <Link href="/guides">Guides</Link>
-              <Link href="/faq">FAQ</Link>
-            </nav>
-            <Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link>
-          </div>
-        </header>
-
+        <header className="siteHeader"><div className="shell navShell"><Logo /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link></div></header>
         {children}
-
-        <footer className="siteFooter">
-          <div className="shell footerGrid">
-            <div className="footerBrand"><Logo/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div>
-            <div className="footerLinks">
-              <Link href="/remove-background">Remove Background</Link>
-              <Link href="/features/passport-photo">Passport Photo</Link>
-              <Link href="/features">Features</Link>
-              <Link href="/guides">Guides</Link>
-              <Link href="/faq">FAQ</Link>
-              <Link href="/about">About</Link>
-              <Link href="/model-disclosure">Model Disclosure</Link>
-              <Link href="/privacy">Privacy & AI</Link>
-              <Link href="/terms">Terms</Link>
-              <Link href="/cookies">Cookies</Link>
-              <Link href="/contact">Contact</Link>
-            </div>
-          </div>
-          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div>
-        </footer>
-
+        <footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><Logo/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer>
         <MonetizationScripts />
       </body>
     </html>
