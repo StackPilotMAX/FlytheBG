@@ -113,7 +113,7 @@ export function Uploader() {
       resultPreview = await createPreview(output.blob, "Background removed image");
       setResultBlob(output.blob);
       setResult(resultPreview);
-      setEngine(`IMG.LY ${output.modelLabel} · fast GPU/CPU browser path`);
+      setEngine(`IMG.LY ${output.modelLabel} · ${output.optimizedForMemory ? "low-memory working copy" : "full working resolution"} · local GPU/CPU path`);
       setProgress("Complete");
       setStage("complete");
     } catch (reason) {
@@ -189,7 +189,7 @@ export function Uploader() {
         </div>
 
         <div className="resultActionsBar">
-          <div><strong>Transparent PNG</strong><span>The final file now uses the model's cutout directly, avoiding the slower edge-expansion pass that could bring background pixels back.</span></div>
+          <div><strong>Transparent PNG</strong><span>Powerful devices can use the higher-quality FP16 mask; constrained devices use the smaller quantized model and may process a reduced working copy to avoid memory crashes.</span></div>
           <div className="buttonRow">
             <button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Browser AI" })}>Crop</button>
             <button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button>
@@ -204,12 +204,12 @@ export function Uploader() {
   return (
     <section className="toolSurface uploadSurface" onPaste={onPaste}>
       <div className="surfaceHeader">
-        <div><span className="kicker">Browser AI</span><h2>Drop an image. Keep it on your device.</h2><p>Most browser-decodable raster image formats up to {MAX_MB} MB.</p></div>
+        <div><span className="kicker">Local Browser AI</span><h2>Drop an image. Keep it on your device.</h2><p>Most browser-decodable raster image formats up to {MAX_MB} MB.</p></div>
         <span className="privacyPill">● No image upload</span>
       </div>
 
       <div className="modelFlow" aria-label="Browser background-removal model">
-        <div><span>01</span><strong>IMG.LY Quantized</strong><small>WebGPU when available · CPU fallback</small></div>
+        <div><span>01</span><strong>Smart local model</strong><small>FP16 on capable WebGPU devices · quantized on constrained devices · CPU/WASM fallback</small></div>
       </div>
 
       <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/*" onChange={onInput} disabled={stage === "processing"}/>
@@ -227,14 +227,14 @@ export function Uploader() {
             <span className="spinner" aria-hidden="true"/>
             <strong>Removing the background in your browser…</strong>
             <p>{progress}</p>
-            <small>The first run downloads the small quantized model. Compatible devices use WebGPU; CPU is the automatic fallback.</small>
+            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, and retries with CPU/WASM if WebGPU cannot finish.</small>
           </div>
         ) : (
           <div className="uploadPrompt">
             <span className="uploadGlyph" aria-hidden="true">↑</span>
             <strong>Choose image</strong>
             <p>Click, drag & drop, or paste an image here.</p>
-            <small>Other raster formats are converted locally when your browser can decode them.</small>
+            <small>Portrait, landscape, square, vertical, panorama, and other browser-decodable raster frames keep their aspect ratio.</small>
           </div>
         )}
       </label>
@@ -242,7 +242,7 @@ export function Uploader() {
       {stage === "error" && <div className="errorNotice" role="alert"><div><strong>Browser AI could not finish.</strong><p>{error}</p></div><button className="buttonSecondary" type="button" onClick={() => clearWorkingState()}>Try another image</button></div>}
       {cleanupNotice && stage === "idle" && <div className="successNotice"><strong>Working image cleared.</strong><span>{cleanupNotice}</span></div>}
 
-      <div className="toolFootnote"><strong>Runs on the visitor's device.</strong><span>FlytheBG serves the static app; the browser downloads the small IMG.LY model/runtime assets only when needed.</span></div>
+      <div className="toolFootnote"><strong>Runs on the visitor&apos;s device.</strong><span>The site downloads code/model/runtime assets when needed; your working photo is not intentionally uploaded to a FlytheBG inference server.</span></div>
     </section>
   );
 }
