@@ -17,7 +17,7 @@ const remover = await readFile(new URL("../src/app/remove-background/page.tsx", 
 const privacy = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
 const cookies = await readFile(new URL("../src/app/cookies/page.tsx", import.meta.url), "utf8");
 const terms = await readFile(new URL("../src/app/terms/page.tsx", import.meta.url), "utf8");
-const preparePublic = await readFile(new URL("../../scripts/prepare-public.mjs", import.meta.url), "utf8");
+const preparePublic = await readFile(new URL("../scripts/prepare-public.mjs", import.meta.url), "utf8");
 const envExample = await readFile(new URL("../../../.env.example", import.meta.url), "utf8");
 
 test("homepage is a single cinematic video hero", () => {
