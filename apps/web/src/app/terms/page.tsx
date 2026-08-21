@@ -13,10 +13,12 @@ export default function TermsPage(){
     <p>FlytheBG provides browser-based image utilities including background removal, cropping, and passport-photo sheet generation. Browser AI may select different local model/runtime paths according to device capability and available memory.</p>
 
     <h2>2. Your images</h2>
-    <p>You are responsible for having the rights and permissions needed to use images with FlytheBG. The current image tools are designed to process image content locally in the browser rather than intentionally store it in a FlytheBG image database.</p>
+    <p>You are responsible for having the rights and permissions needed to use images with FlytheBG. Using the service does not transfer ownership of your image to FlytheBG. The current image tools are designed to process image content locally in the browser rather than intentionally store it in a FlytheBG image database.</p>
 
     <h2>3. Browser AI and third-party software</h2>
-    <p>IMG.LY software, model assets, browser runtimes, hosting providers, advertising providers, and other third-party components may have their own terms, licences, availability limits, and policies. FlytheBG does not guarantee that every browser or device can run browser AI successfully. Local post-processing may refine a generated alpha mask, but it does not retrain or alter pretrained model weights.</p>
+    <p>FlytheBG currently integrates <code>@imgly/background-removal</code> version <strong>1.7.0</strong> with IS-Net quantized and FP16 model paths. IMG.LY software, model/runtime assets, browser runtimes, hosting providers, advertising providers, and other third-party components may have their own terms, licences, availability limits, and policies.</p>
+    <p>FlytheBG does not claim ownership or authorship of IMG.LY&apos;s library, the IS-Net model variants, model/runtime assets, or other third-party dependencies. IMG.LY&apos;s published package documentation states that its background-removal software is available under the AGPL license and directs users to IMG.LY for other licensing options. Model/runtime assets and other dependencies may carry additional notices or terms that remain applicable.</p>
+    <p>Local FlytheBG post-processing may refine a generated alpha mask, validate output, protect browser memory, restore eligible source detail, and prepare exports, but it does not retrain or alter pretrained model weights. See the <a href="/model-disclosure">Model &amp; Open Source Disclosure</a> for more detail.</p>
 
     <h2>4. Passport photos</h2>
     <p>The Passport Photo Maker provides sizing, background color, layout, DPI, per-copy positioning, and print-sheet tools. It does not guarantee acceptance by any passport office, government authority, visa authority, school, employer, or other organization. Users must verify the applicable photo rules themselves.</p>
@@ -25,8 +27,8 @@ export default function TermsPage(){
     <p>For physical sizing, print generated passport sheets at Actual Size or 100% unless your printer workflow specifically requires otherwise. Printer drivers, paper, scaling, and device color management are outside FlytheBG&apos;s control.</p>
 
     <h2>6. Advertising</h2>
-    <p>FlytheBG includes optional, disabled-by-default configuration for Google AdSense and Monetag. Advertising may be enabled only after the required account/site settings are configured and remains subject to the policies and terms of each provider, applicable consent requirements, and FlytheBG&apos;s Privacy & AI Policy.</p>
-    <p>If AdSense and Monetag are active together, FlytheBG&apos;s configuration is intended for Monetag formats that do not trigger pop-under/OnClick behavior. Advertising must not obstruct image controls, mislead users into clicking ads, or overwhelm the page&apos;s publisher content.</p>
+    <p>FlytheBG includes optional, disabled-by-default configuration for Google AdSense and Monetag. Advertising may be enabled only after the required account/site settings are configured and remains subject to the policies and terms of each provider, applicable consent requirements, and FlytheBG&apos;s Privacy &amp; AI Policy.</p>
+    <p>If AdSense and Monetag are active together, FlytheBG&apos;s configuration is intended for Monetag formats that do not trigger pop-under/OnClick behavior. Reserved advertisement placements are explicitly labelled <strong>Advertisement</strong>, are not product controls, and must remain visually separate from upload, download, editing, and navigation actions.</p>
 
     <h2>7. Availability and feature announcements</h2>
     <p>FlytheBG may change, suspend, replace, or remove features. Product announcements, including the October 2026 notice, describe planned work and do not guarantee that every announced feature will launch on a particular day or remain unchanged.</p>
