@@ -1,18 +1,28 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { Josefin_Sans } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 import "./production-ui.css";
 import "./redesign.css";
 import "./adsense-safety.css";
 import "./genz.css";
 import "./polish.css";
+import "./cinematic-hero.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
-const josefinSans = Josefin_Sans({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
-  variable: "--font-josefin",
+  variable: "--font-instrument-serif",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
 const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
@@ -82,7 +92,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: appConfig.name,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   verification: {
     ...(googleVerification ? { google: googleVerification } : {}),
@@ -99,7 +109,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05060a", colorScheme: "dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light dark" };
 
 function Logo() {
   return (
@@ -119,7 +129,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
-      <body className={josefinSans.variable}>
+      <body className={`${instrumentSerif.variable} ${inter.variable}`}>
         <MotionLayer />
         <header className="siteHeader">
           <div className="shell navShell">
@@ -152,7 +162,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/contact">Contact</Link>
             </div>
           </div>
-          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span><span>{appConfig.contactEmail}</span></div>
+          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div>
         </footer>
       </body>
     </html>
