@@ -1,32 +1,73 @@
 # Security Policy
 
+FlytheBG is a public, browser-first project. Protecting user images, credentials, and contributor data is a design requirement, not an optional deployment setting.
+
 ## Reporting a security issue
 
-Please report security issues privately by email to `stackpilotfe@outlook.com`.
+Do **not** post exploit details, credentials, sensitive images, personal data, private URLs, or access tokens in a public GitHub issue.
 
-Do not open a public GitHub issue containing passwords, tokens, cookies, recovery codes, private connection strings, personal data, or sensitive images.
+Preferred reporting flow:
 
-When reporting an image-processing problem, start with a written description. Do not attach a sensitive photo unless it is genuinely necessary to reproduce the issue.
+1. Check the repository **Security** tab for GitHub's private vulnerability-reporting option and use it when available.
+2. If private reporting is not available, open a minimal public issue that says you need a private security contact channel **without including the vulnerability details or any secrets**.
+3. A deployer may intentionally publish a public support/security address through `NEXT_PUBLIC_CONTACT_EMAIL`; remember that this value is public browser configuration, not a secret.
 
-## Secrets
+When reporting an image-processing problem, begin with a written reproduction description. Do not attach a sensitive personal photo unless it is genuinely required and you have a private, appropriate channel.
 
-FlytheBG's public repository must not contain private credentials. Never commit:
+## Secrets: never commit them
 
-- passwords or one-time passwords
-- API secrets or private API keys
-- database passwords or private connection strings
-- Supabase service-role keys
-- hosting access tokens
-- session cookies
-- recovery codes
-- private signing keys or certificates
+FlytheBG's public repository must never contain:
 
-`NEXT_PUBLIC_*` values are compiled into browser code and therefore must be safe for public exposure.
+- passwords or one-time passwords;
+- private API keys, bearer tokens, or OAuth secrets;
+- database passwords or private connection strings;
+- Supabase service-role keys or equivalent privileged credentials;
+- hosting/deployment access tokens;
+- session cookies or authentication headers;
+- recovery codes;
+- private signing keys or certificates;
+- cloud provider credentials;
+- private addresses, identity documents, or other personal data that was not intentionally made public.
 
-## Production image architecture
+### `NEXT_PUBLIC_*` is public
 
-The current production image tools are intentionally browser-only. Source images and generated image blobs should not be added to a server upload API, database, object store, analytics payload, error report, or advertising request without a deliberate privacy/security review and corresponding policy update.
+Next.js embeds `NEXT_PUBLIC_*` values into browser-visible code. They **must never contain secrets**.
 
-## Supported versions
+Safe examples include a deliberately public site URL, public application name, public publisher identifier, or an email address the owner explicitly intends to publish.
 
-Security fixes are applied to the current `main` branch. CI runs a blocking production dependency audit, tests, TypeScript checks, and the static production build before changes should be promoted.
+Unsafe examples include API secrets, private keys, database credentials, private contact information, or anything that should remain confidential.
+
+## Repository protections
+
+The repository intentionally ignores local environment/configuration and common private-key formats, including `.env*`, `*.pem`, `*.key`, `*.p12`, and `*.pfx` (with `.env.example` retained as public documentation).
+
+Contributors should also:
+
+- inspect `git diff --staged` before every commit;
+- never paste production credentials into issues, PR descriptions, screenshots, or logs;
+- use fake/example values in tests and documentation;
+- rotate a credential immediately if it is accidentally exposed;
+- remember that deleting a secret from the latest commit does not automatically erase it from Git history.
+
+If a real secret has been committed, treat it as compromised first. Rotate/revoke it before considering any history-rewrite cleanup.
+
+## Browser-only production image architecture
+
+The intended production image path runs on the visitor's device. Source images and generated image blobs should not be added to a server upload API, database, storage bucket, analytics payload, telemetry event, error report, advertising request, or third-party AI endpoint without an explicit privacy/security review and corresponding policy update.
+
+The current architecture does not require a paid FlytheBG inference server, GPU service, image database, or model API credential.
+
+## Third-party assets
+
+The browser downloads application/model/runtime assets required for local inference. Dependency upgrades should be reviewed carefully and CI should continue to audit production dependencies.
+
+Do not silently add remote scripts, trackers, image-upload endpoints, or credentialed APIs to the image-processing path.
+
+## Supported version
+
+Security fixes are applied to the current `main` branch. Before promotion, CI should pass:
+
+- production dependency audit;
+- regression tests;
+- TypeScript typecheck;
+- production static build.

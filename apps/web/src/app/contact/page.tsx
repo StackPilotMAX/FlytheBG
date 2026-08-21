@@ -8,15 +8,20 @@ export const metadata = {
 };
 
 export default function ContactPage() {
+  const publicEmail = companyConfig.contactEmail;
+
   return (
-    <LegalPage title="Contact" updated="18 August 2026">
+    <LegalPage title="Contact" updated="21 August 2026">
       <h2>Contact FlytheBG</h2>
-      <p>Email is the only official contact channel for FlytheBG.</p>
-      <p><strong>Email:</strong> <a href={`mailto:${companyConfig.contactEmail}`}>{companyConfig.contactEmail}</a></p>
+      {publicEmail ? (
+        <p><strong>Email:</strong> <a href={`mailto:${publicEmail}`}>{publicEmail}</a></p>
+      ) : (
+        <p>A public support email has not been embedded in this repository build. The site owner can intentionally publish one at deployment time with <code>NEXT_PUBLIC_CONTACT_EMAIL</code>.</p>
+      )}
       <h2>Support, privacy, and legal requests</h2>
-      <p>Use this address for product support, privacy questions, legal notices, copyright/DMCA notices where applicable, security reports, and other correspondence. Include a clear subject line.</p>
+      <p>When a public support address is configured, use it for product support, privacy questions, legal notices, copyright/DMCA notices where applicable, security reports, and other correspondence. Never publish private credentials or personal data in a GitHub issue.</p>
       <h2>Image issues</h2>
-      <p>The current production image tools process image content in the browser. When reporting a problem, start with a written description and do not email sensitive images unless they are genuinely necessary.</p>
+      <p>The production image tools process image content in the browser. When reporting a problem, start with a written description and do not share sensitive images unless they are genuinely necessary and you have chosen a private reporting channel.</p>
     </LegalPage>
   );
 }

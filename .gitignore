@@ -2,14 +2,35 @@ node_modules/
 .next/
 out/
 coverage/
+
+# Environment files are private by default. Keep only the documented template.
 .env*
 !.env.example
+
+# Local deployment/auth state
+.vercel/
+.netrc
+.npmrc
+
+# Private keys and certificates
 *.pem
 *.key
 *.p12
 *.pfx
+id_rsa*
+id_ed25519*
+
+# Local databases / potentially sensitive development data
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Logs and OS/editor artifacts
 *.log
 .DS_Store
+
+# Python/local model caches
 __pycache__/
 .pytest_cache/
 .venv/

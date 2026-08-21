@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest an improvement that fits FlytheBG's browser-first, privacy-focused direction.
+title: "[Feature] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FlytheBG prioritizes browser-side processing, privacy, low-memory devices, accessibility, and avoiding a mandatory paid inference backend.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Proposed experience
+      description: Describe the user flow or UI rather than only naming a technology.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Background removal
+        - Passport Photo Maker
+        - Performance / low-memory support
+        - Accessibility
+        - Landing page / design
+        - SEO / docs
+        - Developer experience
+        - Other
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles
+      options:
+        - label: This can work without requiring users to upload their image to a FlytheBG inference backend.
+        - label: I considered low-end/mobile devices.
+        - label: I have not included secrets, credentials, or personal data in this request.
+          required: true

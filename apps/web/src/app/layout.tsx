@@ -1,13 +1,32 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { Instrument_Serif, Inter } from "next/font/google";
 import "./production-ui.css";
 import "./redesign.css";
 import "./adsense-safety.css";
+import "./genz.css";
+import "./polish.css";
+import "./cinematic-hero.css";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
-const defaultTitle = `${appConfig.name} — Free Background Remover & Passport Photo Maker`;
-const defaultDescription = "Remove image backgrounds, create transparent PNGs, crop images, and build print-ready passport photo sheets directly in your browser with FlytheBG.";
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-instrument-serif",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
+const defaultDescription = "Remove image backgrounds online with local browser AI, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
 
@@ -16,10 +35,31 @@ export const metadata: Metadata = {
   title: { default: defaultTitle, template: `%s — ${appConfig.name}` },
   description: defaultDescription,
   applicationName: appConfig.name,
+  keywords: [
+    "FlytheBG",
+    "Fly the BG",
+    "FlytheBG.com",
+    "remove bg",
+    "remove background",
+    "remove background online",
+    "remove image background",
+    "free background remover",
+    "AI background remover",
+    "background eraser online",
+    "transparent background maker",
+    "transparent PNG maker",
+    "browser background remover",
+    "local AI background remover",
+    "private background remover",
+    "no upload background remover",
+    "passport photo maker",
+    "passport photo maker online",
+  ],
   authors: [{ name: appConfig.name, url: appConfig.siteUrl }],
   creator: appConfig.name,
   publisher: appConfig.name,
   category: "Image editing tools",
+  classification: "Browser-based image editing and background removal",
   referrer: "origin-when-cross-origin",
   manifest: "/manifest.webmanifest",
   formatDetection: { telephone: false, address: false, email: false },
@@ -42,6 +82,7 @@ export const metadata: Metadata = {
     siteName: appConfig.name,
     locale: "en_US",
     type: "website",
+    url: "/",
   },
   twitter: {
     card: "summary",
@@ -51,25 +92,29 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: appConfig.name,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   verification: {
     ...(googleVerification ? { google: googleVerification } : {}),
     ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
   },
   icons: {
-    icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml" }],
-    shortcut: "/brand/flythebg-mark.svg",
-    apple: "/brand/flythebg-mark.svg",
+    icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "64x64" }],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  other: {
+    "application-name": appConfig.name,
+    "apple-mobile-web-app-title": appConfig.name,
   },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#04070d", colorScheme: "dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light dark" };
 
 function Logo() {
   return (
     <Link className="brand" href="/" aria-label={`${appConfig.name} home`}>
-      <img src="/brand/flythebg-mark.svg" alt="" width="38" height="38" />
+      <img src="/icon.svg" alt="" width="38" height="38" />
       <span>{appConfig.name}</span>
     </Link>
   );
@@ -84,7 +129,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         {adsEnabled && <meta name="google-adsense-account" content={adsenseClient} />}
       </head>
-      <body>
+      <body className={`${instrumentSerif.variable} ${inter.variable}`}>
         <MotionLayer />
         <header className="siteHeader">
           <div className="shell navShell">
@@ -104,7 +149,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <footer className="siteFooter">
           <div className="shell footerGrid">
-            <div className="footerBrand"><Logo/><p>Browser-first image tools with no image-processing server in the current production workflow.</p></div>
+            <div className="footerBrand"><Logo/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div>
             <div className="footerLinks">
               <Link href="/remove-background">Remove Background</Link>
               <Link href="/features/passport-photo">Passport Photo</Link>
@@ -117,7 +162,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/contact">Contact</Link>
             </div>
           </div>
-          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span><span>{appConfig.contactEmail}</span></div>
+          <div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div>
         </footer>
       </body>
     </html>
