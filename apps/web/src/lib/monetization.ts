@@ -30,6 +30,31 @@ const monetagScriptEnabled = Boolean(
   monetagEnabled && monetagScriptSrc && (!adsenseEnabled || monetagAdsenseSafe),
 );
 
+const adSlots = {
+  "landing-inline-1": {
+    adsense: process.env.NEXT_PUBLIC_ADSENSE_SLOT_LANDING?.trim() || "",
+    monetag: process.env.NEXT_PUBLIC_MONETAG_ZONE_LANDING?.trim() || "",
+  },
+  "remove-bg-inline-1": {
+    adsense: process.env.NEXT_PUBLIC_ADSENSE_SLOT_REMOVE_BG?.trim() || "",
+    monetag: process.env.NEXT_PUBLIC_MONETAG_ZONE_REMOVE_BG?.trim() || "",
+  },
+  "passport-inline-1": {
+    adsense: process.env.NEXT_PUBLIC_ADSENSE_SLOT_PASSPORT?.trim() || "",
+    monetag: process.env.NEXT_PUBLIC_MONETAG_ZONE_PASSPORT?.trim() || "",
+  },
+  "faq-inline-1": {
+    adsense: process.env.NEXT_PUBLIC_ADSENSE_SLOT_FAQ?.trim() || "",
+    monetag: process.env.NEXT_PUBLIC_MONETAG_ZONE_FAQ?.trim() || "",
+  },
+} as const;
+
+export type AdPlacementName = keyof typeof adSlots;
+
+export function getAdSlotConfig(slot: string) {
+  return adSlots[slot as AdPlacementName] ?? { adsense: "", monetag: "" };
+}
+
 export const monetizationConfig = {
   adsenseClient,
   adsenseClientValid,
@@ -41,4 +66,5 @@ export const monetizationConfig = {
   monetagMetaName,
   monetagMetaContent,
   monetagVerificationEnabled: Boolean(monetagMetaName && monetagMetaContent),
+  adSlots,
 } as const;
