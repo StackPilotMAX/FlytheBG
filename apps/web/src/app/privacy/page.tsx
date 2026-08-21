@@ -1,47 +1,48 @@
 import { LegalPage } from "@/components/LegalPage";
+import { appConfig } from "@/lib/config";
 
 export const metadata = {
   title: "Privacy & AI Policy",
-  description: "Learn how FlytheBG handles browser image processing, IMG.LY model assets, working-image cleanup, cookies, advertising, and generated PNG data.",
+  description: "Learn how FlytheBG handles browser image processing, IMG.LY model assets, working-image cleanup, cookies, optional AdSense and Monetag advertising, and generated PNG data.",
   alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
-  return <LegalPage title="Privacy & AI Policy" updated="19 August 2026">
+  return <LegalPage title="Privacy & AI Policy" updated="21 August 2026">
     <h2>1. Browser-first image processing</h2>
-    <p>FlytheBG&apos;s current background remover, crop workflow, and Passport Photo Maker process image content in the visitor&apos;s browser. The live image tools do not intentionally upload source image bytes or generated image bytes to FlytheBG, Render, Supabase, or a FlytheBG image database.</p>
-    <p>Because the image is not intentionally sent to the application database, there is no server-side image record waiting to be deleted after download. The browser temporarily holds working image data while the tool is open.</p>
+    <p>FlytheBG&apos;s current background remover, crop workflow, and Passport Photo Maker process image content in the visitor&apos;s browser. The live image tools do not intentionally upload source image bytes or generated image bytes to a FlytheBG image-processing server or image database.</p>
+    <p>The browser temporarily holds working image data while the tool is open. Leaving or reloading the page ends the current in-page working session, subject to normal browser, operating-system, cache, download, screenshot, extension, and device behavior outside FlytheBG&apos;s control.</p>
 
     <h2>2. IMG.LY Browser AI</h2>
-    <p>Background removal uses the IMG.LY browser package. FlytheBG currently uses the smaller quantized IS-Net browser model directly for automatic removal. The larger FP16 model is not downloaded automatically, reducing the first-run model transfer and browser memory pressure.</p>
-    <p>After IMG.LY creates a cutout, FlytheBG may perform a conservative local edge-preservation pass. This rebuilds the foreground from the original browser-held pixels using the generated alpha mask and a very small boundary expansion to reduce aggressive clipping around fine hair, sleeves, collars, and similar edges. This does not retrain or modify IMG.LY&apos;s model weights, and it cannot guarantee recovery of foreground regions that the model completely misclassifies.</p>
-    <p>The browser may download model, runtime, WebAssembly, or related assets from IMG.LY&apos;s configured distribution infrastructure. Normal network information needed to deliver those assets may therefore be processed by the asset provider. FlytheBG does not intentionally include the source image in those model-asset requests.</p>
+    <p>Background removal uses IMG.LY browser software and model/runtime assets. FlytheBG selects a browser-side path based on device capability, including the smaller quantized model on constrained devices and an FP16 path on suitable higher-memory WebGPU devices, with CPU/WASM fallback when needed.</p>
+    <p>FlytheBG may perform conservative local alpha-matte cleanup and, when memory permits, reapply a refined mask to higher-resolution source detail. This post-processing does not retrain IMG.LY&apos;s model weights and cannot recreate foreground detail the segmentation model never detected.</p>
+    <p>The browser may download model, runtime, WebAssembly, or related assets from configured distribution infrastructure. Normal network information needed to deliver those assets may therefore be processed by the asset provider. FlytheBG does not intentionally include the source image in those model-asset requests.</p>
 
-    <h2>3. Working-image deletion and memory cleanup</h2>
-    <p>While you edit, preview, crop, position a passport photo, or generate a print sheet, the browser must temporarily keep the source and generated image data in working memory. After a download starts, FlytheBG releases the working source, cutout, previews, object URLs, and generated sheet held by the page. Choosing a new image or leaving/reloading the page also ends the current in-page working session.</p>
-    <p>This cleanup applies to FlytheBG&apos;s own page state. FlytheBG cannot guarantee deletion of copies outside its control, such as the file you downloaded, browser or operating-system caches, screenshots, extensions, network-security products, or backups made by your device.</p>
+    <h2>3. Working-image cleanup</h2>
+    <p>While you edit, preview, crop, position a passport photo, or generate a print sheet, the browser must temporarily keep source and generated image data in working memory. FlytheBG releases page-managed object URLs and working state when a workflow is cleared or replaced. Downloaded files remain on your device until you delete them.</p>
 
     <h2>4. Passport Photo Maker</h2>
-    <p>If you choose Remove background, the same browser-only IMG.LY quantized model and eligible fine-edge preservation are used before the passport sheet is created. If you keep the original photo, background removal is skipped. Framing, selected photo-background color, physical-size conversion, sheet layout, and PNG export are performed in the browser.</p>
-    <p>The selected background color is applied only inside each passport-photo rectangle; the print sheet itself remains white. Generated print sheets are not intentionally written to the FlytheBG database.</p>
+    <p>If you choose background removal, the same browser-side background-removal workflow is used before the passport sheet is created. If you keep the original photo, background removal is skipped. Framing, selected photo-background color, physical-size conversion, per-copy positioning, sheet layout, printing, and PNG export are performed in the browser.</p>
 
     <h2>5. Database use</h2>
-    <p>The current public image tools do not require an image database. A Supabase project may be used for future non-image application features, but uploaded photos and generated PNGs are not intentionally stored there by the current production image workflow.</p>
+    <p>The current public image tools do not require an image database for uploaded photos or generated PNGs. Future non-image application features may use additional services, in which case this policy should be updated before those features are enabled.</p>
 
-    <h2>6. Google AdSense</h2>
-    <p>FlytheBG is configured with a public Google AdSense publisher identifier for site-ownership verification. During the current site-review configuration, FlytheBG uses the supported AdSense account meta tag and generated <code>ads.txt</code> seller record but does not intentionally load the global AdSense/Auto Ads JavaScript or render ad units.</p>
-    <p>If advertising is enabled after approval, this policy may be updated as needed and Google or advertising partners may process browser/device information, IP/network data, cookies or similar identifiers, ad interactions, approximate location derived from network data, and related advertising data according to their policies and applicable consent choices. FlytheBG does not intentionally send uploaded image bytes, generated PNG files, private blob URLs, or source filenames to advertising requests.</p>
+    <h2>6. Optional advertising: Google AdSense and Monetag</h2>
+    <p>FlytheBG contains disabled-by-default configuration for Google AdSense and Monetag. Verification metadata, seller records, or ad scripts are only included when the corresponding public/build settings are intentionally configured. The site is designed so that uploaded image bytes, generated PNG files, private browser blob URLs, and source filenames are not intentionally attached to advertising requests.</p>
+    <p>If advertising is enabled, Google, Monetag, their advertising partners, and related service providers may process browser/device information, IP or network data, cookies or similar identifiers, ad interactions, approximate location derived from network information, fraud-prevention signals, and advertising measurement data according to their own policies and the consent choices available to the visitor.</p>
+    <p>When AdSense and Monetag are used together, FlytheBG&apos;s configuration is intended for non-pop-under Monetag formats. Monetag OnClick/pop-under behavior should not be enabled alongside AdSense.</p>
 
-    <h2>7. Cookies and consent</h2>
-    <p>Core image tools do not require advertising cookies to process images. If advertising or other optional technology requiring consent is enabled, applicable consent controls may be presented before the relevant processing where required.</p>
+    <h2>7. Cookies, storage, and consent</h2>
+    <p>Core image tools do not require advertising cookies to process images. The October 2026 feature announcement stores only a local dismissal flag in the browser so a dismissed notice does not keep reappearing.</p>
+    <p>If advertising or other optional technology requiring consent is enabled, applicable consent controls must be configured where required. For personalized AdSense advertising in the EEA, UK, or Switzerland, publishers are responsible for using a Google-certified consent management platform that integrates with the IAB TCF.</p>
 
     <h2>8. Image metadata</h2>
     <p>Generated background-removal and passport-sheet PNGs are newly encoded browser outputs. FlytheBG does not intentionally copy source EXIF metadata into those generated PNGs.</p>
 
     <h2>9. Security and limitations</h2>
-    <p>FlytheBG validates supported file types and sizes in the browser and limits large passport-sheet canvases to reduce crashes and memory exhaustion. No website or browser environment can guarantee absolute security, perfect segmentation, or uninterrupted availability.</p>
+    <p>FlytheBG validates supported file types and sizes in the browser and limits large working canvases to reduce crashes and memory exhaustion. No website or browser environment can guarantee absolute security, perfect segmentation, or uninterrupted availability.</p>
 
     <h2>10. Contact</h2>
-    <p>For privacy, legal, or security questions, contact <a href="mailto:stackpilotfe@outlook.com">stackpilotfe@outlook.com</a>.</p>
+    {appConfig.contactEmail ? <p>For privacy, legal, or security questions, contact <a href={`mailto:${appConfig.contactEmail}`}>{appConfig.contactEmail}</a>.</p> : <p>For privacy, legal, or security questions, use the contact page. A public contact email is shown only when one is intentionally configured for the production site.</p>}
   </LegalPage>;
 }
