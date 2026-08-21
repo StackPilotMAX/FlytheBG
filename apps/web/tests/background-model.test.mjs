@@ -21,6 +21,7 @@ test("model execution keeps WebGPU and CPU fallback paths", () => {
   assert.ok(source.includes('runModel(input, model, "gpu", runtime, onProgress)'));
   assert.ok(source.includes('runModel(input, model, "cpu", runtime, onProgress)'));
   assert.ok(source.includes('proxyToWorker: device === "gpu"'));
+  assert.ok(source.includes("rescale: true"));
 });
 
 test("runtime can recover from bundled WASM or worker initialization failures", () => {
@@ -29,7 +30,16 @@ test("runtime can recover from bundled WASM or worker initialization failures", 
   assert.match(source, /browser-safe ESM runtime/);
 });
 
-test("result uses the model cutout directly without the old edge expansion", () => {
-  assert.ok(!source.includes("preserveFineEdges"));
-  assert.ok(source.includes("edgeRefined: false"));
+test("successful cutouts can receive local alpha matte cleanup", () => {
+  assert.match(source, /async function refineCutoutEdges/);
+  assert.match(source, /isolated background speckles/);
+  assert.match(source, /tiny pinholes/);
+  assert.match(source, /edgeRefined: refinement\.refined/);
+});
+
+test("resized inference masks can restore source detail when memory allows", () => {
+  assert.match(source, /applySegmentationMask/);
+  assert.match(source, /sourceRestorePixelLimit/);
+  assert.match(source, /restoreOriginalResolution/);
+  assert.match(source, /restoredResolution: restoration\.restored/);
 });
