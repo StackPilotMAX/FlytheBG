@@ -8,7 +8,7 @@ import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
 
 const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
-const defaultDescription = "Remove image backgrounds locally in your browser, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
+const defaultDescription = "Remove image backgrounds online with local browser AI, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
 
@@ -23,16 +23,25 @@ export const metadata: Metadata = {
     "FlytheBG.com",
     "remove bg",
     "remove background",
+    "remove background online",
+    "remove image background",
     "free background remover",
+    "AI background remover",
+    "background eraser online",
+    "transparent background maker",
+    "transparent PNG maker",
     "browser background remover",
     "local AI background remover",
-    "transparent PNG",
+    "private background remover",
+    "no upload background remover",
     "passport photo maker",
+    "passport photo maker online",
   ],
   authors: [{ name: appConfig.name, url: appConfig.siteUrl }],
   creator: appConfig.name,
   publisher: appConfig.name,
   category: "Image editing tools",
+  classification: "Browser-based image editing and background removal",
   referrer: "origin-when-cross-origin",
   manifest: "/manifest.webmanifest",
   formatDetection: { telephone: false, address: false, email: false },
@@ -76,9 +85,13 @@ export const metadata: Metadata = {
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
+  other: {
+    "application-name": appConfig.name,
+    "apple-mobile-web-app-title": appConfig.name,
+  },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05070d", colorScheme: "dark" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#05060a", colorScheme: "dark" };
 
 function Logo() {
   return (
