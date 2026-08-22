@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Model & Open Source Disclosure",
-  description: "See which third-party browser AI package and model variants FlytheBG uses, how they are loaded, licensing information, and important limitations.",
+  description: "See which third-party browser AI package and model variants FlytheBG uses, how adaptive model selection and local subject-protection processing work, licensing information, and important limitations.",
   alternates: { canonical: "/model-disclosure" },
 };
 
@@ -22,8 +22,8 @@ export default function ModelDisclosurePage() {
         <div className="shell">
           <div className="infoCards">
             <article><span>Third-party package</span><h2>IMG.LY background removal</h2><p>FlytheBG currently integrates <code>@imgly/background-removal</code> version <strong>1.7.0</strong> for browser-side segmentation. IMG.LY is the author/provider of that package; FlytheBG does not claim ownership of it.</p></article>
-            <article><span>Model variants</span><h2>IS-Net quantized and FP16</h2><p>The production runtime can use <code>isnet_quint8</code> on constrained devices and can try <code>isnet_fp16</code> on capable WebGPU devices. If WebGPU cannot finish, FlytheBG can retry locally through CPU/WASM.</p></article>
-            <article><span>FlytheBG processing</span><h2>Validation, memory guards and edge refinement</h2><p>FlytheBG adds browser-side input validation, low-memory resizing, output validation, conservative alpha-edge refinement, optional source-detail restoration, UI controls, and export workflows around the third-party segmentation result.</p></article>
+            <article><span>Model variants</span><h2>IS-Net quantized first, adaptive FP16 when useful</h2><p>The production workflow starts with <code>isnet_quint8</code> for the faster common path. On suitable WebGPU devices, FlytheBG can automatically retry with <code>isnet_fp16</code> when a local mask check detects higher preservation risk around pale subject regions or fine semi-transparent edges. If WebGPU cannot finish, supported paths can fall back to CPU/WASM.</p></article>
+            <article><span>FlytheBG processing</span><h2>Validation, bounded inference, and conservative subject protection</h2><p>FlytheBG adds browser-side input validation, bounded working-image sizes for faster inference, output validation, conservative alpha-edge protection, limited pale-foreground recovery for pixels surrounded by detected foreground, optional source-detail restoration, UI controls, and export workflows around the third-party segmentation result.</p></article>
           </div>
         </div>
       </section>
@@ -35,7 +35,7 @@ export default function ModelDisclosurePage() {
             <article><strong>No ownership claim</strong><p>FlytheBG does not claim copyright, trademark rights, authorship, or exclusive ownership over IMG.LY&apos;s library, IS-Net model variants, runtime assets, or other third-party dependencies.</p></article>
             <article><strong>No training claim</strong><p>FlytheBG does not train or fine-tune the IMG.LY model with a visitor&apos;s selected photo. The current workflow uses the image as an inference input in the browser.</p></article>
             <article><strong>Your image rights remain your responsibility</strong><p>Using FlytheBG does not transfer ownership of your photo to FlytheBG. You remain responsible for having the rights and permissions needed to process, edit, download, print, or publish the image.</p></article>
-            <article><strong>Automated output has limits</strong><p>Segmentation is an estimate. Hair, fur, transparent objects, smoke, blur, reflections, low contrast, compression artifacts, and unusual scenes can produce imperfect masks. Review important output before relying on it.</p></article>
+            <article><strong>Automated output still has limits</strong><p>Segmentation and FlytheBG&apos;s local preservation heuristics are estimates. Fine hair, fur, white or pale clothing against a similar background, transparent objects, smoke, blur, reflections, low contrast, compression artifacts, and unusual scenes can still produce imperfect masks. Review important output before relying on it.</p></article>
           </div>
         </div>
       </section>
