@@ -37,6 +37,7 @@ export default function RemoveBackgroundPage() {
           <div><span className="eyebrow"><i/> Free Background Remover</span><h1>Keep the subject. Lose the background.</h1><p>Remove backgrounds from portrait, landscape, square, vertical, or panoramic images without forcing a preset crop. FlytheBG starts with a fast local model, uses bounded working dimensions for large images, protects connected fine edges conservatively, and can escalate to a higher-quality WebGPU pass only when a local result check says it may help.</p><div className="heroProof inline"><span><strong>Fast common path</strong><small>quantized first · bounded inference</small></span><span><strong>Adaptive quality</strong><small>FP16 only when risk is detected</small></span><span><strong>Subject protection</strong><small>hair + pale-region safeguards</small></span></div></div>
           <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Decode + fast working size</strong><small>type, dimensions, device memory</small></span></li><li><b>02</b><span><strong>Fast local AI first</strong><small>WebGPU/CPU · adaptive quality check</small></span></li><li><b>03</b><span><strong>Protect + export</strong><small>fine edges · pale foreground · PNG</small></span></li></ol></aside>
         </div>
+        <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="remove-bg-inline-1" format="leaderboard" /></div>
       </section>
 
       <section className="toolWorkspace"><div className="shell"><Uploader /></div></section>
@@ -51,8 +52,6 @@ export default function RemoveBackgroundPage() {
           </div>
         </div>
       </section>
-
-      <section className="section"><div className="shell"><AdPlaceholder slot="remove-bg-inline-1" format="leaderboard" /></div></section>
 
       <section className="section workflowSection">
         <div className="shell workflowGrid">
