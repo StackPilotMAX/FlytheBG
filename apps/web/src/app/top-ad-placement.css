@@ -1,0 +1,45 @@
+/* High-visibility ad placement without overlapping navigation or tool controls. */
+.landingHeroAd{
+  width:min(970px,calc(100% - 28px));
+  margin:14px auto 0;
+  flex:0 0 auto;
+}
+.cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+  margin-top:clamp(22px,4vh,42px);
+}
+.pageHeroAd{
+  margin-top:28px;
+}
+.pageHeroAd .adPlacement,
+.landingHeroAd .adPlacement{
+  margin-inline:auto;
+}
+
+@media (max-width:720px){
+  .landingHeroAd{
+    width:min(100%,560px);
+    margin-top:10px;
+  }
+  .landingHeroAd .adPlacementSlot,
+  .pageHeroAd .adPlacementSlot{
+    min-height:72px;
+  }
+  .cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+    margin-top:22px;
+  }
+  .pageHeroAd{
+    margin-top:22px;
+  }
+}
+
+@media (max-height:720px) and (min-width:721px){
+  .landingHeroAd{
+    margin-top:8px;
+  }
+  .landingHeroAd .adPlacementSlot{
+    min-height:64px;
+  }
+  .cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+    margin-top:16px;
+  }
+}

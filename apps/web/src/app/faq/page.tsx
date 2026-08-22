@@ -37,6 +37,7 @@ export default function FaqPage() {
             <Link href="/model-disclosure">Model & licensing disclosure ↗</Link>
           </div>
         </div>
+        <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="faq-inline-1" format="leaderboard" /></div>
       </section>
 
       <section className="section faqSection" id="general-faq">
@@ -48,10 +49,6 @@ export default function FaqPage() {
           </div>
           <HoverFaqList items={generalFaqs} />
         </div>
-      </section>
-
-      <section className="section">
-        <div className="shell"><AdPlaceholder slot="faq-inline-1" format="leaderboard" /></div>
       </section>
     </main>
   );

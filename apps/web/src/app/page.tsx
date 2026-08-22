@@ -74,6 +74,10 @@ export default function HomePage() {
             </div>
           </nav>
 
+          <div className="landingHeroAd" aria-label="Top advertisement placement">
+            <AdPlaceholder slot="landing-inline-1" format="leaderboard" />
+          </div>
+
           <section className="cinematicHeroContent" aria-labelledby="flythebg-hero-title">
             <div className="cinematicBadge"><span className="cinematicBadgeIcon" aria-hidden="true">L</span><span>Local AI · your photo stays on-device</span></div>
             <h1 id="flythebg-hero-title">Remove backgrounds.<br /><em>Make passport photos.</em></h1>
@@ -105,10 +109,6 @@ export default function HomePage() {
             <article className="landingCard landingReveal"><span>Limits</span><h3>AI output is an estimate.</h3><p>Fine hair, fur, glass, smoke, reflections, motion blur, compression, and low contrast can still produce imperfect segmentation.</p><Link href="/faq">Read common questions ↗</Link></article>
           </div>
         </div>
-      </section>
-
-      <section className="cinematicLandingSection" aria-label="Advertisement placement">
-        <div className="landingSectionShell"><AdPlaceholder slot="landing-inline-1" format="leaderboard" /></div>
       </section>
 
       <section className="cinematicLandingSection" id="landing-faq">
