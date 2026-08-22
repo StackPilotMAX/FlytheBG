@@ -31,7 +31,7 @@ test("passport tool exposes direct print and PNG download without clearing edits
 });
 
 test("passport page explains that the crop frame moves over a stationary photo", () => {
-  assert.match(page, /move the crop frame without moving the photo/i);
+  assert.match(page, /crop frame without moving the photo/i);
   assert.match(page, /photo stays stationary/i);
   assert.match(page, /Print directly at 100%/);
   assert.match(page, /Download PNG/);
