@@ -1,49 +1,69 @@
-/* Manual photo positioning controls for the Passport Photo Maker only. */
-.passportMaker .photoPositionPanel{overflow:visible}
-.passportMaker .fixedFrameNote{
+/* Movable crop-frame controls for Passport Photo Maker only. */
+.passportMaker .framePositionPanel{overflow:visible}
+.passportMaker .movableFrameNote{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  margin:0 0 14px;padding:12px 14px;border:1px solid rgba(139,105,155,.12);border-radius:14px;
-  background:linear-gradient(135deg,rgba(255,246,249,.90),rgba(245,240,255,.84));
-  color:#5e4d70;box-shadow:inset 0 1px 0 rgba(255,255,255,.88)
+  margin:0 0 14px;padding:12px 14px;border:1px solid rgba(139,105,155,.13);border-radius:14px;
+  background:linear-gradient(135deg,rgba(255,246,249,.92),rgba(245,240,255,.86));
+  color:#5e4d70;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)
 }
-.passportMaker .fixedFrameNote strong{font-size:11px;color:#664f78!important}
-.passportMaker .fixedFrameNote span{font-size:10px;color:rgba(94,77,112,.68)!important}
-.passportMaker .fixedPassportFrame{position:relative;border:1px solid rgba(139,105,155,.18)!important;background:rgba(255,255,255,.88)!important;box-shadow:0 16px 44px rgba(109,79,129,.09)!important}
-.passportMaker .fixedPassportFrame:before{
-  content:"FIXED PASSPORT SIZE";position:absolute;z-index:2;left:10px;top:10px;padding:5px 8px;border-radius:999px;
-  background:rgba(255,247,250,.90);border:1px solid rgba(139,105,155,.13);color:#755a82;font:600 8px/1 var(--font-inter),Inter,sans-serif;letter-spacing:.08em;pointer-events:none
+.passportMaker .movableFrameNote strong{font-size:11px;color:#664f78!important}
+.passportMaker .movableFrameNote span{font-size:10px;color:rgba(94,77,112,.7)!important}
+
+.passportMaker .frameWorkspace{
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(190px,.8fr);gap:16px;align-items:start
 }
-.passportMaker .fixedPassportFrame canvas{cursor:grab;touch-action:none}
-.passportMaker .fixedPassportFrame canvas:active{cursor:grabbing}
-.passportMaker .photoManualControls{
+.passportMaker .framePhotoStage{
+  position:relative;width:100%;max-height:520px;min-height:260px;overflow:hidden;border:1px solid rgba(139,105,155,.18);border-radius:20px;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(251,240,247,.78));box-shadow:0 16px 44px rgba(109,79,129,.09);user-select:none
+}
+.passportMaker .framePhotoStage img{width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;user-select:none}
+.passportMaker .movableCropFrame{
+  position:absolute;z-index:3;transform:translate(-50%,-50%);min-width:82px;min-height:82px;max-height:86%;
+  border:3px solid rgba(127,91,171,.9);border-radius:12px;background:rgba(244,230,255,.08);
+  box-shadow:0 0 0 999px rgba(79,52,89,.18),0 10px 34px rgba(102,67,136,.2),inset 0 0 0 1px rgba(255,255,255,.9);
+  cursor:grab;touch-action:none;transition:box-shadow .16s ease,border-color .16s ease
+}
+.passportMaker .movableCropFrame:active{cursor:grabbing;border-color:#6f55b7;box-shadow:0 0 0 999px rgba(79,52,89,.2),0 12px 38px rgba(102,67,136,.26),inset 0 0 0 1px rgba(255,255,255,.95)}
+.passportMaker .movableCropFrame:focus-visible{outline:3px solid rgba(181,135,198,.45);outline-offset:4px}
+.passportMaker .movableCropFrame span{
+  position:absolute;left:8px;top:8px;padding:5px 8px;border-radius:999px;background:rgba(255,250,253,.92);border:1px solid rgba(139,105,155,.16);
+  color:#735784!important;font:600 8px/1 var(--font-inter),Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;pointer-events:none
+}
+.passportMaker .cropResultPreview{
+  display:grid;gap:8px;padding:12px;border:1px solid rgba(139,105,155,.12);border-radius:18px;background:rgba(255,255,255,.76);box-shadow:0 12px 30px rgba(95,70,117,.06)
+}
+.passportMaker .cropResultPreview>span{font:600 9px/1.2 var(--font-inter),Inter,sans-serif;color:#725b82!important;letter-spacing:.07em;text-transform:uppercase}
+.passportMaker .cropResultPreview canvas{width:100%;max-height:430px;object-fit:contain;border:1px solid rgba(139,105,155,.13);border-radius:13px;background:#fff}
+
+.passportMaker .frameManualControls{
   display:grid;grid-template-columns:minmax(150px,.6fr) minmax(240px,1.4fr);gap:16px;margin-top:16px;padding:16px;
-  border:1px solid rgba(139,105,155,.12);border-radius:18px;background:linear-gradient(145deg,rgba(255,244,248,.80),rgba(242,238,255,.72));
+  border:1px solid rgba(139,105,155,.12);border-radius:18px;background:linear-gradient(145deg,rgba(255,244,248,.82),rgba(242,238,255,.74));
   box-shadow:0 14px 34px rgba(91,67,112,.07),inset 0 1px 0 rgba(255,255,255,.88)
 }
-.passportMaker .photoMoveBlock{display:grid;align-content:start;gap:10px}
+.passportMaker .frameMoveBlock{display:grid;align-content:start;gap:10px}
 .passportMaker .manualControlLabel{font:600 10px/1.2 var(--font-inter),Inter,sans-serif;color:#6e597d;letter-spacing:.06em;text-transform:uppercase}
-.passportMaker .photoMovePad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);gap:6px;justify-content:start}
-.passportMaker .photoMovePad button,
+.passportMaker .frameMovePad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);gap:6px;justify-content:start}
+.passportMaker .frameMovePad button,
 .passportMaker .perPhotoNudges button{
-  appearance:none;border:1px solid rgba(132,101,153,.14);border-radius:12px;background:rgba(255,255,255,.84);color:#6b5680;box-shadow:0 7px 18px rgba(103,76,126,.08);cursor:pointer;font:600 16px/1 var(--font-inter),Inter,sans-serif;transition:transform .16s ease,background .16s ease,box-shadow .16s ease
+  appearance:none;border:1px solid rgba(132,101,153,.14);border-radius:12px;background:rgba(255,255,255,.86);color:#6b5680;box-shadow:0 7px 18px rgba(103,76,126,.08);cursor:pointer;font:600 16px/1 var(--font-inter),Inter,sans-serif;transition:transform .16s ease,background .16s ease,box-shadow .16s ease
 }
-.passportMaker .photoMovePad button:hover,
+.passportMaker .frameMovePad button:hover,
 .passportMaker .perPhotoNudges button:hover{transform:translateY(-1px);background:#fff;box-shadow:0 9px 22px rgba(103,76,126,.12)}
-.passportMaker .photoMovePad button:nth-child(1){grid-column:2;grid-row:1}
-.passportMaker .photoMovePad button:nth-child(2){grid-column:1;grid-row:2}
-.passportMaker .photoMovePad button:nth-child(3){grid-column:2;grid-row:2}
-.passportMaker .photoMovePad button:nth-child(4){grid-column:3;grid-row:2}
-.passportMaker .photoMovePad button:nth-child(5){grid-column:2;grid-row:3}
-.passportMaker .photoMovePad .photoCenterButton{background:linear-gradient(135deg,#fde8ef,#e9e3ff);color:#7a608a}
-.passportMaker .photoPositionSliders,.passportMaker .selectedPhotoManual{display:grid;gap:11px}
-.passportMaker .photoSliderRow{
-  display:grid;grid-template-columns:minmax(120px,1fr) minmax(130px,1.6fr) 48px;gap:10px;align-items:center;margin:0;padding:9px 10px;border:1px solid rgba(132,101,153,.10);border-radius:13px;background:rgba(255,255,255,.60)
+.passportMaker .frameMovePad button:nth-child(1){grid-column:2;grid-row:1}
+.passportMaker .frameMovePad button:nth-child(2){grid-column:1;grid-row:2}
+.passportMaker .frameMovePad button:nth-child(3){grid-column:2;grid-row:2}
+.passportMaker .frameMovePad button:nth-child(4){grid-column:3;grid-row:2}
+.passportMaker .frameMovePad button:nth-child(5){grid-column:2;grid-row:3}
+.passportMaker .frameMovePad .frameCenterButton{background:linear-gradient(135deg,#fde8ef,#e9e3ff);color:#7a608a}
+.passportMaker .framePositionSliders,.passportMaker .selectedFrameManual{display:grid;gap:11px}
+.passportMaker .frameSliderRow{
+  display:grid;grid-template-columns:minmax(130px,1fr) minmax(130px,1.6fr) 50px;gap:10px;align-items:center;margin:0;padding:9px 10px;border:1px solid rgba(132,101,153,.10);border-radius:13px;background:rgba(255,255,255,.62)
 }
-.passportMaker .photoSliderRow span{font-size:10px;color:#675574!important}
-.passportMaker .photoSliderRow strong{font-size:10px;color:#765b87!important;text-align:right;font-variant-numeric:tabular-nums}
-.passportMaker .photoSliderRow input[type="range"]{width:100%;accent-color:#b886b8;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
-.passportMaker .photoControlActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.passportMaker .selectedPhotoManual{
+.passportMaker .frameSliderRow span{font-size:10px;color:#675574!important}
+.passportMaker .frameSliderRow strong{font-size:10px;color:#765b87!important;text-align:right;font-variant-numeric:tabular-nums}
+.passportMaker .frameSliderRow input[type="range"]{width:100%;accent-color:#a77ac1;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+.passportMaker .frameControlActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.passportMaker .selectedFrameManual{
   margin:12px 0 16px;padding:14px;border:1px solid rgba(132,101,153,.12);border-radius:16px;
   background:linear-gradient(145deg,rgba(255,247,250,.86),rgba(245,241,255,.78));box-shadow:0 12px 30px rgba(95,70,117,.06)
 }
@@ -51,13 +71,19 @@
 .passportMaker .perPhotoNudges{display:grid;grid-template-columns:repeat(4,36px);gap:5px}
 .passportMaker .perPhotoNudges button{min-width:36px;min-height:36px;padding:0}
 .passportMaker .perPhotoZoom{color:#725a82!important}
+.passportMaker .interactiveSheet canvas{cursor:pointer}
 
+@media (max-width:900px){
+  .passportMaker .frameWorkspace{grid-template-columns:1fr}
+  .passportMaker .cropResultPreview{max-width:430px;width:100%;margin-inline:auto}
+}
 @media (max-width:760px){
-  .passportMaker .photoManualControls{grid-template-columns:1fr}
-  .passportMaker .photoMovePad{justify-content:center}
-  .passportMaker .photoSliderRow{grid-template-columns:1fr 46px}
-  .passportMaker .photoSliderRow span{grid-column:1/-1}
+  .passportMaker .frameManualControls{grid-template-columns:1fr}
+  .passportMaker .frameMovePad{justify-content:center}
+  .passportMaker .frameSliderRow{grid-template-columns:1fr 46px}
+  .passportMaker .frameSliderRow span{grid-column:1/-1}
+  .passportMaker .framePhotoStage{min-height:220px}
 }
 @media (prefers-reduced-motion:reduce){
-  .passportMaker .photoMovePad button,.passportMaker .perPhotoNudges button{transition:none!important}
+  .passportMaker .frameMovePad button,.passportMaker .perPhotoNudges button,.passportMaker .movableCropFrame{transition:none!important}
 }
