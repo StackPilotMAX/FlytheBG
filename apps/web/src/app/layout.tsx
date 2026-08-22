@@ -13,6 +13,7 @@ import "./theme-refinements.css";
 import "./landing-extras.css";
 import "./light-theme-final.css";
 import "./tool-pastel-theme.css";
+import "./passport-manual-controls.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
