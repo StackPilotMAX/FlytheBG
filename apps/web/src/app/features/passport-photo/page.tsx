@@ -29,6 +29,7 @@ export default function PassportPhotoPage() {
           <div><span className="eyebrow"><i/> Passport Photo Maker</span><h1>Move the crop frame, then print or download your passport sheet.</h1><p>Set the required physical size, keep the source photo stationary, and move the crop frame over the photo until the subject is positioned correctly. You can also customize the crop frame for individual copies in the final sheet.</p><div className="heroProof inline"><span><strong>Movable crop frame</strong><small>photo stays stationary</small></span><span><strong>Print directly</strong><small>Actual Size / 100%</small></span><span><strong>PNG download</strong><small>DPI-aware sheet export</small></span></div></div>
           <aside className="pageHeroAside"><span className="kicker">Before you print</span><ol><li><b>01</b><span><strong>Verify the authority</strong><small>size + photo rules</small></span></li><li><b>02</b><span><strong>Position the crop frame</strong><small>move + crop zoom</small></span></li><li><b>03</b><span><strong>Print at 100%</strong><small>disable fit-to-page</small></span></li></ol></aside>
         </div>
+        <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="passport-inline-1" format="leaderboard" /></div>
       </section>
 
       <section className="passportWorkspace shell"><PassportPhotoMaker /></section>
@@ -43,8 +44,6 @@ export default function PassportPhotoPage() {
           </div>
         </div>
       </section>
-
-      <section className="section"><div className="shell"><AdPlaceholder slot="passport-inline-1" format="leaderboard" /></div></section>
 
       <section className="section workflowSection">
         <div className="shell workflowGrid">
