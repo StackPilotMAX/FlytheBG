@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const home = await readFile(new URL("../src/app/page.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+const brandLogo = await readFile(new URL("../src/components/FlytheBGLogo.tsx", import.meta.url), "utf8");
 const cinematic = await readFile(new URL("../src/app/cinematic-hero.css", import.meta.url), "utf8");
 const immersive = await readFile(new URL("../src/app/immersive-theme.css", import.meta.url), "utf8");
 const refinements = await readFile(new URL("../src/app/theme-refinements.css", import.meta.url), "utf8");
@@ -35,11 +36,14 @@ test("landing is scrollable and reuses the single shared video backdrop", () => 
   assert.match(refinements, /body:has\(\.cinematicHero\) \.siteVideoBackdrop\{display:block!important\}/);
 });
 
-test("real FlytheBG assets are used throughout navigation and metadata", () => {
-  assert.match(home, /\/brand\/flythebg-lockup\.svg/);
-  assert.doesNotMatch(home, /<svg viewBox=/);
-  assert.match(layout, /\/brand\/flythebg-lockup\.svg/);
+test("real FlytheBG artwork is used throughout navigation and metadata", () => {
+  assert.match(home, /FlytheBGLogo/);
+  assert.match(layout, /FlytheBGLogo/);
+  assert.match(brandLogo, /\/brand\/flythebg-mark\.svg/);
   assert.match(layout, /\/brand\/flythebg-mark\.svg/);
+  assert.doesNotMatch(home, /flythebg-lockup\.svg/);
+  assert.doesNotMatch(layout, /flythebg-lockup\.svg/);
+  assert.doesNotMatch(home, /<svg viewBox=/);
   assert.match(layout, /href="\/faq"/);
 });
 
