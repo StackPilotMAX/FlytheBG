@@ -1,0 +1,208 @@
+/* Scoped pastel-light treatment for the two interactive image tools.
+   Loaded after the global light guard so tool-specific legacy dark styles cannot win. */
+
+.toolPage,
+.passportPage{
+  --tool-ink:#514153;
+  --tool-muted:#786b79;
+  --tool-line:rgba(134,101,132,.16);
+  --tool-pink:#f4bfd7;
+  --tool-pink-soft:rgba(255,231,241,.78);
+  --tool-pink-wash:rgba(255,239,246,.68);
+  --tool-lavender:#a594e8;
+  --tool-lavender-soft:rgba(235,229,255,.82);
+  --tool-white:rgba(255,255,255,.88);
+  --tool-glass:linear-gradient(145deg,rgba(255,248,252,.88),rgba(246,241,255,.72));
+  color:var(--tool-ink)!important;
+}
+
+.toolPage :is(h1,h2,h3,h4,strong,label,summary),
+.passportPage :is(h1,h2,h3,h4,strong,label,summary){color:var(--tool-ink)!important}
+.toolPage :is(p,small,li,.helperText,.warningText),
+.passportPage :is(p,small,li,.helperText,.warningText){color:var(--tool-muted)!important}
+.toolPage :is(.kicker,.eyebrow,.textLink),
+.passportPage :is(.kicker,.eyebrow,.textLink){color:#8e6286!important}
+
+/* Remove Background: make every working surface blush/lavender glass. */
+.toolPage .toolSurface,
+.toolPage .uploadDropZone,
+.toolPage .modelFlow > div,
+.toolPage .privacyBar,
+.toolPage .compareCard,
+.toolPage .resultActionsBar,
+.toolPage .errorNotice,
+.toolPage .successNotice,
+.toolPage .toolFootnote,
+.toolPage .processingPanel{
+  border-color:var(--tool-line)!important;
+  background:var(--tool-glass)!important;
+  color:var(--tool-ink)!important;
+  box-shadow:0 18px 50px rgba(111,78,113,.10),inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+.toolPage .uploadDropZone{
+  background:linear-gradient(145deg,rgba(255,237,245,.86),rgba(239,235,255,.78))!important;
+}
+.toolPage .uploadDropZone:hover,
+.toolPage .uploadDropZone.dragging{
+  border-color:rgba(190,122,158,.34)!important;
+  background:linear-gradient(145deg,rgba(255,225,239,.94),rgba(233,226,255,.90))!important;
+  box-shadow:0 20px 54px rgba(173,111,153,.14),inset 0 1px 0 rgba(255,255,255,.94)!important;
+}
+.toolPage .privacyPill,
+.toolPage .uploadGlyph{
+  border-color:rgba(171,118,154,.18)!important;
+  background:var(--tool-pink-soft)!important;
+  color:#8b5b80!important;
+}
+.toolPage .modelFlow > div span,
+.toolPage .statusDot{color:#9a72a4!important}
+.toolPage .imageWell{
+  border-color:var(--tool-line)!important;
+  background:rgba(255,255,255,.72)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.82)!important;
+}
+.toolPage .imageWell.checker{
+  background-color:#fff9fc!important;
+  background-image:linear-gradient(45deg,rgba(239,218,231,.48) 25%,transparent 25%),linear-gradient(-45deg,rgba(239,218,231,.48) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(228,221,247,.52) 75%),linear-gradient(-45deg,transparent 75%,rgba(228,221,247,.52) 75%)!important;
+  background-size:22px 22px!important;
+  background-position:0 0,0 11px,11px -11px,-11px 0!important;
+}
+.toolPage .buttonSecondary,
+.toolPage .buttonGhost{
+  border-color:rgba(160,120,153,.18)!important;
+  background:rgba(255,248,252,.88)!important;
+  color:var(--tool-ink)!important;
+}
+.toolPage .buttonPrimary{
+  border-color:rgba(160,119,184,.18)!important;
+  background:linear-gradient(135deg,#e9a9c7,#a897e6)!important;
+  color:#fff!important;
+  box-shadow:0 11px 28px rgba(158,107,151,.20)!important;
+}
+.toolPage .errorNotice{background:linear-gradient(145deg,rgba(255,232,239,.92),rgba(255,246,249,.84))!important}
+.toolPage .successNotice{background:linear-gradient(145deg,rgba(239,250,245,.90),rgba(255,244,249,.80))!important}
+
+/* Passport tool: targeted pink/lavender treatment for controls that had their own dark rules. */
+.passportPage .passportIntroCard,
+.passportPage .passportUploadCard,
+.passportPage .workingImageBar,
+.passportPage .passportPanel,
+.passportPage .sheetPreviewSection,
+.passportPage .passportDropZone,
+.passportPage .portraitEditor,
+.passportPage .rangeLabel,
+.passportPage .inlineControl,
+.passportPage .capacityBar,
+.passportPage .sheetMeta,
+.passportPage .perPhotoEditor,
+.passportPage .sheetCanvasShell,
+.passportPage .errorNotice,
+.passportPage .successNotice{
+  border-color:var(--tool-line)!important;
+  background:var(--tool-glass)!important;
+  color:var(--tool-ink)!important;
+  box-shadow:0 18px 52px rgba(111,78,113,.10),inset 0 1px 0 rgba(255,255,255,.90)!important;
+}
+.passportPage .passportIntroCard,
+.passportPage .passportUploadCard{
+  background:linear-gradient(145deg,rgba(255,236,244,.84),rgba(244,239,255,.76))!important;
+}
+.passportPage .passportStats span,
+.passportPage .workingImageBar > span{
+  border-color:rgba(145,111,143,.13)!important;
+  background:rgba(255,255,255,.62)!important;
+  color:var(--tool-ink)!important;
+}
+.passportPage .modeTabs{
+  border-color:var(--tool-line)!important;
+  background:rgba(255,246,251,.70)!important;
+}
+.passportPage .modeTabs button,
+.passportPage .presetButtons button,
+.passportPage .segmented button,
+.passportPage .perPhotoNudges button{
+  border-color:rgba(151,116,149,.17)!important;
+  background:rgba(255,255,255,.78)!important;
+  color:var(--tool-ink)!important;
+  box-shadow:0 7px 20px rgba(105,76,107,.06)!important;
+}
+.passportPage .modeTabs button:hover,
+.passportPage .presetButtons button:hover,
+.passportPage .segmented button:hover,
+.passportPage .perPhotoNudges button:hover{
+  background:rgba(255,235,244,.90)!important;
+  border-color:rgba(190,126,162,.28)!important;
+}
+.passportPage .modeTabs button.active,
+.passportPage .segmented button.active{
+  border-color:rgba(164,126,197,.28)!important;
+  background:linear-gradient(135deg,rgba(247,205,224,.96),rgba(224,217,255,.96))!important;
+  color:#664f6f!important;
+  box-shadow:0 10px 26px rgba(149,106,161,.13)!important;
+}
+.passportPage .passportDropZone{
+  background:linear-gradient(145deg,rgba(255,235,244,.90),rgba(237,232,255,.86))!important;
+}
+.passportPage .passportDropZone:hover,
+.passportPage .passportDropZone.dragging{
+  border-color:rgba(192,126,162,.34)!important;
+  background:linear-gradient(145deg,rgba(255,223,238,.96),rgba(230,222,255,.94))!important;
+}
+.passportPage .uploadGlyph,
+.passportPage .stepNumber{
+  border-color:rgba(162,116,154,.18)!important;
+  background:linear-gradient(145deg,#f5bfd8,#cfc5fa)!important;
+  color:#674e69!important;
+  box-shadow:0 7px 18px rgba(154,108,149,.12)!important;
+}
+.passportPage input,
+.passportPage select,
+.passportPage textarea{
+  border-color:rgba(145,111,143,.16)!important;
+  background:rgba(255,255,255,.90)!important;
+  color:var(--tool-ink)!important;
+}
+.passportPage input[type="range"]{accent-color:#c581a5!important}
+.passportPage input[type="color"]{
+  background:#fff!important;
+  border-color:rgba(145,111,143,.18)!important;
+}
+.passportPage select option{background:#fff!important;color:var(--tool-ink)!important}
+.passportPage .portraitEditor{
+  background:linear-gradient(145deg,rgba(255,249,252,.92),rgba(241,237,255,.88))!important;
+}
+.passportPage .portraitEditor canvas,
+.passportPage .sheetCanvasShell canvas{
+  background:#fff!important;
+  border-color:rgba(139,107,139,.14)!important;
+  box-shadow:0 12px 36px rgba(88,68,92,.08)!important;
+}
+.passportPage .perPhotoEditor{
+  background:linear-gradient(145deg,rgba(255,231,241,.84),rgba(235,230,255,.82))!important;
+}
+.passportPage .perPhotoZoom,
+.passportPage .sheetMeta span,
+.passportPage .capacityBar span,
+.passportPage .warningText{color:#8a647e!important}
+.passportPage .buttonSecondary,
+.passportPage .buttonGhost{
+  border-color:rgba(160,120,153,.18)!important;
+  background:rgba(255,248,252,.88)!important;
+  color:var(--tool-ink)!important;
+}
+.passportPage .buttonPrimary{
+  border-color:rgba(160,119,184,.18)!important;
+  background:linear-gradient(135deg,#e9a9c7,#a897e6)!important;
+  color:#fff!important;
+  box-shadow:0 11px 28px rgba(158,107,151,.20)!important;
+}
+.passportPage .errorNotice{background:linear-gradient(145deg,rgba(255,232,239,.92),rgba(255,246,249,.84))!important}
+.passportPage .successNotice{background:linear-gradient(145deg,rgba(239,250,245,.90),rgba(255,244,249,.80))!important}
+
+@media (max-width:720px){
+  .toolPage .toolSurface,
+  .passportPage .passportIntroCard,
+  .passportPage .passportUploadCard,
+  .passportPage .passportPanel,
+  .passportPage .sheetPreviewSection{border-radius:20px!important}
+}
