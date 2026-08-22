@@ -22,6 +22,7 @@ export function FlytheBGLogo({ className = "brand", imageClassName = "realBrandM
         alt="FlytheBG"
         width={size}
         height={size}
+        style={{ width: size, height: size, objectFit: "contain" }}
         decoding="async"
       />
     </Link>
