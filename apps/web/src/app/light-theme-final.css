@@ -1,0 +1,173 @@
+/* Final light-theme guardrail.
+   Loaded last so legacy dark production styles can never leak through. */
+:root{
+  --bg:#d9d5ef;
+  --bg2:#e5e2f2;
+  --surface:rgba(255,255,255,.70);
+  --surface2:rgba(250,248,255,.76);
+  --surface3:rgba(245,242,255,.82);
+  --line:rgba(72,62,112,.10);
+  --line2:rgba(72,62,112,.15);
+  --text:#39345a;
+  --muted:rgba(57,52,90,.72);
+  --faint:rgba(57,52,90,.50);
+  --cyan:#7db8e9;
+  --cyan2:#655da6;
+  --violet:#8f82e8;
+  --green:#4f9b7d;
+  --danger:#b85f75;
+  --warning:#9d7940;
+  --shadow:0 24px 80px rgba(48,40,90,.12);
+  color-scheme:light;
+}
+
+html,body{
+  background:#d9d5ef!important;
+  color:var(--text)!important;
+  color-scheme:light!important;
+}
+
+/* All content pages float above the shared video instead of painting dark bands. */
+.trustSection,
+.toolsSection,
+.workflowSection,
+.faqSection,
+.finalCta,
+.pageHero,
+.toolWorkspace,
+.toolInfoSection,
+.passportNotes,
+.featurePage,
+.toolPage,
+.passportPage,
+.legalMain,
+.section{
+  background:transparent!important;
+  border-color:var(--line)!important;
+}
+
+/* Legacy cards that previously had hard-coded #05/#08/#0b backgrounds. */
+.heroProof span,
+.galaxyStatusCard,
+.galaxyStatusCard li,
+.toolFeatureCard,
+.catalogCard,
+.workflowSteps li,
+.faqList details,
+.pageHeroAside,
+.pageHeroAside li,
+.toolSurface,
+.uploadDropZone,
+.passportIntroCard,
+.passportPanel,
+.sheetPreviewSection,
+.compareCard,
+.modelFlow > div,
+.privacyBar,
+.resultActionsBar,
+.errorNotice,
+.successNotice,
+.legalShell,
+.legalBody,
+.legalIdentity{
+  border-color:var(--line)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(247,245,255,.60))!important;
+  color:var(--text)!important;
+  box-shadow:0 16px 48px rgba(48,40,90,.08),inset 0 1px 0 rgba(255,255,255,.78)!important;
+}
+
+/* Nested hard-coded dark rows. */
+.pageHeroAside li,
+.galaxyStatusCard li,
+.workflowSteps li{
+  background:rgba(255,255,255,.58)!important;
+}
+
+/* Text can no longer inherit the old white-on-black palette. */
+body > main:not(.cinematicHero) :is(h1,h2,h3,h4,h5,h6,strong,summary,label,legend){
+  color:var(--text)!important;
+}
+body > main:not(.cinematicHero) :is(p,li,small,.muted,.hint,.statusLabel){
+  color:var(--muted)!important;
+}
+body > main:not(.cinematicHero) :is(.kicker,.eyebrow,.textLink,.featureCta){
+  color:#655da6!important;
+}
+
+/* Form controls stay readable on the video/glass theme. */
+input,
+select,
+textarea,
+.toolSurface input,
+.toolSurface select,
+.toolSurface textarea,
+.passportPanel input,
+.passportPanel select,
+.passportPanel textarea{
+  color:var(--text)!important;
+  background:rgba(255,255,255,.86)!important;
+  border-color:var(--line2)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.82)!important;
+}
+select option{background:#fff!important;color:var(--text)!important}
+input::placeholder,textarea::placeholder{color:rgba(57,52,90,.45)!important}
+
+/* Old button classes are brought into the same blue/lavender family. */
+.buttonPrimary,
+.primaryButton,
+.siteHeader .navCta{
+  background:linear-gradient(135deg,#7eaee4,#9180df)!important;
+  border-color:rgba(112,101,202,.20)!important;
+  color:#fff!important;
+  box-shadow:0 10px 28px rgba(109,95,194,.22)!important;
+}
+.buttonSecondary,
+.secondaryButton,
+.buttonGhost,
+.textButton,
+.miniButton{
+  background:rgba(255,255,255,.76)!important;
+  border-color:var(--line2)!important;
+  color:var(--text)!important;
+  box-shadow:0 8px 22px rgba(48,40,90,.07)!important;
+}
+
+/* Header/footer and FAQ remain translucent rather than falling back to black. */
+.siteHeader .navShell,
+.siteFooter .footerGrid,
+.siteFooter .footerBottom,
+.animatedFaqList .faqItem{
+  border-color:var(--line)!important;
+  background:rgba(255,255,255,.70)!important;
+  color:var(--text)!important;
+}
+.siteHeader .navLinks,
+.siteFooter,
+.siteFooter a,
+.siteFooter p,
+.siteFooter .footerBottom{
+  color:var(--muted)!important;
+}
+.siteHeader .navLinks a:hover,
+.siteFooter a:hover{color:var(--text)!important}
+
+/* Code/legal callouts use lavender glass, never charcoal. */
+code,pre{
+  color:#514a86!important;
+  background:rgba(235,231,255,.72)!important;
+  border-color:rgba(102,87,167,.12)!important;
+}
+
+/* Preserve transparent-image visibility without introducing a dark panel. */
+.resultPreview,
+.previewSurface,
+.cropSurface,
+.sheetCanvasWrap{
+  border-color:var(--line)!important;
+  background-color:rgba(255,255,255,.52)!important;
+}
+
+@media (prefers-color-scheme:dark){
+  :root{color-scheme:light!important}
+  html,body{background:#d9d5ef!important;color:var(--text)!important}
+}
