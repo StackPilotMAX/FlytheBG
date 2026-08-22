@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, DragEvent, PointerEvent, WheelEvent, useEffect, useId, useMemo, useRef, useState } from "react";
+import { ChangeEvent, DragEvent, PointerEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import { removeBackgroundWithFallback } from "@/lib/browser-background-removal";
 import { validateUploadBasics } from "@/lib/image-validation";
 
@@ -10,7 +10,7 @@ type PaperPreset = "a4" | "4x6" | "letter" | "custom";
 type Position = { xMm: number; yMm: number };
 type PreparedPhoto = { url: string; width: number; height: number; label: string };
 type Frame = { zoom: number; shiftX: number; shiftY: number };
-type DragState = { mode: "master" | "sheet"; index: number; x: number; y: number; shiftX: number; shiftY: number };
+type DragState = { mode: "master"; x: number; y: number; shiftX: number; shiftY: number };
 
 const MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB || "12") || 12;
 const MAX_EXPORT_PIXELS = 20_000_000;
@@ -69,6 +69,11 @@ function buildLayout(pageWidthMm: number, pageHeightMm: number, photoWidthMm: nu
   }));
 }
 
+/**
+ * Frame semantics: shiftX/shiftY move the crop frame over a stationary photo.
+ * The inverse sign when drawing is intentional: moving the frame right means
+ * the fixed output viewport samples farther right from the source image.
+ */
 function drawCell(ctx: CanvasRenderingContext2D, image: HTMLImageElement, x: number, y: number, width: number, height: number, frame: Frame, background: string) {
   if (!image.naturalWidth || !image.naturalHeight || width <= 0 || height <= 0) return;
   ctx.save();
@@ -83,8 +88,8 @@ function drawCell(ctx: CanvasRenderingContext2D, image: HTMLImageElement, x: num
   const cover = Math.max(width / image.naturalWidth, height / image.naturalHeight) * frame.zoom;
   const drawWidth = image.naturalWidth * cover;
   const drawHeight = image.naturalHeight * cover;
-  const dx = x + (width - drawWidth) / 2 + frame.shiftX * Math.max(0, drawWidth - width) * .5;
-  const dy = y + (height - drawHeight) / 2 + frame.shiftY * Math.max(0, drawHeight - height) * .5;
+  const dx = x + (width - drawWidth) / 2 - frame.shiftX * Math.max(0, drawWidth - width) * .5;
+  const dy = y + (height - drawHeight) / 2 - frame.shiftY * Math.max(0, drawHeight - height) * .5;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
@@ -95,8 +100,9 @@ export function PassportPhotoMaker() {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
-  const portraitCanvasRef = useRef<HTMLCanvasElement>(null);
+  const cropPreviewCanvasRef = useRef<HTMLCanvasElement>(null);
   const sheetCanvasRef = useRef<HTMLCanvasElement>(null);
+  const frameStageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
 
   const [sourceMode, setSourceMode] = useState<SourceMode>("remove");
@@ -133,6 +139,9 @@ export function PassportPhotoMaker() {
   const capacity = useMemo(() => buildLayout(paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, marginMm, gapMm, 200).length, [paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, marginMm, gapMm]);
   const positions = useMemo(() => buildLayout(paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, marginMm, gapMm, Math.min(copies, Math.max(1, capacity))), [paper.widthMm, paper.heightMm, photoWidthMm, photoHeightMm, marginMm, gapMm, copies, capacity]);
   const masterFrame: Frame = { zoom, shiftX, shiftY };
+  const frameWidthPercent = clamp(69 / Math.sqrt(zoom), 38, 72);
+  const frameLeftPercent = 50 + shiftX * 12;
+  const frameTopPercent = 50 + shiftY * 12;
 
   function frameFor(index: number): Frame {
     return individualFrames[index] ?? masterFrame;
@@ -196,7 +205,7 @@ export function PassportPhotoMaker() {
     setShiftY(0);
     setSelectedCopy(0);
     setIndividualFrames({});
-    if (portraitCanvasRef.current) { portraitCanvasRef.current.width = 1; portraitCanvasRef.current.height = 1; }
+    if (cropPreviewCanvasRef.current) { cropPreviewCanvasRef.current.width = 1; cropPreviewCanvasRef.current.height = 1; }
     if (sheetCanvasRef.current) { sheetCanvasRef.current.width = 1; sheetCanvasRef.current.height = 1; }
     if (inputRef.current) inputRef.current.value = "";
     setCleanup(notice);
@@ -219,16 +228,16 @@ export function PassportPhotoMaker() {
 
   function drawPreviews() {
     const image = sourceImageRef.current;
-    const portrait = portraitCanvasRef.current;
+    const cropPreview = cropPreviewCanvasRef.current;
     const sheet = sheetCanvasRef.current;
-    if (!image || !portrait || !sheet || !image.naturalWidth || !image.naturalHeight) return;
+    if (!image || !cropPreview || !sheet || !image.naturalWidth || !image.naturalHeight) return;
 
-    portrait.width = 340;
-    portrait.height = Math.min(520, Math.max(250, Math.round(340 * photoHeightMm / photoWidthMm)));
-    const portraitCtx = portrait.getContext("2d");
-    if (portraitCtx) {
-      portraitCtx.clearRect(0, 0, portrait.width, portrait.height);
-      drawCell(portraitCtx, image, 0, 0, portrait.width, portrait.height, masterFrame, background);
+    cropPreview.width = 300;
+    cropPreview.height = Math.min(440, Math.max(220, Math.round(300 * photoHeightMm / photoWidthMm)));
+    const cropCtx = cropPreview.getContext("2d");
+    if (cropCtx) {
+      cropCtx.clearRect(0, 0, cropPreview.width, cropPreview.height);
+      drawCell(cropCtx, image, 0, 0, cropPreview.width, cropPreview.height, masterFrame, background);
     }
 
     const scale = Math.min(760 / paper.widthMm, 620 / paper.heightMm);
@@ -301,21 +310,27 @@ export function PassportPhotoMaker() {
     if (file) void handleFile(file);
   }
 
-  function onMasterPointerDown(event: PointerEvent<HTMLCanvasElement>) {
+  function onMasterFramePointerDown(event: PointerEvent<HTMLDivElement>) {
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { mode: "master", index: -1, x: event.clientX, y: event.clientY, shiftX, shiftY };
+    dragRef.current = { mode: "master", x: event.clientX, y: event.clientY, shiftX, shiftY };
   }
 
-  function onMasterPointerMove(event: PointerEvent<HTMLCanvasElement>) {
+  function onMasterFramePointerMove(event: PointerEvent<HTMLDivElement>) {
     const start = dragRef.current;
     if (!start || start.mode !== "master") return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    setShiftX(clamp(start.shiftX + (event.clientX - start.x) / Math.max(1, rect.width) * 2.5, -1, 1));
-    setShiftY(clamp(start.shiftY + (event.clientY - start.y) / Math.max(1, rect.height) * 2.5, -1, 1));
+    const rect = frameStageRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setShiftX(clamp(start.shiftX + (event.clientX - start.x) / Math.max(1, rect.width) * 3, -1, 1));
+    setShiftY(clamp(start.shiftY + (event.clientY - start.y) / Math.max(1, rect.height) * 3, -1, 1));
   }
 
-  function findSheetCopy(event: PointerEvent<HTMLCanvasElement> | WheelEvent<HTMLCanvasElement>) {
+  function onMasterFramePointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    dragRef.current = null;
+  }
+
+  function findSheetCopy(event: PointerEvent<HTMLCanvasElement>) {
     const sheet = sheetCanvasRef.current;
     if (!sheet || !positions.length) return -1;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -332,61 +347,20 @@ export function PassportPhotoMaker() {
 
   function onSheetPointerDown(event: PointerEvent<HTMLCanvasElement>) {
     const index = findSheetCopy(event);
-    if (index < 0) return;
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    const frame = frameFor(index);
-    setSelectedCopy(index);
-    dragRef.current = { mode: "sheet", index, x: event.clientX, y: event.clientY, shiftX: frame.shiftX, shiftY: frame.shiftY };
+    if (index >= 0) setSelectedCopy(index);
   }
 
-  function onSheetPointerMove(event: PointerEvent<HTMLCanvasElement>) {
-    const start = dragRef.current;
-    if (!start || start.mode !== "sheet") return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const cellWidth = Math.max(20, rect.width * photoWidthMm / paper.widthMm);
-    const cellHeight = Math.max(20, rect.height * photoHeightMm / paper.heightMm);
-    const nextX = clamp(start.shiftX + (event.clientX - start.x) / cellWidth * 2.2, -1, 1);
-    const nextY = clamp(start.shiftY + (event.clientY - start.y) / cellHeight * 2.2, -1, 1);
-    setIndividualFrames((current) => {
-      const base = current[start.index] ?? masterFrame;
-      return { ...current, [start.index]: { ...base, shiftX: nextX, shiftY: nextY } };
-    });
-  }
-
-  function onPointerUp(event: PointerEvent<HTMLCanvasElement>) {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    dragRef.current = null;
-  }
-
-  function onMasterWheel(event: WheelEvent<HTMLCanvasElement>) {
-    event.preventDefault();
-    setZoom((current) => clamp(current + (event.deltaY > 0 ? -.05 : .05), 1, 3));
-  }
-
-  function onSheetWheel(event: WheelEvent<HTMLCanvasElement>) {
-    event.preventDefault();
-    const hovered = findSheetCopy(event);
-    const index = hovered >= 0 ? hovered : selectedCopy;
-    if (index < 0 || index >= positions.length) return;
-    setSelectedCopy(index);
-    setIndividualFrames((current) => {
-      const base = current[index] ?? masterFrame;
-      return { ...current, [index]: { ...base, zoom: clamp(base.zoom + (event.deltaY > 0 ? -.05 : .05), 1, 3) } };
-    });
-  }
-
-  function nudgeMasterPhoto(dx: number, dy: number) {
+  function nudgeMasterFrame(dx: number, dy: number) {
     setShiftX((current) => clamp(current + dx, -1, 1));
     setShiftY((current) => clamp(current + dy, -1, 1));
   }
 
-  function centerMasterPhoto() {
+  function centerMasterFrame() {
     setShiftX(0);
     setShiftY(0);
   }
 
-  function resetMasterPhoto() {
+  function resetMasterFrame() {
     setZoom(1.05);
     setShiftX(0);
     setShiftY(0);
@@ -405,7 +379,7 @@ export function PassportPhotoMaker() {
     setIndividualFrames((current) => ({ ...current, [selectedCopy]: { ...masterFrame } }));
   }
 
-  function updateSelectedPhoto(patch: Partial<Frame>) {
+  function updateSelectedFrame(patch: Partial<Frame>) {
     if (!positions.length) return;
     setIndividualFrames((current) => {
       const base = current[selectedCopy] ?? masterFrame;
@@ -413,9 +387,9 @@ export function PassportPhotoMaker() {
     });
   }
 
-  function nudgeSelected(dx: number, dy: number) {
+  function nudgeSelectedFrame(dx: number, dy: number) {
     const base = frameFor(selectedCopy);
-    updateSelectedPhoto({ shiftX: clamp(base.shiftX + dx, -1, 1), shiftY: clamp(base.shiftY + dy, -1, 1) });
+    updateSelectedFrame({ shiftX: clamp(base.shiftX + dx, -1, 1), shiftY: clamp(base.shiftY + dy, -1, 1) });
   }
 
   async function createSheetBlob() {
@@ -462,7 +436,7 @@ export function PassportPhotoMaker() {
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(href), 1200);
-      setExportNotice("PNG downloaded. Your manual per-photo adjustments remain available so you can keep editing or print next.");
+      setExportNotice("PNG downloaded. Your crop-frame adjustments remain available so you can keep editing or print next.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Export failed.");
     }
@@ -494,8 +468,8 @@ export function PassportPhotoMaker() {
   return (
     <div className="passportMaker">
       <section className="passportIntroCard">
-        <div><span className="eyebrow"><i/> Passport Photo Maker</span><h1>One photo. Exact size. Every copy editable.</h1><p>Remove the background locally or keep the original, then move and zoom the photo itself inside a fixed passport-size box. The size frame stays fixed.</p></div>
-        <div className="passportStats"><span><strong>300 DPI</strong><small>safe default</small></span><span><strong>Photo controls</strong><small>move + zoom manually</small></span><span><strong>0</strong><small>image DB uploads</small></span></div>
+        <div><span className="eyebrow"><i/> Passport Photo Maker</span><h1>One photo. Exact size. Move the crop frame.</h1><p>The source photo stays still. Position a movable passport crop frame over the photo, adjust the crop size, then build a print-ready sheet.</p></div>
+        <div className="passportStats"><span><strong>300 DPI</strong><small>safe default</small></span><span><strong>Movable frame</strong><small>photo stays stationary</small></span><span><strong>0</strong><small>image DB uploads</small></span></div>
       </section>
 
       <section className="passportUploadCard">
@@ -517,40 +491,58 @@ export function PassportPhotoMaker() {
 
         <div className="passportSteps">
           <section className="passportPanel">
-            <div className="panelHeading"><span className="stepNumber">1</span><div><h2>Printed photo size</h2><p>Choose the fixed passport-photo size. These dimensions do not move when you reposition the photo.</p></div></div>
+            <div className="panelHeading"><span className="stepNumber">1</span><div><h2>Printed photo size</h2><p>Choose the physical dimensions of the crop frame and final printed passport photo.</p></div></div>
             <div className="presetButtons"><button type="button" onClick={() => setPhotoPreset(3.5, 4.5, "cm")}>35 × 45 mm</button><button type="button" onClick={() => setPhotoPreset(2, 2, "in")}>2 × 2 inch</button></div>
             <div className="formGrid three"><label>Width<input type="number" min="0.1" step="0.1" value={photoWidth} onChange={(event) => { setPhotoWidth(Math.max(.1, Number(event.target.value) || .1)); setIndividualFrames({}); }}/></label><label>Height<input type="number" min="0.1" step="0.1" value={photoHeight} onChange={(event) => { setPhotoHeight(Math.max(.1, Number(event.target.value) || .1)); setIndividualFrames({}); }}/></label><label>Unit<select value={unit} onChange={(event) => { setUnit(event.target.value as Unit); setIndividualFrames({}); }}><option value="cm">cm</option><option value="mm">mm</option><option value="in">inch</option></select></label></div>
             <div className="segmented"><button className={dpi === 300 ? "active" : ""} type="button" onClick={() => setDpi(300)}>300 DPI</button><button className={dpi === 600 ? "active" : ""} type="button" onClick={() => setDpi(600)}>600 DPI</button></div>
             {exportDpi < dpi && <p className="warningText">Memory guard: this sheet exports at {exportDpi} DPI to prevent an oversized browser canvas.</p>}
           </section>
 
-          <section className="passportPanel photoPositionPanel">
-            <div className="panelHeading"><span className="stepNumber">2</span><div><h2>Move the photo, not the frame</h2><p>The passport-size box is fixed. Drag the photo inside it, use the arrows for precise movement, or adjust the X/Y sliders.</p></div></div>
-            <div className="fixedFrameNote"><strong>Fixed size box</strong><span>{photoWidthMm.toFixed(1)} × {photoHeightMm.toFixed(1)} mm · only the photo moves inside it</span></div>
-            <div className="portraitEditor fixedPassportFrame"><canvas aria-label="Fixed passport frame. Drag to move the photo inside the frame." ref={portraitCanvasRef} onPointerDown={onMasterPointerDown} onPointerMove={onMasterPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onWheel={onMasterWheel}/></div>
+          <section className="passportPanel framePositionPanel">
+            <div className="panelHeading"><span className="stepNumber">2</span><div><h2>Move the frame over the photo</h2><p>The photo stays stationary. Drag the outlined crop frame, use the arrow pad, or adjust the frame X/Y sliders.</p></div></div>
+            <div className="movableFrameNote"><strong>Movable crop frame</strong><span>{photoWidthMm.toFixed(1)} × {photoHeightMm.toFixed(1)} mm output ratio · the source photo does not move</span></div>
 
-            <div className="photoManualControls" aria-label="Manual photo position controls">
-              <div className="photoMoveBlock">
-                <span className="manualControlLabel">Move photo</span>
-                <div className="photoMovePad" role="group" aria-label="Move main passport photo">
-                  <button type="button" aria-label="Move photo up" onClick={() => nudgeMasterPhoto(0, -.08)}>↑</button>
-                  <button type="button" aria-label="Move photo left" onClick={() => nudgeMasterPhoto(-.08, 0)}>←</button>
-                  <button type="button" className="photoCenterButton" aria-label="Center photo" onClick={centerMasterPhoto}>●</button>
-                  <button type="button" aria-label="Move photo right" onClick={() => nudgeMasterPhoto(.08, 0)}>→</button>
-                  <button type="button" aria-label="Move photo down" onClick={() => nudgeMasterPhoto(0, .08)}>↓</button>
+            <div className="frameWorkspace">
+              <div ref={frameStageRef} className="framePhotoStage" style={{ aspectRatio: `${source.width} / ${source.height}` }}>
+                <img src={source.url} alt="Stationary source for passport crop" draggable={false}/>
+                <div
+                  className="movableCropFrame"
+                  role="slider"
+                  tabIndex={0}
+                  aria-label="Movable passport crop frame"
+                  aria-valuetext={`Frame ${Math.round(shiftX * 100)} percent horizontal, ${Math.round(shiftY * 100)} percent vertical, ${zoom.toFixed(2)} crop zoom`}
+                  style={{ left: `${frameLeftPercent}%`, top: `${frameTopPercent}%`, width: `${frameWidthPercent}%`, aspectRatio: `${photoWidthMm} / ${photoHeightMm}` }}
+                  onPointerDown={onMasterFramePointerDown}
+                  onPointerMove={onMasterFramePointerMove}
+                  onPointerUp={onMasterFramePointerUp}
+                  onPointerCancel={onMasterFramePointerUp}
+                ><span>Crop frame</span></div>
+              </div>
+              <div className="cropResultPreview"><span>Crop result preview</span><canvas ref={cropPreviewCanvasRef}/></div>
+            </div>
+
+            <div className="frameManualControls" aria-label="Manual crop frame controls">
+              <div className="frameMoveBlock">
+                <span className="manualControlLabel">Move frame</span>
+                <div className="frameMovePad" role="group" aria-label="Move main passport crop frame">
+                  <button type="button" aria-label="Move frame up" onClick={() => nudgeMasterFrame(0, -.08)}>↑</button>
+                  <button type="button" aria-label="Move frame left" onClick={() => nudgeMasterFrame(-.08, 0)}>←</button>
+                  <button type="button" className="frameCenterButton" aria-label="Center frame" onClick={centerMasterFrame}>●</button>
+                  <button type="button" aria-label="Move frame right" onClick={() => nudgeMasterFrame(.08, 0)}>→</button>
+                  <button type="button" aria-label="Move frame down" onClick={() => nudgeMasterFrame(0, .08)}>↓</button>
                 </div>
               </div>
 
-              <div className="photoPositionSliders">
-                <label className="photoSliderRow"><span>Photo left / right</span><input aria-label="Photo horizontal position" type="range" min="-1" max="1" step="0.01" value={shiftX} onChange={(event) => setShiftX(Number(event.target.value))}/><strong>{Math.round(shiftX * 100)}%</strong></label>
-                <label className="photoSliderRow"><span>Photo up / down</span><input aria-label="Photo vertical position" type="range" min="-1" max="1" step="0.01" value={shiftY} onChange={(event) => setShiftY(Number(event.target.value))}/><strong>{Math.round(shiftY * 100)}%</strong></label>
-                <label className="photoSliderRow"><span>Photo zoom</span><input aria-label="Photo zoom" type="range" min="1" max="3" step="0.01" value={zoom} onChange={(event) => setZoom(Number(event.target.value))}/><strong>{zoom.toFixed(2)}×</strong></label>
+              <div className="framePositionSliders">
+                <label className="frameSliderRow"><span>Frame left / right</span><input aria-label="Frame horizontal position" type="range" min="-1" max="1" step="0.01" value={shiftX} onChange={(event) => setShiftX(Number(event.target.value))}/><strong>{Math.round(shiftX * 100)}%</strong></label>
+                <label className="frameSliderRow"><span>Frame up / down</span><input aria-label="Frame vertical position" type="range" min="-1" max="1" step="0.01" value={shiftY} onChange={(event) => setShiftY(Number(event.target.value))}/><strong>{Math.round(shiftY * 100)}%</strong></label>
+                <label className="frameSliderRow"><span>Crop zoom / frame size</span><input aria-label="Crop frame zoom" type="range" min="1" max="3" step="0.01" value={zoom} onChange={(event) => setZoom(Number(event.target.value))}/><strong>{zoom.toFixed(2)}×</strong></label>
               </div>
             </div>
 
-            <div className="photoControlActions"><button className="buttonSecondary small" type="button" onClick={centerMasterPhoto}>Center photo</button><button className="buttonGhost small" type="button" onClick={resetMasterPhoto}>Reset photo position</button></div>
+            <div className="frameControlActions"><button className="buttonSecondary small" type="button" onClick={centerMasterFrame}>Center frame</button><button className="buttonGhost small" type="button" onClick={resetMasterFrame}>Reset crop frame</button></div>
             <div className="inlineControl"><label>Photo background<input type="color" value={background} onChange={(event) => setBackground(event.target.value)}/></label><span>{background.toUpperCase()}</span></div>
-            <p className="helperText">This main photo position is copied to every passport photo by default. The fixed size box never moves.</p>
+            <p className="helperText">This crop frame becomes the default crop for every printed copy. The source photo itself stays stationary.</p>
           </section>
 
           <section className="passportPanel">
@@ -564,25 +556,25 @@ export function PassportPhotoMaker() {
         </div>
 
         <section className="sheetPreviewSection">
-          <div className="sheetHeading"><div><span className="kicker">4 · Interactive print preview</span><h2>{positions.length} photos ready</h2><p>Choose any copy, then move or zoom only the photo inside that fixed passport-size box. The box itself stays in place.</p></div><div className="sheetMeta"><strong>{mmToPx(paper.widthMm, exportDpi)} × {mmToPx(paper.heightMm, exportDpi)} px</strong><span>{exportDpi} DPI PNG</span></div></div>
+          <div className="sheetHeading"><div><span className="kicker">4 · Interactive print preview</span><h2>{positions.length} photos ready</h2><p>Click a copy to select it. You can then move that copy&apos;s crop frame with the controls below without moving the source photo.</p></div><div className="sheetMeta"><strong>{mmToPx(paper.widthMm, exportDpi)} × {mmToPx(paper.heightMm, exportDpi)} px</strong><span>{exportDpi} DPI PNG</span></div></div>
 
           <div className="perPhotoEditor" aria-live="polite">
-            <div><span>Selected photo</span><strong>{positions.length ? `Photo ${selectedCopy + 1} of ${positions.length}` : "No photo"}</strong><small>{individualFrames[selectedCopy] ? "Custom photo position" : "Using main photo position"}</small></div>
-            <div className="perPhotoNudges" aria-label="Move selected passport photo"><button type="button" aria-label="Move selected photo left" onClick={() => nudgeSelected(-.08, 0)}>←</button><button type="button" aria-label="Move selected photo up" onClick={() => nudgeSelected(0, -.08)}>↑</button><button type="button" aria-label="Move selected photo down" onClick={() => nudgeSelected(0, .08)}>↓</button><button type="button" aria-label="Move selected photo right" onClick={() => nudgeSelected(.08, 0)}>→</button></div>
-            <div className="perPhotoActions"><button className="buttonGhost small" type="button" onClick={useMasterForSelected}>Use main photo position</button><button className="buttonSecondary small" type="button" onClick={resetSelectedCopy}>Reset selected</button></div>
-            <span className="perPhotoZoom">{selectedFrame.zoom.toFixed(2)}× zoom</span>
+            <div><span>Selected crop</span><strong>{positions.length ? `Photo ${selectedCopy + 1} of ${positions.length}` : "No photo"}</strong><small>{individualFrames[selectedCopy] ? "Custom crop frame" : "Using main crop frame"}</small></div>
+            <div className="perPhotoNudges" aria-label="Move selected crop frame"><button type="button" aria-label="Move selected frame left" onClick={() => nudgeSelectedFrame(-.08, 0)}>←</button><button type="button" aria-label="Move selected frame up" onClick={() => nudgeSelectedFrame(0, -.08)}>↑</button><button type="button" aria-label="Move selected frame down" onClick={() => nudgeSelectedFrame(0, .08)}>↓</button><button type="button" aria-label="Move selected frame right" onClick={() => nudgeSelectedFrame(.08, 0)}>→</button></div>
+            <div className="perPhotoActions"><button className="buttonGhost small" type="button" onClick={useMasterForSelected}>Use main crop frame</button><button className="buttonSecondary small" type="button" onClick={resetSelectedCopy}>Reset selected crop</button></div>
+            <span className="perPhotoZoom">{selectedFrame.zoom.toFixed(2)}× crop zoom</span>
           </div>
 
-          {positions.length > 0 && <div className="selectedPhotoManual" aria-label="Selected photo manual controls">
-            <label className="photoSliderRow"><span>Selected photo left / right</span><input aria-label="Selected photo horizontal position" type="range" min="-1" max="1" step="0.01" value={selectedFrame.shiftX} onChange={(event) => updateSelectedPhoto({ shiftX: Number(event.target.value) })}/><strong>{Math.round(selectedFrame.shiftX * 100)}%</strong></label>
-            <label className="photoSliderRow"><span>Selected photo up / down</span><input aria-label="Selected photo vertical position" type="range" min="-1" max="1" step="0.01" value={selectedFrame.shiftY} onChange={(event) => updateSelectedPhoto({ shiftY: Number(event.target.value) })}/><strong>{Math.round(selectedFrame.shiftY * 100)}%</strong></label>
-            <label className="photoSliderRow"><span>Selected photo zoom</span><input aria-label="Selected photo zoom" type="range" min="1" max="3" step="0.01" value={selectedFrame.zoom} onChange={(event) => updateSelectedPhoto({ zoom: Number(event.target.value) })}/><strong>{selectedFrame.zoom.toFixed(2)}×</strong></label>
+          {positions.length > 0 && <div className="selectedFrameManual" aria-label="Selected crop frame controls">
+            <label className="frameSliderRow"><span>Selected frame left / right</span><input aria-label="Selected frame horizontal position" type="range" min="-1" max="1" step="0.01" value={selectedFrame.shiftX} onChange={(event) => updateSelectedFrame({ shiftX: Number(event.target.value) })}/><strong>{Math.round(selectedFrame.shiftX * 100)}%</strong></label>
+            <label className="frameSliderRow"><span>Selected frame up / down</span><input aria-label="Selected frame vertical position" type="range" min="-1" max="1" step="0.01" value={selectedFrame.shiftY} onChange={(event) => updateSelectedFrame({ shiftY: Number(event.target.value) })}/><strong>{Math.round(selectedFrame.shiftY * 100)}%</strong></label>
+            <label className="frameSliderRow"><span>Selected crop zoom</span><input aria-label="Selected crop frame zoom" type="range" min="1" max="3" step="0.01" value={selectedFrame.zoom} onChange={(event) => updateSelectedFrame({ zoom: Number(event.target.value) })}/><strong>{selectedFrame.zoom.toFixed(2)}×</strong></label>
           </div>}
 
-          <div className="sheetCanvasShell interactiveSheet"><canvas aria-label="Passport print sheet. Select a photo and drag to move the photo inside its fixed box." ref={sheetCanvasRef} onPointerDown={onSheetPointerDown} onPointerMove={onSheetPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onWheel={onSheetWheel}/></div>
+          <div className="sheetCanvasShell interactiveSheet"><canvas aria-label="Passport print sheet. Click a copy to select its crop frame." ref={sheetCanvasRef} onPointerDown={onSheetPointerDown}/></div>
           <div className="sheetActions"><button className="buttonSecondary" type="button" disabled={!positions.length} onClick={() => void printSheet()}>Print directly at 100%</button><button className="buttonPrimary" type="button" disabled={!positions.length} onClick={() => void downloadSheet()}>Download PNG <span>↓</span></button></div>
           {exportNotice && <div className="successNotice exportNotice"><strong>Ready.</strong><span>{exportNotice}</span></div>}
-          <p className="helperText centered">Use Actual Size / 100% in the print dialog. Manual photo positions and zoom levels are included in both Print and PNG export.</p>
+          <p className="helperText centered">Use Actual Size / 100% in the print dialog. Crop-frame positions and crop zoom are included in both Print and PNG export.</p>
         </section>
       </>}
     </div>

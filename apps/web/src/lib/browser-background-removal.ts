@@ -8,6 +8,7 @@ export type BrowserBackgroundResult = {
   edgeRefined: boolean;
   optimizedForMemory: boolean;
   restoredResolution: boolean;
+  preservationRisk: boolean;
 };
 
 type ProgressHandler = (message: string) => void;
@@ -23,12 +24,14 @@ type PreparedInput = {
   sourceWidth: number;
   sourceHeight: number;
 };
+type PreservationRisk = { paleRisk: boolean; fineEdgeRisk: boolean; qualityRisk: boolean };
 
 const MODEL_TIMEOUT_MS = 180_000;
-const SAMPLE_EDGE = 320;
+const SAMPLE_EDGE = 288;
 const MIN_FOREGROUND = 0.0015;
 const MIN_TRANSPARENCY = 0.002;
-const EDGE_REFINEMENT_MAX_PIXELS = 4_500_000;
+const EDGE_REFINEMENT_MAX_PIXELS = 3_000_000;
+const PALE_PROTECTION_MAX_PIXELS = 3_000_000;
 const SMALL_MODEL: BrowserBackgroundModel = "isnet_quint8";
 const QUALITY_MODEL: BrowserBackgroundModel = "isnet_fp16";
 const IMGLY_ASSET_PATH = "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/";
@@ -116,12 +119,18 @@ function deviceMemoryGb() {
   return (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
 }
 
-function lowMemoryTargetEdge() {
+function modelTargetEdge(model: BrowserBackgroundModel) {
   const memory = deviceMemoryGb();
-  if (memory <= 2) return 1400;
-  if (memory <= 4) return 1800;
-  if (memory <= 6) return 2400;
-  return Infinity;
+  if (model === QUALITY_MODEL) {
+    if (memory <= 2) return 1280;
+    if (memory <= 4) return 1600;
+    if (memory <= 6) return 1920;
+    return 2304;
+  }
+  if (memory <= 2) return 1200;
+  if (memory <= 4) return 1500;
+  if (memory <= 6) return 1800;
+  return 2048;
 }
 
 function sourceRestorePixelLimit() {
@@ -132,23 +141,23 @@ function sourceRestorePixelLimit() {
   return 24_000_000;
 }
 
-async function normalizeInputForModel(file: File, onProgress?: ProgressHandler): Promise<PreparedInput> {
+async function normalizeInputForModel(file: File, model: BrowserBackgroundModel, onProgress?: ProgressHandler): Promise<PreparedInput> {
   const loaded = await loadImage(file, "Selected image");
-  const targetEdge = lowMemoryTargetEdge();
+  const targetEdge = modelTargetEdge(model);
   const needsFormatConversion = !DIRECT_MODEL_MIME.has(file.type);
-  const needsMemoryResize = Math.max(loaded.width, loaded.height) > targetEdge;
+  const needsInferenceResize = Math.max(loaded.width, loaded.height) > targetEdge;
   const sourceWidth = loaded.width;
   const sourceHeight = loaded.height;
 
-  if (!needsFormatConversion && !needsMemoryResize) {
+  if (!needsFormatConversion && !needsInferenceResize) {
     releaseImage(loaded);
     return { blob: file, optimizedForMemory: false, sourceWidth, sourceHeight };
   }
 
-  if (needsMemoryResize) onProgress?.(`Low-memory guard: using a ${targetEdge}px working copy for AI inference…`);
+  if (needsInferenceResize) onProgress?.(`Fast AI pass: using a ${targetEdge}px working copy, then restoring source detail…`);
   else onProgress?.("Preparing this image format for browser AI…");
 
-  const scale = needsMemoryResize ? Math.min(1, targetEdge / Math.max(loaded.width, loaded.height)) : 1;
+  const scale = needsInferenceResize ? Math.min(1, targetEdge / Math.max(loaded.width, loaded.height)) : 1;
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(loaded.width * scale));
   canvas.height = Math.max(1, Math.round(loaded.height * scale));
@@ -163,7 +172,7 @@ async function normalizeInputForModel(file: File, onProgress?: ProgressHandler):
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((value) => value ? resolve(value) : reject(new Error("The selected image could not be converted for browser AI.")), "image/png", 1);
     });
-    return { blob, optimizedForMemory: needsMemoryResize, sourceWidth, sourceHeight };
+    return { blob, optimizedForMemory: needsInferenceResize, sourceWidth, sourceHeight };
   } finally {
     canvas.width = 1;
     canvas.height = 1;
@@ -204,10 +213,73 @@ async function inspectCutout(blob: Blob, label: string) {
   }
 }
 
+async function detectPreservationRisk(source: File, cutout: Blob): Promise<PreservationRisk> {
+  const [sourceLoaded, cutoutLoaded] = await Promise.all([
+    loadImage(source, "Selected image"),
+    loadImage(cutout, "Background removed image"),
+  ]);
+
+  const scale = Math.min(1, SAMPLE_EDGE / Math.max(cutoutLoaded.width, cutoutLoaded.height));
+  const width = Math.max(3, Math.round(cutoutLoaded.width * scale));
+  const height = Math.max(3, Math.round(cutoutLoaded.height * scale));
+  const sourceCanvas = document.createElement("canvas");
+  const cutoutCanvas = document.createElement("canvas");
+  sourceCanvas.width = cutoutCanvas.width = width;
+  sourceCanvas.height = cutoutCanvas.height = height;
+
+  try {
+    const sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+    const cutoutCtx = cutoutCanvas.getContext("2d", { willReadFrequently: true });
+    if (!sourceCtx || !cutoutCtx) return { paleRisk: false, fineEdgeRisk: false, qualityRisk: false };
+    sourceCtx.drawImage(sourceLoaded.image, 0, 0, width, height);
+    cutoutCtx.drawImage(cutoutLoaded.image, 0, 0, width, height);
+    const sourceData = sourceCtx.getImageData(0, 0, width, height).data;
+    const cutoutData = cutoutCtx.getImageData(0, 0, width, height).data;
+    let foreground = 0;
+    let paleRiskPixels = 0;
+    let fineEdgePixels = 0;
+
+    const alphaAt = (x: number, y: number) => cutoutData[(y * width + x) * 4 + 3];
+    for (let y = 1; y < height - 1; y += 1) {
+      for (let x = 1; x < width - 1; x += 1) {
+        const index = (y * width + x) * 4;
+        const alpha = cutoutData[index + 3];
+        if (alpha >= 160) foreground += 1;
+        const left = alphaAt(x - 1, y);
+        const right = alphaAt(x + 1, y);
+        const up = alphaAt(x, y - 1);
+        const down = alphaAt(x, y + 1);
+        const neighborAverage = (left + right + up + down) / 4;
+        const neighborMax = Math.max(left, right, up, down);
+
+        const r = sourceData[index];
+        const g = sourceData[index + 1];
+        const b = sourceData[index + 2];
+        const hi = Math.max(r, g, b);
+        const lo = Math.min(r, g, b);
+        const luminance = r * .2126 + g * .7152 + b * .0722;
+        const pale = luminance >= 198 && hi - lo <= 55;
+
+        if (pale && alpha < 155 && neighborAverage > 145) paleRiskPixels += 1;
+        if (alpha > 5 && alpha < 150 && neighborMax > 90) fineEdgePixels += 1;
+      }
+    }
+
+    const total = width * height;
+    const paleRisk = paleRiskPixels >= Math.max(6, total * .00035);
+    const fineEdgeRisk = fineEdgePixels >= Math.max(34, foreground * .018);
+    return { paleRisk, fineEdgeRisk, qualityRisk: paleRisk || fineEdgeRisk };
+  } finally {
+    sourceCanvas.width = sourceCanvas.height = 1;
+    cutoutCanvas.width = cutoutCanvas.height = 1;
+    releaseImage(sourceLoaded);
+    releaseImage(cutoutLoaded);
+  }
+}
+
 /**
- * Lightweight matte cleanup. It preserves fine semi-transparent pixels while
- * reducing isolated low-alpha noise and slightly increasing boundary contrast.
- * This is intentionally skipped on very large canvases to protect mobile RAM.
+ * Conservative alpha cleanup. Connected semi-transparent subject detail is
+ * never deliberately thinned; this protects fine hair, fur and soft edges.
  */
 async function refineCutoutEdges(blob: Blob, onProgress?: ProgressHandler): Promise<{ blob: Blob; refined: boolean }> {
   const loaded = await loadImage(blob, "Background removed image");
@@ -222,13 +294,12 @@ async function refineCutoutEdges(blob: Blob, onProgress?: ProgressHandler): Prom
   canvas.height = loaded.height;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) {
-    canvas.width = 1;
-    canvas.height = 1;
+    canvas.width = canvas.height = 1;
     releaseImage(loaded);
     return { blob, refined: false };
   }
 
-  onProgress?.("Refining transparency edges locally…");
+  onProgress?.("Protecting fine hair and transparency edges locally…");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(loaded.image, 0, 0);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -236,6 +307,7 @@ async function refineCutoutEdges(blob: Blob, onProgress?: ProgressHandler): Prom
   const width = canvas.width;
   const height = canvas.height;
   const alpha = new Uint8ClampedArray(pixels);
+  let changed = false;
 
   for (let pixel = 0, index = 3; pixel < pixels; pixel += 1, index += 4) alpha[pixel] = data[index];
 
@@ -245,21 +317,35 @@ async function refineCutoutEdges(blob: Blob, onProgress?: ProgressHandler): Prom
       const pixel = row + x;
       const a = alpha[pixel];
       const dataIndex = pixel * 4 + 3;
-      if (a <= 3) { data[dataIndex] = 0; continue; }
-      if (a >= 252) { data[dataIndex] = 255; continue; }
+      const left = alpha[pixel - 1];
+      const right = alpha[pixel + 1];
+      const up = alpha[pixel - width];
+      const down = alpha[pixel + width];
+      const neighborAverage = (left + right + up + down) / 4;
+      const neighborMax = Math.max(left, right, up, down);
+      let next = a;
 
-      const t = a / 255;
-      const smooth = t * t * (3 - 2 * t);
-      let refined = t * 0.78 + smooth * 0.22;
-      const neighborAverage = (alpha[pixel - 1] + alpha[pixel + 1] + alpha[pixel - width] + alpha[pixel + width]) / 4;
+      // Only erase essentially empty, disconnected mask noise.
+      if (a <= 2 && neighborMax <= 3) next = 0;
+      // Preserve connected low-alpha strands instead of thinning them.
+      else if (a < 96 && neighborMax > 64) next = Math.max(a, Math.round(neighborAverage * .18));
+      // Fill small pinholes when the pixel is surrounded by strong foreground.
+      if (a < 205 && neighborAverage > 212) next = Math.max(next, Math.round(neighborAverage * .72));
+      if (a >= 250) next = 255;
 
-      // Remove faint isolated background speckles without erasing connected hair/fur.
-      if (a < 72 && neighborAverage < 18) refined *= 0.35;
-      // Fill tiny pinholes inside strongly opaque foreground regions.
-      if (a > 178 && neighborAverage > 238) refined += (1 - refined) * 0.28;
-
-      data[dataIndex] = Math.max(0, Math.min(255, Math.round(refined * 255)));
+      if (next !== a) {
+        data[dataIndex] = next;
+        changed = true;
+      }
     }
+  }
+
+  if (!changed) {
+    alpha.fill(0);
+    imageData.data.fill(0);
+    canvas.width = canvas.height = 1;
+    releaseImage(loaded);
+    return { blob, refined: false };
   }
 
   ctx.putImageData(imageData, 0, 0);
@@ -269,10 +355,92 @@ async function refineCutoutEdges(blob: Blob, onProgress?: ProgressHandler): Prom
 
   alpha.fill(0);
   imageData.data.fill(0);
-  canvas.width = 1;
-  canvas.height = 1;
+  canvas.width = canvas.height = 1;
   releaseImage(loaded);
   return { blob: refinedBlob, refined: true };
+}
+
+/**
+ * Recover pale pixels only when they are mostly surrounded by already-opaque
+ * foreground. This targets white/light clothing pinholes without pulling a
+ * white studio background back around the outside silhouette.
+ */
+async function protectPaleForeground(source: File, cutout: Blob, enabled: boolean, onProgress?: ProgressHandler): Promise<{ blob: Blob; protected: boolean }> {
+  if (!enabled) return { blob: cutout, protected: false };
+  const [sourceLoaded, cutoutLoaded] = await Promise.all([
+    loadImage(source, "Selected image"),
+    loadImage(cutout, "Background removed image"),
+  ]);
+  const pixels = cutoutLoaded.width * cutoutLoaded.height;
+  if (pixels > PALE_PROTECTION_MAX_PIXELS) {
+    releaseImage(sourceLoaded);
+    releaseImage(cutoutLoaded);
+    return { blob: cutout, protected: false };
+  }
+
+  const sourceCanvas = document.createElement("canvas");
+  const cutoutCanvas = document.createElement("canvas");
+  sourceCanvas.width = cutoutCanvas.width = cutoutLoaded.width;
+  sourceCanvas.height = cutoutCanvas.height = cutoutLoaded.height;
+
+  try {
+    const sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+    const cutoutCtx = cutoutCanvas.getContext("2d", { willReadFrequently: true });
+    if (!sourceCtx || !cutoutCtx) return { blob: cutout, protected: false };
+    onProgress?.("Protecting light clothing inside the detected subject…");
+    sourceCtx.drawImage(sourceLoaded.image, 0, 0, sourceCanvas.width, sourceCanvas.height);
+    cutoutCtx.drawImage(cutoutLoaded.image, 0, 0);
+    const sourceData = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
+    const cutoutImageData = cutoutCtx.getImageData(0, 0, cutoutCanvas.width, cutoutCanvas.height);
+    const data = cutoutImageData.data;
+    const width = cutoutCanvas.width;
+    const height = cutoutCanvas.height;
+    const originalAlpha = new Uint8ClampedArray(pixels);
+    for (let pixel = 0, index = 3; pixel < pixels; pixel += 1, index += 4) originalAlpha[pixel] = data[index];
+    let changed = false;
+
+    for (let y = 1; y < height - 1; y += 1) {
+      for (let x = 1; x < width - 1; x += 1) {
+        const pixel = y * width + x;
+        const index = pixel * 4;
+        const alpha = originalAlpha[pixel];
+        if (alpha >= 210) continue;
+        const r = sourceData[index];
+        const g = sourceData[index + 1];
+        const b = sourceData[index + 2];
+        const hi = Math.max(r, g, b);
+        const lo = Math.min(r, g, b);
+        const luminance = r * .2126 + g * .7152 + b * .0722;
+        if (luminance < 190 || hi - lo > 58) continue;
+
+        const neighbors = [
+          originalAlpha[pixel - width - 1], originalAlpha[pixel - width], originalAlpha[pixel - width + 1],
+          originalAlpha[pixel - 1], originalAlpha[pixel + 1],
+          originalAlpha[pixel + width - 1], originalAlpha[pixel + width], originalAlpha[pixel + width + 1],
+        ];
+        const strong = neighbors.filter((value) => value >= 170);
+        if (strong.length < 5) continue;
+        const average = strong.reduce((sum, value) => sum + value, 0) / strong.length;
+        const recovered = Math.min(245, Math.max(alpha, Math.round(average * .76)));
+        if (recovered > alpha) {
+          data[index + 3] = recovered;
+          changed = true;
+        }
+      }
+    }
+
+    if (!changed) return { blob: cutout, protected: false };
+    cutoutCtx.putImageData(cutoutImageData, 0, 0);
+    const protectedBlob = await new Promise<Blob>((resolve, reject) => {
+      cutoutCanvas.toBlob((value) => value ? resolve(value) : reject(new Error("Subject protection could not encode the PNG.")), "image/png", 1);
+    });
+    return { blob: protectedBlob, protected: true };
+  } finally {
+    sourceCanvas.width = sourceCanvas.height = 1;
+    cutoutCanvas.width = cutoutCanvas.height = 1;
+    releaseImage(sourceLoaded);
+    releaseImage(cutoutLoaded);
+  }
 }
 
 function canUseWebGpu() {
@@ -293,7 +461,7 @@ function shouldRetryWithCdn(reason: unknown) {
 }
 
 async function runModel(input: Blob, model: BrowserBackgroundModel, device: InferenceDevice, runtime: Runtime, onProgress?: ProgressHandler) {
-  const modelLabel = model === "isnet_fp16" ? "FP16" : "quantized";
+  const modelLabel = model === QUALITY_MODEL ? "FP16" : "quantized";
   const deviceLabel = device === "gpu" ? "WebGPU" : "CPU/WASM";
   const label = `IMG.LY ${modelLabel} (${deviceLabel})`;
   onProgress?.(`Starting ${modelLabel} model on ${deviceLabel}…`);
@@ -355,7 +523,7 @@ async function restoreOriginalResolution(
   try {
     const runtime = await loadBundledRuntime();
     if (!runtime.applySegmentationMask) return { blob: maskCutout, restored: false };
-    onProgress?.("Restoring original image detail with the refined local mask…");
+    onProgress?.("Restoring original image detail with the protected local mask…");
     const restored = await runtime.applySegmentationMask(source, maskCutout, {
       publicPath: IMGLY_ASSET_PATH,
       debug: false,
@@ -364,7 +532,6 @@ async function restoreOriginalResolution(
     });
     return { blob: restored, restored: true };
   } catch {
-    // Accuracy enhancement is optional; never fail an otherwise valid cutout.
     return { blob: maskCutout, restored: false };
   }
 }
@@ -373,21 +540,24 @@ export async function removeBackgroundInBrowser(file: File, model: BrowserBackgr
   if (typeof window === "undefined") throw new Error("Browser AI is only available in a browser.");
   if (typeof WebAssembly !== "object") throw new Error("This browser does not provide WebAssembly, which browser AI requires.");
 
-  const modelLabel = model === "isnet_fp16" ? "FP16" : "quantized";
-  const prepared = await normalizeInputForModel(file, onProgress);
+  const modelLabel = model === QUALITY_MODEL ? "FP16" : "quantized";
+  const prepared = await normalizeInputForModel(file, model, onProgress);
   try {
     const modelCutout = await executeModel(prepared.blob, model, onProgress);
     await inspectCutout(modelCutout, `IMG.LY ${modelLabel}`);
+    const risk = await detectPreservationRisk(file, modelCutout).catch(() => ({ paleRisk: false, fineEdgeRisk: false, qualityRisk: false }));
     const refinement = await refineCutoutEdges(modelCutout, onProgress);
-    const restoration = await restoreOriginalResolution(file, refinement.blob, prepared, onProgress);
-    await inspectCutout(restoration.blob, `IMG.LY ${modelLabel} refined result`);
+    const protection = await protectPaleForeground(file, refinement.blob, risk.paleRisk, onProgress);
+    const restoration = await restoreOriginalResolution(file, protection.blob, prepared, onProgress);
+    await inspectCutout(restoration.blob, `IMG.LY ${modelLabel} protected result`);
     return {
       blob: restoration.blob,
       model,
       modelLabel,
-      edgeRefined: refinement.refined,
+      edgeRefined: refinement.refined || protection.protected,
       optimizedForMemory: prepared.optimizedForMemory,
       restoredResolution: restoration.restored,
+      preservationRisk: risk.qualityRisk,
     };
   } catch (reason) {
     throw new Error(friendlyError(reason, `IMG.LY ${modelLabel}`));
@@ -395,29 +565,40 @@ export async function removeBackgroundInBrowser(file: File, model: BrowserBackgr
 }
 
 /**
- * Smart browser-only path: low-memory/mobile devices use the ~42 MB quantized
- * model; powerful WebGPU devices can use FP16 for a higher-quality mask. Every
- * successful result can receive lightweight alpha-matte cleanup, and resized
- * inference masks are reapplied to the source resolution when memory allows.
+ * Fast adaptive browser-only path. Start with the small quantized model for
+ * speed. On capable WebGPU devices, only images showing risky pale-subject or
+ * fine-edge mask patterns are automatically retried with FP16. This keeps the
+ * common case fast while spending extra compute on hair/white-clothing cases.
  */
 export async function removeBackgroundWithFallback(file: File, onProgress?: ProgressHandler): Promise<BrowserBackgroundResult> {
   const memory = deviceMemoryGb();
-  const preferQuality = memory >= 8 && canUseWebGpu();
-  const preferredModel = preferQuality ? QUALITY_MODEL : SMALL_MODEL;
-  onProgress?.(preferQuality ? "Starting HD local background removal…" : "Starting lightweight local background removal…");
+  onProgress?.("Starting fast local background removal…");
 
+  let fastResult: BrowserBackgroundResult;
   try {
-    const result = await removeBackgroundInBrowser(file, preferredModel, onProgress);
-    onProgress?.(`Complete · ${result.modelLabel} model${result.edgeRefined ? " · refined edges" : ""}${result.restoredResolution ? " · source detail restored" : ""}`);
-    return result;
+    fastResult = await removeBackgroundInBrowser(file, SMALL_MODEL, onProgress);
   } catch (reason) {
-    if (preferredModel === QUALITY_MODEL) {
-      onProgress?.("HD model could not finish. Retrying with the smaller low-memory model…");
-      const result = await removeBackgroundInBrowser(file, SMALL_MODEL, onProgress);
-      onProgress?.(`Complete · quantized model${result.edgeRefined ? " · refined edges" : ""}${result.restoredResolution ? " · source detail restored" : ""}`);
-      return result;
+    if (memory >= 6 && canUseWebGpu()) {
+      onProgress?.("Fast model could not finish. Trying the higher-quality WebGPU model…");
+      const qualityResult = await removeBackgroundInBrowser(file, QUALITY_MODEL, onProgress);
+      onProgress?.(`Complete · FP16 model${qualityResult.edgeRefined ? " · protected fine edges" : ""}${qualityResult.restoredResolution ? " · source detail restored" : ""}`);
+      return qualityResult;
     }
     const message = reason instanceof Error ? reason.message : "IMG.LY browser model failed.";
     throw new Error(`Browser background removal could not finish. ${message}`);
   }
+
+  if (fastResult.preservationRisk && memory >= 6 && canUseWebGpu()) {
+    onProgress?.("Fine hair or pale subject edges detected. Running a quality-preserving pass…");
+    try {
+      const qualityResult = await removeBackgroundInBrowser(file, QUALITY_MODEL, onProgress);
+      onProgress?.(`Complete · FP16 model${qualityResult.edgeRefined ? " · protected fine edges" : ""}${qualityResult.restoredResolution ? " · source detail restored" : ""}`);
+      return qualityResult;
+    } catch {
+      onProgress?.("Quality pass was unavailable. Keeping the valid protected fast result.");
+    }
+  }
+
+  onProgress?.(`Complete · quantized model${fastResult.edgeRefined ? " · protected fine edges" : ""}${fastResult.restoredResolution ? " · source detail restored" : ""}`);
+  return fastResult;
 }
