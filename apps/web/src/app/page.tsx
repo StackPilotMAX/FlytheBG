@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdPlaceholder } from "@/components/AdPlaceholder";
+import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { appConfig } from "@/lib/config";
 
@@ -63,9 +64,7 @@ export default function HomePage() {
         <div className="cinematicHeroWash" aria-hidden="true" />
         <div className="cinematicHeroLayer">
           <nav className="cinematicNav" aria-label="FlytheBG tools">
-            <Link className="cinematicLogo" href="/" aria-label="FlytheBG home">
-              <img className="cinematicBrandLockup" src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="138" height="30" />
-            </Link>
+            <FlytheBGLogo className="cinematicLogo" imageClassName="cinematicBrandMark" size={28} />
             <div className="cinematicTabs">
               <Link href="/remove-background">Remove BG</Link>
               <Link href="/features/passport-photo">Passport</Link>
@@ -121,7 +120,7 @@ export default function HomePage() {
       </section>
 
       <footer className="cinematicLandingFooter">
-        <Link href="/" aria-label="FlytheBG home"><img src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="132" height="28" /></Link>
+        <FlytheBGLogo className="landingBrandLogo" imageClassName="landingBrandMark" size={44} />
         <nav aria-label="Landing footer"><Link href="/faq">FAQ</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></nav>
       </footer>
     </main>

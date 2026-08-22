@@ -15,6 +15,7 @@ import "./light-theme-final.css";
 import "./tool-pastel-theme.css";
 import "./passport-manual-controls.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
+import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
@@ -48,10 +49,6 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light" };
 
-function Logo() {
-  return <Link className="brand" href="/" aria-label={`${appConfig.name} home`}><img className="brandLockup" src="/brand/flythebg-lockup.svg" alt="FlytheBG" width="142" height="31" /></Link>;
-}
-
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
@@ -60,9 +57,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
         <MotionLayer />
         <FeatureAnnouncement />
-        <header className="siteHeader"><div className="shell navShell"><Logo /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link></div></header>
+        <header className="siteHeader"><div className="shell navShell"><FlytheBGLogo /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link></div></header>
         {children}
-        <footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><Logo/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer>
+        <footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><FlytheBGLogo size={42}/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer>
         <MonetizationScripts />
       </body>
     </html>
