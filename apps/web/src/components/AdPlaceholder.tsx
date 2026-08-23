@@ -11,7 +11,7 @@ type AdPlaceholderProps = {
 const validAdSenseSlot = /^\d+$/;
 
 export function AdPlaceholder({ slot, format = "responsive" }: AdPlaceholderProps) {
-  const adRef = useRef<HTMLElement | null>(null);
+  const adRef = useRef<HTMLModElement | null>(null);
   const adSenseSlot = getAdSlotConfig(slot).adsense.trim();
   const canRenderManualAd =
     monetizationConfig.adsenseEnabled &&
