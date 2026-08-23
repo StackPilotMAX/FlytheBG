@@ -1,10 +1,19 @@
-/* High-visibility ad placement without overlapping navigation or tool controls. */
+/* High-visibility AdSense placement without overlapping navigation or tool controls. */
 .landingHeroAd{
   width:min(970px,calc(100% - 28px));
   margin:14px auto 0;
   flex:0 0 auto;
 }
-.cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+
+/* Auto Ads need no reserved placeholder. Hide wrappers unless a real AdSense
+   <ins class="adsbygoogle"> unit is present. */
+.landingHeroAd:not(:has(.adsbygoogle)),
+.pageHeroAd:not(:has(.adsbygoogle)){
+  display:none;
+  margin:0;
+}
+
+.cinematicHero:has(.landingHeroAd .adsbygoogle) .cinematicHeroContent{
   margin-top:clamp(22px,4vh,42px);
 }
 .pageHeroAd{
@@ -20,15 +29,19 @@
     width:min(100%,560px);
     margin-top:10px;
   }
-  .landingHeroAd .adPlacementSlot,
-  .pageHeroAd .adPlacementSlot{
+  .landingHeroAd .adsbygoogle,
+  .pageHeroAd .adsbygoogle{
     min-height:72px;
   }
-  .cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+  .cinematicHero:has(.landingHeroAd .adsbygoogle) .cinematicHeroContent{
     margin-top:22px;
   }
   .pageHeroAd{
     margin-top:22px;
+  }
+  .landingHeroAd:not(:has(.adsbygoogle)),
+  .pageHeroAd:not(:has(.adsbygoogle)){
+    margin:0;
   }
 }
 
@@ -36,10 +49,10 @@
   .landingHeroAd{
     margin-top:8px;
   }
-  .landingHeroAd .adPlacementSlot{
+  .landingHeroAd .adsbygoogle{
     min-height:64px;
   }
-  .cinematicHero:has(.landingHeroAd) .cinematicHeroContent{
+  .cinematicHero:has(.landingHeroAd .adsbygoogle) .cinematicHeroContent{
     margin-top:16px;
   }
 }
