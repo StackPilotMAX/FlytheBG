@@ -1,12 +1,17 @@
 import Script from "next/script";
 import { monetizationConfig } from "@/lib/monetization";
 
+const ADSENSE_CLIENT = "ca-pub-7486274445029717";
+
 export function MonetizationHead() {
   return (
     <>
-      {monetizationConfig.adsenseClientValid && (
-        <meta name="google-adsense-account" content={monetizationConfig.adsenseClient} />
-      )}
+      <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+      <script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+        crossOrigin="anonymous"
+      />
       {monetizationConfig.monetagVerificationEnabled && (
         <meta
           name={monetizationConfig.monetagMetaName}
@@ -20,16 +25,6 @@ export function MonetizationHead() {
 export function MonetizationScripts() {
   return (
     <>
-      {monetizationConfig.adsenseEnabled && (
-        <Script
-          id="flythebg-adsense"
-          async
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${monetizationConfig.adsenseClient}`}
-        />
-      )}
-
       {monetizationConfig.monetagScriptEnabled && (
         <Script
           id="flythebg-monetag"
