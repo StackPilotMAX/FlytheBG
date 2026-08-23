@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
-const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "";
+const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-7486274445029717";
 const publisher = client.replace(/^ca-/, "");
 const monetagSellerLines = (process.env.MONETAG_ADS_TXT_LINES?.trim() || "")
   .replace(/\\n/g, "\n")
