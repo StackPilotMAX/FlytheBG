@@ -15,6 +15,7 @@ import "./light-theme-final.css";
 import "./tool-pastel-theme.css";
 import "./passport-manual-controls.css";
 import "./top-ad-placement.css";
+import "./feature-fixes.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
 import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
