@@ -1,0 +1,71 @@
+/* Crop editor + AdSense preview stability fixes. */
+
+.cropEditor{
+  margin-top:18px;
+  padding:20px;
+  border:1px solid rgba(116,216,255,.20);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(11,16,24,.96),rgba(8,12,18,.985));
+  box-shadow:0 24px 70px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.035);
+  color:var(--text);
+}
+.cropHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.cropHeader h3{margin:5px 0 0;color:var(--text);font-size:19px;letter-spacing:-.025em}
+.cropHint{margin:6px 0 0;color:var(--muted);font-size:10px;line-height:1.55;max-width:560px}
+.cropCanvasWrap{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid rgba(116,216,255,.12);
+  border-radius:16px;
+  background:radial-gradient(circle at 20% 10%,rgba(116,216,255,.08),transparent 34%),radial-gradient(circle at 80% 90%,rgba(168,140,255,.08),transparent 36%),#05090f;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.cropCanvas{
+  display:block;
+  margin-inline:auto;
+  max-width:100%;
+  height:auto;
+  border-radius:10px;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
+  cursor:crosshair;
+}
+.cropCanvas.isMoving{cursor:grabbing}
+.cropControls{display:grid;grid-template-columns:.85fr .9fr 1.35fr;gap:10px;margin-top:13px}
+.cropControlGroup{min-width:0;padding:13px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,rgba(16,23,34,.96),rgba(11,16,24,.97))}
+.cropControlGroup p{margin:8px 0 0;color:var(--faint);font-size:9px;line-height:1.55}
+.controlLabel{display:block;margin-bottom:8px;color:var(--muted);font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.09em}
+.ratioButtons{display:flex;gap:6px;flex-wrap:wrap}
+.pixelInputs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.pixelInputs label{display:grid;gap:4px;color:var(--faint);font-size:8px}
+.pixelInputs input{width:100%;height:35px;padding:0 8px;border:1px solid var(--line2);border-radius:9px;background:#070d14;color:var(--text);outline:none}
+.pixelInputs input:focus{border-color:rgba(116,216,255,.58);box-shadow:0 0 0 3px rgba(116,216,255,.08)}
+.miniButton{border:1px solid var(--line2);background:rgba(15,22,32,.92);color:var(--muted);border-radius:9px;padding:7px 10px;font:600 10px/1 var(--font-inter),Inter,sans-serif;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}
+.miniButton:hover,.miniButton:focus-visible{transform:translateY(-1px);border-color:rgba(116,216,255,.42);color:var(--text);outline:none}
+.miniButton.active{border-color:rgba(116,216,255,.62);background:linear-gradient(135deg,#74d8ff,#9c91ff);color:#061019;box-shadow:0 7px 20px rgba(116,216,255,.16)}
+.cropFooter{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.cropFooter>span{color:var(--muted);font-size:9px}
+
+/* AdSense must stay inside the site's layout instead of becoming a page-wide overflow source. */
+.landingHeroAd,.pageHeroAd{min-width:0;max-width:100%;overflow:clip}
+.landingHeroAd .adPlacement,.pageHeroAd .adPlacement{width:100%;max-width:100%;min-width:0;margin-inline:auto;overflow:clip}
+.landingHeroAd .adsbygoogle,.pageHeroAd .adsbygoogle{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-inline:auto!important;overflow:hidden}
+.landingHeroAd iframe,.pageHeroAd iframe{max-width:100%!important}
+.landingHeroAd:not(:has(.adsbygoogle)),.pageHeroAd:not(:has(.adsbygoogle)){display:none!important;margin:0!important;padding:0!important;max-height:0!important}
+
+/* Prevent horizontal browser overscroll from ad iframes; vertical page scrolling remains normal. */
+html,body{overflow-x:clip;overscroll-behavior-x:none}
+
+@media (max-width:860px){
+  .cropControls{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .cropEditor{padding:15px;border-radius:18px}
+  .cropHeader{gap:12px}
+  .cropCanvasWrap{padding:8px}
+  .pixelInputs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cropFooter{align-items:stretch;flex-direction:column}
+  .cropFooter .primaryButton{width:100%}
+}
