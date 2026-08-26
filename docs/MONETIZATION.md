@@ -8,7 +8,8 @@ The Monetag `sw.js` file supplied for this site is stored at `apps/web/public/sw
 
 The supplied file contains Monetag domain `3nbf4.com` and zone ID `11660960`. Do not modify that file unless Monetag provides a replacement.
 
-Monetag's current publisher documentation says the downloaded `sw.js` should be saved in the site's root directory for site verification / HTTPS ad formats. urlMonetag site-verification instructionshttps://help.monetag.com/en/articles/6726312-how-do-i-get-started-as-a-publisher-add-and-verify-your-website-s
+Monetag's current publisher documentation says the downloaded `sw.js` should be saved in the site's root directory for site verification / HTTPS ad formats:
+https://help.monetag.com/en/articles/6726312-how-do-i-get-started-as-a-publisher-add-and-verify-your-website-s
 
 ## Monetag configuration
 
@@ -26,7 +27,8 @@ NEXT_PUBLIC_MONETAG_ZONE_FAQ=
 MONETAG_ADS_TXT_LINES=
 ```
 
-The exact Monetag ad-channel tag is separate from `sw.js`. Monetag's documentation says that after verification, publishers create an ad channel/zone and paste the generated ad tag into the website source. urlMonetag ad-channel instructionshttps://help.monetag.com/en/articles/6726314-how-do-i-get-started-as-a-publisher-creating-ad-channels
+The exact Monetag ad-channel tag is separate from `sw.js`. Monetag's documentation says that after verification, publishers create an ad channel/zone and paste the generated ad tag into the website source:
+https://help.monetag.com/en/articles/6726314-how-do-i-get-started-as-a-publisher-creating-ad-channels
 
 The current repository therefore installs the supplied `sw.js` and removes the AdSense integration, but it does **not** invent an ad-tag URL or ad-channel script that was not supplied by Monetag.
 
