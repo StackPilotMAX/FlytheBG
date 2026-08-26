@@ -1,20 +1,20 @@
-const ADSENSE_CLIENT = "ca-pub-7486274445029717";
+const monetagScriptSrc = process.env.NEXT_PUBLIC_MONETAG_SCRIPT_SRC?.trim() || "";
+const monetagMetaName = process.env.NEXT_PUBLIC_MONETAG_VERIFICATION_META_NAME?.trim() || "";
+const monetagMetaContent = process.env.NEXT_PUBLIC_MONETAG_VERIFICATION_META_CONTENT?.trim() || "";
 
 export function MonetizationHead() {
   return (
     <>
-      <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-      <script
-        async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-        crossOrigin="anonymous"
-      />
+      {monetagMetaName && monetagMetaContent ? (
+        <meta name={monetagMetaName} content={monetagMetaContent} />
+      ) : null}
+      {monetagScriptSrc ? (
+        <script async src={monetagScriptSrc} data-cfasync="false" />
+      ) : null}
     </>
   );
 }
 
 export function MonetizationScripts() {
-  // AdSense is the only advertising provider. Auto Ads uses the global
-  // publisher script in <head>; no second ad-network script is injected.
   return null;
 }
