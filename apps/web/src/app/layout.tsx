@@ -53,7 +53,10 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head><MonetizationHead /></head>
+      <head>
+        <meta name="monetag" content="5e777e0aa6ce027ca2e1a8ec1c8325b3" />
+        <MonetizationHead />
+      </head>
       <body className={`${instrumentSerif.variable} ${inter.variable}`}>
         <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
         <MotionLayer />
