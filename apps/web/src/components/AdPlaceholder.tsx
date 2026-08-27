@@ -1,17 +1,60 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { getAdSlotConfig, monetizationConfig } from "@/lib/monetization";
+
 type AdPlaceholderProps = {
   slot: string;
   format?: "leaderboard" | "rectangle" | "responsive";
 };
 
-/**
- * Monetag ad channels are injected by the provider's tag configured in
- * MonetizationScripts. The supplied sw.js is the Monetag site-verification /
- * service-worker file and is served from /sw.js.
- *
- * Keep this component as a no-op until the exact Monetag ad-channel tag is
- * supplied for a placement. This prevents accidentally inventing a zone or
- * provider script and avoids leaving any AdSense code in the application.
- */
-export function AdPlaceholder(_props: AdPlaceholderProps) {
-  return null;
+const validAdSenseSlot = /^\d+$/;
+
+export function AdPlaceholder({ slot, format = "responsive" }: AdPlaceholderProps) {
+  const adRef = useRef<HTMLModElement | null>(null);
+  const adSenseSlot = getAdSlotConfig(slot).adsense.trim();
+  const canRenderManualAd =
+    monetizationConfig.adsenseEnabled &&
+    monetizationConfig.adsenseClientValid &&
+    validAdSenseSlot.test(adSenseSlot);
+
+  useEffect(() => {
+    if (!canRenderManualAd || !adRef.current) return;
+    if (adRef.current.dataset.adsbygoogleStatus) return;
+
+    try {
+      const adsWindow = window as Window & {
+        adsbygoogle?: Array<Record<string, unknown>>;
+      };
+      adsWindow.adsbygoogle = adsWindow.adsbygoogle || [];
+      adsWindow.adsbygoogle.push({});
+    } catch {
+      // AdSense may reject a request while the site/ad unit is under review.
+    }
+  }, [canRenderManualAd, adSenseSlot]);
+
+  if (!canRenderManualAd) return null;
+
+  const adFormat =
+    format === "rectangle" ? "rectangle" : format === "leaderboard" ? "horizontal" : "auto";
+
+  return (
+    <aside
+      className={`adPlacement adPlacement--${format}`}
+      aria-label="Advertisement"
+      data-ad-provider="adsense"
+      data-ad-placement={slot}
+    >
+      <span className="adPlacementLabel">Advertisement</span>
+      <ins
+        ref={adRef}
+        className="adsbygoogle adPlacementSlot"
+        style={{ display: "block" }}
+        data-ad-client={monetizationConfig.adsenseClient}
+        data-ad-slot={adSenseSlot}
+        data-ad-format={adFormat}
+        data-full-width-responsive="true"
+      />
+    </aside>
+  );
 }
