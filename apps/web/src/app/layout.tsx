@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Instrument_Serif, Inter } from "next/font/google";
 import "./production-ui.css";
 import "./redesign.css";
+import "./adsense-safety.css";
 import "./genz.css";
 import "./polish.css";
 import "./immersive-theme.css";
