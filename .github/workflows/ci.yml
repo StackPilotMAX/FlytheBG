@@ -38,4 +38,6 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://flythebg.com
           NEXT_PUBLIC_APP_NAME: FlytheBG
           NEXT_PUBLIC_UPLOAD_MAX_MB: 12
+          NEXT_PUBLIC_ADSENSE_ENABLED: true
+          NEXT_PUBLIC_ADSENSE_CLIENT: ca-pub-7486274445029717
           NEXT_PUBLIC_MONETAG_ENABLED: true
