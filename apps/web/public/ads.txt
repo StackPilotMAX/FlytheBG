@@ -1,2 +1,1 @@
-# Generated during build from NEXT_PUBLIC_ADSENSE_CLIENT when configured.
-# The production publisher identifier is intentionally not hard-coded in this repository.
+google.com, pub-7486274445029717, DIRECT, f08c47fec0942fa0
