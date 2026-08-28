@@ -5,8 +5,9 @@ import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { appConfig } from "@/lib/config";
 
-const homeTitle = "FlytheBG-- Free Background Remover & Passport Photo Maker";
-const homeDescription = "Remove photo backgrounds locally in your browser and create print-ready passport photo sheets with FlytheBG. No image-processing upload is required for the current tools.";
+const homeTitle = "FlytheBG — Free Background Remover & Passport Photo Maker";
+const homeDescription = "Free browser-based background remover and passport photo maker. Remove image backgrounds locally, export transparent PNGs, and create print-ready photo sheets.";
+const instagramUrl = "https://www.instagram.com/flythebg/";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
@@ -39,7 +40,7 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", "@id": `${appConfig.siteUrl}/#website`, name: appConfig.name, alternateName: ["Fly the BG", "FlytheBG.com"], url: appConfig.siteUrl, inLanguage: "en", description: homeDescription },
-      { "@type": "Organization", "@id": `${appConfig.siteUrl}/#publisher`, name: appConfig.name, url: appConfig.siteUrl, logo: `${appConfig.siteUrl}/brand/flythebg-mark.svg`, ...(appConfig.contactEmail ? { email: appConfig.contactEmail } : {}) },
+      { "@type": "Organization", "@id": `${appConfig.siteUrl}/#publisher`, name: appConfig.name, url: appConfig.siteUrl, logo: `${appConfig.siteUrl}/brand/flythebg-mark.svg`, sameAs: [instagramUrl], ...(appConfig.contactEmail ? { email: appConfig.contactEmail } : {}) },
       {
         "@type": "SoftwareApplication",
         "@id": `${appConfig.siteUrl}/#app`,
@@ -80,7 +81,7 @@ export default function HomePage() {
 
           <section className="cinematicHeroContent" aria-labelledby="flythebg-hero-title">
             <div className="cinematicBadge"><span className="cinematicBadgeIcon" aria-hidden="true">L</span><span>Local AI · your photo stays on-device</span></div>
-            <h1 id="flythebg-hero-title">Remove backgrounds.<br /><em>Make passport photos.</em></h1>
+            <h1 id="flythebg-hero-title">Free background remover.<br /><em>Passport photo maker.</em></h1>
             <p>Create clean transparent cutouts and print-ready passport sheets directly in your browser. Fast local processing, precise framing controls, and no image-processing upload required.</p>
             <Link className="cinematicCta" href="/remove-background"><span className="cinematicCtaLabel">Start with your photo</span><span className="cinematicCtaArrow" aria-hidden="true">→</span></Link>
             <div className="cinematicTrust" aria-label="FlytheBG benefits"><span>Free to use</span><span aria-hidden="true">·</span><span>No account</span><span aria-hidden="true">·</span><span>Images stay local</span></div>
@@ -91,11 +92,11 @@ export default function HomePage() {
 
       <section className="cinematicLandingSection" id="what-flythebg-does">
         <div className="landingSectionShell">
-          <div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Built for real image tasks</span><h2>One cinematic theme. Two practical tools.</h2><p>The homepage now continues beyond the first screen, using the same video backdrop and glass language as the rest of FlytheBG.</p></div>
+          <div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Built for real image tasks</span><h2>Free background removal and passport photo tools.</h2><p>FlytheBG is a browser-first image toolkit for people who need a quick, private way to remove a background or prepare passport photos. The core workflow runs locally in the browser, so the working image does not need to be uploaded to a FlytheBG image-processing backend.</p></div>
           <div className="landingCards">
-            <article className="landingCard landingReveal"><span>Remove BG</span><h3>Transparent cutouts in the browser.</h3><p>Keep portrait, landscape, square, vertical, and panoramic proportions while the browser adapts model choice and working resolution to the device.</p><Link href="/remove-background">Open Background Remover ↗</Link></article>
-            <article className="landingCard landingReveal"><span>Passport</span><h3>Measured sheets with manual control.</h3><p>Frame the subject, adjust individual copies, choose physical dimensions and DPI, then print at 100% or download a PNG sheet.</p><Link href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article>
-            <article className="landingCard landingReveal"><span>Privacy</span><h3>Browser-first by architecture.</h3><p>The current image workflow does not intentionally require a FlytheBG image-upload backend or image database for processing your working photo.</p><Link href="/privacy">Read Privacy & AI Policy ↗</Link></article>
+            <article className="landingCard landingReveal"><span>Remove BG</span><h3>Transparent cutouts in the browser.</h3><p>Remove an image background, keep portrait, landscape, square, vertical, or panoramic proportions, and export a transparent PNG. The browser adapts model choice and working resolution to the device where possible.</p><Link href="/remove-background">Open Background Remover ↗</Link></article>
+            <article className="landingCard landingReveal"><span>Passport</span><h3>Measured passport photo sheets.</h3><p>Frame the subject, adjust individual copies, choose physical dimensions and DPI, then print at 100% or download a PNG sheet. Manual positioning helps when automatic cropping is not enough.</p><Link href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article>
+            <article className="landingCard landingReveal"><span>Privacy</span><h3>Browser-first by architecture.</h3><p>The current image workflow does not intentionally require a FlytheBG image-upload backend or image database for processing your working photo. Browser runtime, model, font, video, and optional advertising assets may still be downloaded separately.</p><Link href="/privacy">Read Privacy & AI Policy ↗</Link></article>
           </div>
         </div>
       </section>
@@ -121,7 +122,7 @@ export default function HomePage() {
 
       <footer className="cinematicLandingFooter">
         <FlytheBGLogo className="landingBrandLogo" imageClassName="landingBrandMark" size={44} />
-        <nav aria-label="Landing footer"><Link href="/faq">FAQ</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></nav>
+        <nav aria-label="Landing footer"><Link href="/faq">FAQ</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link><a href={instagramUrl} rel="me noopener noreferrer" target="_blank">Instagram</a></nav>
       </footer>
     </main>
   );
