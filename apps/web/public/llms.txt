@@ -1,0 +1,33 @@
+# FlytheBG
+
+FlytheBG is a free, browser-first image toolkit focused on background removal and passport photo creation.
+
+## Primary tools
+- Background Remover: /remove-background
+- Passport Photo Maker: /features/passport-photo
+- Features: /features
+- FAQ: /faq
+- Guides: /guides
+- Browser Privacy Guide: /guides/browser-privacy
+
+## What FlytheBG does
+- Removes image backgrounds locally in the browser.
+- Exports transparent PNG cutouts.
+- Creates print-ready passport photo sheets with physical sizing and DPI controls.
+- Supports manual passport-photo positioning and framing.
+- Uses WebGPU when available with CPU/WASM fallback for compatibility.
+
+## Privacy and processing
+The current image workflow is designed so the working photo is processed in browser memory rather than requiring a FlytheBG image-processing upload backend. Browser users may still download application code, AI model/runtime assets, fonts, video, and optional advertising assets.
+
+## AI model disclosure
+FlytheBG integrates IMG.LY's browser background-removal package and IS-Net model variants. Third-party model and runtime assets are not claimed as FlytheBG-owned models.
+
+## Important limitations
+Background removal is an AI-assisted estimate. Fine hair, fur, glass, smoke, reflections, motion blur, compression, and low contrast can produce imperfect segmentation.
+
+## Social
+- Instagram: https://www.instagram.com/flythebg/
+
+## Contact
+FlytheBG publishes email as its public contact channel. No public phone number or business address is asserted here.
