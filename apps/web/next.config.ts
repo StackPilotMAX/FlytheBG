@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Static export keeps the app deployable to a CDN/edge host. Vercel serves
+  // the generated static assets from its edge network and compresses them.
   images: { unoptimized: true },
 };
 
