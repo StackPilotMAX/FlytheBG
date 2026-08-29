@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "About FlytheBG",
-  description: "Learn how FlytheBG's browser-first image tools work, what the current production architecture does with image data, and what the product does and does not promise.",
+  title: "About FlytheBG: Browser Image Tools",
+  description: "Learn how FlytheBG's browser-first image tools work, what the production architecture does with image data, and what the product does and does not promise.",
   alternates: { canonical: "/about" },
 };
 

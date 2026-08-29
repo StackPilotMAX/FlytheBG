@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Guides",
-  description: "Original FlytheBG guides for browser background removal, passport-photo preparation, printing, and image privacy.",
+  title: "FlytheBG Guides: Image & Privacy Help",
+  description: "Practical FlytheBG guides for browser background removal, passport-photo preparation, printing, image privacy, and better output quality.",
   alternates: { canonical: "/guides" },
 };
 
@@ -45,7 +45,7 @@ export default function GuidesPage() {
               <span>{guide.index}</span>
               <h3>{guide.title}</h3>
               <p>{guide.text}</p>
-              <p style={{ marginTop: 18 }}><Link className="textLink" href={guide.href}>Read guide ↗</Link></p>
+              <p className="guideLinkRow"><Link className="textLink" href={guide.href}>Read guide ↗</Link></p>
             </article>
           ))}
         </div>

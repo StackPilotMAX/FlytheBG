@@ -6,7 +6,7 @@ import { HoverFaqList } from "@/components/HoverFaqList";
 import { appConfig } from "@/lib/config";
 
 const homeTitle = "FlytheBG-- Free Background Remover & Passport Photo Maker";
-const homeDescription = "Remove photo backgrounds locally in your browser and create print-ready passport photo sheets with FlytheBG. No image-processing upload is required for the current tools.";
+const homeDescription = "Remove photo backgrounds locally in your browser and create print-ready passport photo sheets with FlytheBG. Free browser-first tools with no image-processing upload required.";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
@@ -96,6 +96,17 @@ export default function HomePage() {
             <article className="landingCard landingReveal"><span>Remove BG</span><h3>Transparent cutouts in the browser.</h3><p>Keep portrait, landscape, square, vertical, and panoramic proportions while the browser adapts model choice and working resolution to the device.</p><Link href="/remove-background">Open Background Remover ↗</Link></article>
             <article className="landingCard landingReveal"><span>Passport</span><h3>Measured sheets with manual control.</h3><p>Frame the subject, adjust individual copies, choose physical dimensions and DPI, then print at 100% or download a PNG sheet.</p><Link href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article>
             <article className="landingCard landingReveal"><span>Privacy</span><h3>Browser-first by architecture.</h3><p>The current image workflow does not intentionally require a FlytheBG image-upload backend or image database for processing your working photo.</p><Link href="/privacy">Read Privacy & AI Policy ↗</Link></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="cinematicLandingSection">
+        <div className="landingSectionShell">
+          <div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Search-ready product guide</span><h2>Free background removal and passport-photo tools, explained clearly.</h2><p>FlytheBG combines browser-based background removal with a measured passport photo workflow. Use the background remover for transparent PNG cutouts, or use the Passport Photo Maker when you need physical dimensions, DPI, crop framing, repeated copies, and a print-ready sheet. The working image is designed to stay in browser memory rather than being sent to a FlytheBG image-processing server.</p></div>
+          <div className="landingCards">
+            <article className="landingCard landingReveal"><span>Background remover</span><h3>Remove an image background without a forced crop.</h3><p>Start with portraits, products, graphics, or other clear subjects. The tool preserves the source ratio, uses bounded inference dimensions for large images, and exports a transparent PNG. Difficult hair, fur, glass, smoke, blur, reflections, and similar-colored boundaries can still need review.</p><Link href="/remove-background">Learn about background removal ↗</Link></article>
+            <article className="landingCard landingReveal"><span>Passport photos</span><h3>Create measured photo sheets in the browser.</h3><p>Set a physical photo size and DPI, keep the source photo stationary, move the crop frame, customize individual copies, and generate a printable sheet. Always verify the current requirements of the authority receiving the photo.</p><Link href="/features/passport-photo">Learn about passport photo sheets ↗</Link></article>
+            <article className="landingCard landingReveal"><span>Privacy</span><h3>Understand browser-first image processing.</h3><p>The browser downloads software and model assets separately from your selected photo. FlytheBG documents working-memory cleanup, model attribution, advertising behavior, and the limits of what a website can control on a visitor&apos;s device.</p><Link href="/guides/browser-privacy">Read the browser privacy guide ↗</Link></article>
           </div>
         </div>
       </section>

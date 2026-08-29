@@ -3,8 +3,8 @@ import { HoverFaqList } from "@/components/HoverFaqList";
 import { PassportPhotoMaker } from "@/components/PassportPhotoMaker";
 
 export const metadata = {
-  title: "Passport Photo Maker — Move Crop Frame, Print & Download PNG",
-  description: "Create measured passport-photo sheets in your browser, move the crop frame over a stationary photo, adjust individual crops, print directly at 100%, or download a high-resolution PNG.",
+  title: "Passport Photo Maker: Print & Download",
+  description: "Create measured passport-photo sheets in your browser, move the crop frame over a stationary photo, adjust individual crops, print at 100%, or download a high-resolution PNG.",
   keywords: ["passport photo maker", "passport size photo", "passport photo crop frame", "passport photo print", "passport photo PNG", "35x45 photo maker", "2x2 passport photo", "print passport photos online"],
   alternates: { canonical: "/features/passport-photo" },
 };

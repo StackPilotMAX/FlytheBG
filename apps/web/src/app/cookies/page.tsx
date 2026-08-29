@@ -2,8 +2,8 @@ import { LegalPage } from "@/components/LegalPage";
 import { appConfig } from "@/lib/config";
 
 export const metadata = {
-  title: "Cookie Policy",
-  description: "Read how FlytheBG uses browser storage, model/runtime caching, the dismissible feature notice, and optional Google AdSense and Monetag advertising technologies.",
+  title: "FlytheBG Cookie & Storage Policy",
+  description: "Read how FlytheBG uses browser storage, model/runtime caching, the dismissible feature notice, and optional advertising technologies.",
   alternates: { canonical: "/cookies" },
 };
 

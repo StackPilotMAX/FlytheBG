@@ -4,8 +4,8 @@ import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
 
 export const metadata: Metadata = {
-  title: "FAQ — Background Removal, Passport Photos & Privacy",
-  description: "Answers about FlytheBG browser AI, adaptive background removal, passport crop frames, privacy, model licensing, downloads, and advertising.",
+  title: "FlytheBG FAQ: Background Removal & Privacy",
+  description: "Answers about FlytheBG browser AI, background removal, passport-photo framing, privacy, model licensing, downloads, and optional advertising.",
   alternates: { canonical: "/faq" },
 };
 

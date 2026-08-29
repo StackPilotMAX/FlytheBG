@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Model & Open Source Disclosure",
-  description: "See which third-party browser AI package and model variants FlytheBG uses, how adaptive model selection and local subject-protection processing work, licensing information, and important limitations.",
+  title: "FlytheBG Model & Open Source",
+  description: "See which third-party browser AI package and model variants FlytheBG uses, how local model selection and subject-protection processing work, licensing information, and limitations.",
   alternates: { canonical: "/model-disclosure" },
 };
 

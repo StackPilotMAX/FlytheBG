@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Features",
-  description: "Explore FlytheBG's live browser image tools and learn how the current background-removal and passport-photo workflows are designed.",
+  title: "FlytheBG Features: Image Tools",
+  description: "Explore FlytheBG's live browser image tools for background removal and passport-photo creation, with clear privacy behavior and supporting guidance.",
   alternates: { canonical: "/features" },
 };
 

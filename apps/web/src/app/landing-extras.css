@@ -14,5 +14,6 @@
 .landingFaqActions{position:relative;z-index:1;display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:22px}
 .landingFaqActions .cinematicCta{margin-top:0}
 .landingFaqActions .textLink{color:#6258a7!important;font-size:11px;font-weight:600;text-decoration:none}
+.guideLinkRow{margin-top:18px}
 @keyframes landingCue{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 @media (prefers-reduced-motion:reduce){.landingScrollCue span{animation:none}}
