@@ -7,6 +7,17 @@ export const metadata = {
   description: "Create measured passport-photo sheets in your browser, move the crop frame over a stationary photo, adjust individual crops, print at 100%, or download a high-resolution PNG.",
   keywords: ["passport photo maker", "passport size photo", "passport photo crop frame", "passport photo print", "passport photo PNG", "35x45 photo maker", "2x2 passport photo", "print passport photos online"],
   alternates: { canonical: "/features/passport-photo" },
+  openGraph: {
+    title: "Passport Photo Maker: Print & Download Online",
+    description: "Create measured passport-photo sheets in your browser with movable crop framing, individual copy adjustments, DPI-aware PNG export, and 100% printing.",
+    url: "/features/passport-photo",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Passport Photo Maker: Print & Download Online",
+    description: "Create measured passport-photo sheets with movable crop framing and DPI-aware export.",
+  },
 };
 
 const passportFaqs = [
