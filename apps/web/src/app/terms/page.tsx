@@ -2,8 +2,8 @@ import { LegalPage } from "@/components/LegalPage";
 import { appConfig } from "@/lib/config";
 
 export const metadata = {
-  title: "Terms of Use",
-  description: "Read FlytheBG's terms for browser-based background removal, image editing, passport-photo crop-frame tools, optional advertising, output limitations, and acceptable use.",
+  title: "FlytheBG Terms of Use",
+  description: "Read FlytheBG's terms for browser-based background removal, image editing, passport-photo tools, optional advertising, output limitations, and acceptable use.",
   alternates: { canonical: "/terms" },
 };
 
