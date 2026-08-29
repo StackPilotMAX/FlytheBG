@@ -15,9 +15,10 @@ function validHttpsUrl(value?: string) {
 
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-7486274445029717";
 const adsenseClientValid = /^ca-pub-\d{16}$/.test(adsenseClient);
-const adsenseEnabled = enabled(process.env.NEXT_PUBLIC_ADSENSE_ENABLED ?? "true") && adsenseClientValid;
+const adsenseEnabled = enabled(process.env.NEXT_PUBLIC_ADSENSE_ENABLED ?? "false") && adsenseClientValid;
 
-const monetagEnabled = enabled(process.env.NEXT_PUBLIC_MONETAG_ENABLED ?? "true");
+const monetagEnabled = enabled(process.env.NEXT_PUBLIC_MONETAG_ENABLED ?? "false");
+const monetagAdsenseSafe = enabled(process.env.NEXT_PUBLIC_MONETAG_ADSENSE_SAFE ?? "false");
 const monetagScriptSrc = validHttpsUrl(
   process.env.NEXT_PUBLIC_MONETAG_SCRIPT_SRC?.trim() ||
     "https://quge5.com/88/tag.min.js",
@@ -57,8 +58,9 @@ export const monetizationConfig = {
   adsenseClientValid,
   adsenseEnabled,
   monetagEnabled,
+  monetagAdsenseSafe,
   monetagScriptSrc,
-  monetagScriptEnabled: Boolean(monetagEnabled && monetagScriptSrc),
+  monetagScriptEnabled: Boolean(monetagEnabled && (!adsenseEnabled || monetagAdsenseSafe) && monetagScriptSrc),
   monetagMetaName,
   monetagMetaContent,
   monetagVerificationEnabled: Boolean(monetagMetaName && monetagMetaContent),
