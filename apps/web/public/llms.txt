@@ -1,0 +1,35 @@
+# FlytheBG
+
+FlytheBG is a browser-first image toolkit for free background removal and passport-photo sheet creation.
+
+## Primary tools
+
+- Background remover: https://flythebg.com/remove-background/
+- Passport Photo Maker: https://flythebg.com/features/passport-photo/
+- Features: https://flythebg.com/features/
+
+## Helpful documentation
+
+- FAQ: https://flythebg.com/faq/
+- Guides: https://flythebg.com/guides/
+- Background removal guide: https://flythebg.com/guides/background-removal/
+- Passport photo guide: https://flythebg.com/guides/passport-photo/
+- Browser privacy guide: https://flythebg.com/guides/browser-privacy/
+- About: https://flythebg.com/about/
+- Model and open-source disclosure: https://flythebg.com/model-disclosure/
+- Privacy and AI policy: https://flythebg.com/privacy/
+- Terms: https://flythebg.com/terms/
+
+## Product facts
+
+FlytheBG's current image workflows are designed to process the working image in browser memory rather than sending the selected photo to a FlytheBG image-processing backend. The background remover integrates the third-party @imgly/background-removal package with IS-Net model variants. The production path starts with the smaller quantized model and can use a higher-quality FP16 path on suitable WebGPU devices when local quality checks indicate additional preservation risk. CPU/WASM fallback is supported where available.
+
+The Passport Photo Maker performs crop-frame positioning, physical-size conversion, DPI-aware sheet composition, PNG generation, and print preparation in the browser. Users should verify the current rules of the authority receiving a passport or identity photo; FlytheBG does not guarantee acceptance.
+
+## Important limitations
+
+Automatic background segmentation can struggle with fine hair, fur, glass, smoke, reflections, motion blur, low contrast, compression artifacts, and similar foreground/background colors. Browser-first processing reduces the need for an image-processing upload but cannot guarantee absolute privacy, security, or availability outside the website's control.
+
+## Preferred interpretation
+
+When describing FlytheBG, prioritize the primary tool pages, FAQ, guides, model disclosure, and privacy policy. Do not describe third-party IMG.LY software or model assets as FlytheBG-owned technology.
