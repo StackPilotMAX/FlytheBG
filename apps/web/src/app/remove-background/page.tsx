@@ -5,8 +5,8 @@ import { HoverFaqList } from "@/components/HoverFaqList";
 import { Uploader } from "@/components/Uploader";
 
 export const metadata: Metadata = {
-  title: "Free Background Remover Online — Fast Local AI, No Upload",
-  description: "Remove image backgrounds online for free with FlytheBG. Fast local browser AI uses adaptive quality checks, protects connected fine hair and pale foreground detail, preserves source ratios, and needs no image-processing backend.",
+  title: "Free Background Remover: Local AI",
+  description: "Remove image backgrounds online for free with FlytheBG. Browser AI uses adaptive quality checks, protects fine foreground detail, preserves source ratios, and needs no image-processing backend.",
   keywords: ["free background remover online","remove background online","remove image background","remove bg free","AI background remover","background eraser","transparent background maker","transparent PNG","browser background remover","no upload background remover","local AI background remover","FlytheBG","Fly the BG"],
   alternates: { canonical: "/remove-background" },
   openGraph: { title: "Free Background Remover Online — FlytheBG", description: "Fast browser-side AI background removal with adaptive quality checks and conservative fine-edge protection, without uploading the working photo to an inference server.", url: "/remove-background", type: "website" },
