@@ -2,8 +2,8 @@ import { LegalPage } from "@/components/LegalPage";
 import { appConfig } from "@/lib/config";
 
 export const metadata = {
-  title: "Privacy & AI Policy",
-  description: "Learn how FlytheBG handles browser image processing, IMG.LY model assets, adaptive model selection, working-image cleanup, cookies, optional AdSense and Monetag advertising, and generated PNG data.",
+  title: "FlytheBG Privacy & AI Policy",
+  description: "Learn how FlytheBG handles browser image processing, IMG.LY model assets, adaptive model selection, working-image cleanup, cookies, optional advertising, and generated PNG data.",
   alternates: { canonical: "/privacy" },
 };
 
