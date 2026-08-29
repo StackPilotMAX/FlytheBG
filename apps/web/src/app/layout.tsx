@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { Instrument_Serif, Inter } from "next/font/google";
 import "./production-ui.css";
 import "./redesign.css";
@@ -57,6 +58,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <meta name="monetag" content="5e777e0aa6ce027ca2e1a8ec1c8325b3" />
         <MonetizationHead />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-S50DRFD37X" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){window.dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-S50DRFD37X');`}
+        </Script>
       </head>
       <body className={`${instrumentSerif.variable} ${inter.variable}`}>
         <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="metadata"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
