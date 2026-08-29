@@ -5,6 +5,17 @@ export const metadata = {
   title: "Contact",
   description: "Contact FlytheBG for product support, privacy questions, legal notices, copyright matters, security reports, and other correspondence.",
   alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact FlytheBG",
+    description: "Contact FlytheBG for product support, privacy, legal, copyright, and security matters.",
+    url: "/contact",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Contact FlytheBG",
+    description: "Product support, privacy, legal, copyright, and security contact information for FlytheBG.",
+  },
 };
 
 export default function ContactPage() {
