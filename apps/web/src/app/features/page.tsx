@@ -4,6 +4,17 @@ export const metadata = {
   title: "FlytheBG Features: Image Tools",
   description: "Explore FlytheBG's live browser image tools for background removal and passport-photo creation, with clear privacy behavior and supporting guidance.",
   alternates: { canonical: "/features" },
+  openGraph: {
+    title: "FlytheBG Features: Free Browser Image Tools",
+    description: "Explore FlytheBG's background remover and passport photo maker, built for fast browser-side image processing and clear privacy behavior.",
+    url: "/features",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "FlytheBG Features: Free Browser Image Tools",
+    description: "Explore FlytheBG's live background removal and passport-photo tools.",
+  },
 };
 
 const tools = [
