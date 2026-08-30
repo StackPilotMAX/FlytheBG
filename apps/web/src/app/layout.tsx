@@ -27,27 +27,27 @@ const instrumentSerif = Instrument_Serif({ subsets: ["latin"], weight: "400", st
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", variable: "--font-inter" });
 
 const siteVideo = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4";
-const defaultTitle = `${appConfig.name} — Free AI Background Remover & Passport Photo Maker`;
-const defaultDescription = "Remove image backgrounds online with local browser AI, create transparent PNGs, crop images, and build print-ready passport photo sheets with FlytheBG.";
+const defaultTitle = `FLYTHEBG | Free AI Background Remover & Passport Photo Maker`;
+const defaultDescription = "FLYTHEBG is a free browser-first image toolkit for removing photo backgrounds, creating transparent PNGs, and making print-ready passport photo sheets. Your working photo stays on your device.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
-  title: { default: defaultTitle, template: `%s — ${appConfig.name}` },
+  title: { default: defaultTitle, template: `%s | FLYTHEBG` },
   description: defaultDescription,
-  applicationName: appConfig.name,
-  keywords: ["FlytheBG","Fly the BG","FlytheBG.com","remove bg","remove background","remove background online","remove image background","free background remover","AI background remover","background eraser online","transparent background maker","transparent PNG maker","browser background remover","local AI background remover","private background remover","no upload background remover","passport photo maker","passport photo maker online"],
-  authors: [{ name: appConfig.name, url: appConfig.siteUrl }], creator: appConfig.name, publisher: appConfig.name,
+  applicationName: "FLYTHEBG",
+  keywords: ["FLYTHEBG", "FlytheBG", "Fly the BG", "flythebg.com", "free background remover", "remove background online", "remove image background", "free AI background remover", "transparent PNG maker", "passport photo maker", "passport size photo maker", "browser background remover", "local AI background remover", "private background remover", "no upload background remover"],
+  authors: [{ name: "FLYTHEBG", url: appConfig.siteUrl }], creator: "FLYTHEBG", publisher: "FLYTHEBG",
   category: "Image editing tools", classification: "Browser-based image editing and background removal", referrer: "origin-when-cross-origin",
   manifest: "/manifest.webmanifest", formatDetection: { telephone: false, address: false, email: false },
   robots: { index: true, follow: true, nocache: false, googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
-  openGraph: { title: defaultTitle, description: defaultDescription, siteName: appConfig.name, locale: "en_US", type: "website", url: "/" },
+  openGraph: { title: defaultTitle, description: defaultDescription, siteName: "FLYTHEBG", locale: "en_US", type: "website", url: "/" },
   twitter: { card: "summary", title: defaultTitle, description: defaultDescription },
-  appleWebApp: { capable: true, title: appConfig.name, statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "FLYTHEBG", statusBarStyle: "default" },
   verification: { ...(googleVerification ? { google: googleVerification } : {}), ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}) },
   icons: { icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }], shortcut: "/brand/flythebg-mark.svg", apple: "/brand/flythebg-mark.svg" },
-  other: { "application-name": appConfig.name, "apple-mobile-web-app-title": appConfig.name },
+  other: { "application-name": "FLYTHEBG", "apple-mobile-web-app-title": "FLYTHEBG" },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light" };
