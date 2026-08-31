@@ -1,0 +1,13 @@
+/* Mobile header: keep the title bar compact and expose Features directly. */
+.mobileFeaturesButton{display:none;align-items:center;justify-content:center;min-height:38px;padding:0 13px;border:1px solid rgba(116,216,255,.38);border-radius:11px;background:rgba(116,216,255,.10);color:#dff8ff;font-size:10px;font-weight:900;letter-spacing:.02em;white-space:nowrap}
+.mobileFeaturesButton:hover{border-color:rgba(116,216,255,.68);background:rgba(116,216,255,.16)}
+@media (max-width:760px){
+  .navShell{grid-template-columns:auto 1fr auto;gap:10px;min-height:62px}
+  .navLinks,.navCta{display:none!important}
+  .mobileFeaturesButton{display:inline-flex;justify-self:end}
+  .siteHeader .brand img{width:34px;height:34px}
+}
+@media (max-width:390px){
+  .mobileFeaturesButton{padding-inline:10px;font-size:9px}
+  .navShell{gap:7px}
+}
