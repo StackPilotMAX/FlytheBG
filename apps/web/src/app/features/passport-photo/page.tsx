@@ -1,5 +1,6 @@
 import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
+import { PassportDragEnhancer } from "@/components/PassportDragEnhancer";
 import { PassportPhotoMaker } from "@/components/PassportPhotoMaker";
 
 export const metadata = {
@@ -9,20 +10,20 @@ export const metadata = {
   alternates: { canonical: "/features/passport-photo" },
   openGraph: {
     title: "Passport Photo Maker: Print & Download Online",
-    description: "Create measured passport-photo sheets in your browser with movable crop framing, individual copy adjustments, DPI-aware PNG export, and 100% printing.",
+    description: "Create measured passport photo sheets in your browser with movable crop framing, individual copy adjustments, DPI-aware PNG export, and 100% printing.",
     url: "/features/passport-photo",
     type: "website",
   },
   twitter: {
     card: "summary",
     title: "Passport Photo Maker: Print & Download Online",
-    description: "Create measured passport-photo sheets with movable crop framing and DPI-aware export.",
+    description: "Create measured passport photo sheets with movable crop framing and DPI-aware export.",
   },
 };
 
 const passportFaqs = [
   ["Can I move the passport crop frame without moving the photo?", "Yes. The source photo stays stationary in the crop workspace. Drag the outlined crop frame over it, use the arrow pad, or use the frame X/Y sliders. Crop zoom changes the frame size and therefore how tightly the final passport photo is cropped."],
-  ["Can different copies use different crop frames?", "Yes. The main crop frame is used by default. Select a photo in the final sheet, then adjust that copy's crop-frame X/Y position or crop zoom without changing the other copies."],
+  ["Can different copies use different crop frames?", "Yes. The main crop frame is used by default. Select a photo in the final sheet, then drag that copy directly on the sheet or adjust its crop-frame X/Y position and crop zoom without changing the other copies."],
   ["Can I print the passport sheet directly?", "Yes. Choose Print directly at 100%. FlytheBG generates the sheet in the browser, opens a print-ready page, and launches the browser print dialog. Keep scaling at Actual Size or 100% and disable Fit to Page."],
   ["Can I download the finished passport sheet as PNG?", "Yes. Choose Download PNG to save the complete print sheet at the selected DPI. Downloading does not clear your crop-frame edits, so you can keep adjusting or print afterwards."],
   ["Does choosing a preset guarantee that my photo will be accepted?", "No. A physical size is only one requirement. Issuing authorities can also specify head size and position, eye line, expression, clothing, photo age, lighting, background, border, paper quality, and whether digital editing is permitted."],
@@ -43,14 +44,14 @@ export default function PassportPhotoPage() {
         <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="passport-inline-1" format="leaderboard" /></div>
       </section>
 
-      <section className="passportWorkspace shell"><PassportPhotoMaker /></section>
+      <section className="passportWorkspace shell"><PassportPhotoMaker /><PassportDragEnhancer /></section>
 
       <section className="section passportNotes">
         <div className="shell">
           <div className="sectionHeading"><span className="eyebrow"><i/> Printing guide</span><h2>Physical size, crop position, pixels, and DPI are different things.</h2><p>A passport photo is normally specified by a physical width and height, while a digital file is measured in pixels. FlytheBG converts the requested physical dimensions into pixels using the export DPI. The crop frame determines which stationary part of the source image is placed inside those output dimensions.</p></div>
           <div className="infoCards">
             <article><span>Physical output</span><h2>Dimensions drive the export.</h2><p>Centimetres, millimetres, or inches define the target size on paper. The on-screen preview can appear larger or smaller depending on your display and browser zoom, so preview size should never be used as a ruler.</p></article>
-            <article><span>Crop-frame positioning</span><h2>The photo stays still while the frame moves.</h2><p>Drag or nudge the main crop frame over the stationary source photo. For individual printed copies, select a copy and adjust its own crop-frame position or crop zoom without moving the source image itself.</p></article>
+            <article><span>Crop-frame positioning</span><h2>The photo stays still while the frame moves.</h2><p>Drag or nudge the main crop frame over the stationary source photo. For individual printed copies, select a copy and drag directly on the sheet or adjust its own crop-frame position or crop zoom without moving the source image itself.</p></article>
             <article><span>Print correctly</span><h2>Use Actual Size / 100%.</h2><p>Printer drivers and photo applications often enable “Fit to page” automatically. That setting can rescale a correctly generated sheet. Disable automatic scaling and verify the final dimensions with a ruler when accuracy matters.</p></article>
           </div>
         </div>
