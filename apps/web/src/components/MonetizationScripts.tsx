@@ -1,12 +1,18 @@
 const ADSENSE_CLIENT =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-7486274445029717";
 const ADSENSE_ENABLED =
-  process.env.NEXT_PUBLIC_ADSENSE_ENABLED?.trim().toLowerCase() !== "false";
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED?.trim().toLowerCase() === "true";
 
+// Monetag is enabled unless explicitly disabled. If AdSense is enabled,
+// Monetag only loads when the deployer explicitly confirms compatibility.
 const MONETAG_ENABLED =
-  process.env.NEXT_PUBLIC_MONETAG_ENABLED?.trim().toLowerCase() === "true";
+  process.env.NEXT_PUBLIC_MONETAG_ENABLED?.trim().toLowerCase() !== "false";
 const MONETAG_ADSENSE_SAFE =
   process.env.NEXT_PUBLIC_MONETAG_ADSENSE_SAFE?.trim().toLowerCase() === "true";
+const MONETAG_SCRIPT_SRC =
+  process.env.NEXT_PUBLIC_MONETAG_SCRIPT_SRC?.trim() || "https://quge5.com/88/tag.min.js";
+const MONETAG_ZONE =
+  process.env.NEXT_PUBLIC_MONETAG_ZONE_LANDING?.trim() || "273485";
 
 export function MonetizationHead() {
   const loadMonetag = MONETAG_ENABLED && (!ADSENSE_ENABLED || MONETAG_ADSENSE_SAFE);
@@ -28,8 +34,8 @@ export function MonetizationHead() {
 
       {loadMonetag ? (
         <script
-          src="https://quge5.com/88/tag.min.js"
-          data-zone="273485"
+          src={MONETAG_SCRIPT_SRC}
+          data-zone={MONETAG_ZONE}
           async
           data-cfasync="false"
         />
