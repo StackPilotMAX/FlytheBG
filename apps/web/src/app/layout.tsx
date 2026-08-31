@@ -17,6 +17,7 @@ import "./tool-pastel-theme.css";
 import "./passport-manual-controls.css";
 import "./top-ad-placement.css";
 import "./feature-fixes.css";
+import "./mobile-header-fixes.css";
 import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
 import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
@@ -70,7 +71,7 @@ gtag('config', 'G-S50DRFD37X');`}
         <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="none"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
         <MotionLayer />
         <FeatureAnnouncement />
-        <header className="siteHeader"><div className="shell navShell"><FlytheBGLogo priority /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link></div></header>
+        <header className="siteHeader"><div className="shell navShell"><FlytheBGLogo priority /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link><Link className="mobileFeaturesButton" href="/features" aria-label="Open FlytheBG features">Features <span>↗</span></Link></div></header>
         {children}
         <footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><FlytheBGLogo size={42}/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer>
         <MonetizationScripts />
