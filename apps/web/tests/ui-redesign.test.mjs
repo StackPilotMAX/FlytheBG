@@ -121,7 +121,7 @@ test("AdSense and Monetag remain disabled by default and safely gated", () => {
   assert.match(envExample, /NEXT_PUBLIC_MONETAG_ENABLED=false/);
   assert.match(envExample, /NEXT_PUBLIC_MONETAG_ADSENSE_SAFE=false/);
   assert.match(monetizationConfig, /!adsenseEnabled \|\| monetagAdsenseSafe/);
-  assert.match(monetizationConfig, /OnClick\/pop-under formats together with AdSense/);
+  assert.match(monetizationConfig, /monetagScriptEnabled: Boolean\(monetagEnabled && \(!adsenseEnabled \|\| monetagAdsenseSafe\)/);
   assert.match(monetizationScripts, /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js/);
   assert.match(preparePublic, /MONETAG_ADS_TXT_LINES/);
 });
