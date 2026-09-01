@@ -288,7 +288,9 @@ body:has(.cinematicHero) .cursorGlow{display:none!important}
   .cinematicHeroLayer{padding:12px 14px 22px}
   .cinematicNav{min-height:44px;padding:6px 7px;border-radius:14px}
   .cinematicLogo{width:32px;height:32px}
-  .cinematicTabs{display:none}
+  .cinematicTabs{display:flex}
+  .cinematicTabs a{display:none}
+  .cinematicTabs a[href="/features"]{display:inline-flex;min-height:32px;padding:0 13px;background:rgba(255,255,255,.58);color:var(--fly-ink);font-weight:700;box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)}
   .cinematicHeroContent{margin-top:clamp(56px,9.5vh,86px);padding:0 8px}
   .cinematicBadge{margin-bottom:20px;font-size:10px}
   .cinematicHeroContent h1{font-size:clamp(46px,14vw,72px);line-height:.93;letter-spacing:-.045em}
