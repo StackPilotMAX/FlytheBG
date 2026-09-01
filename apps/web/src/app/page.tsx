@@ -68,11 +68,12 @@ export default function HomePage() {
           <nav className="cinematicNav" aria-label="FLYTHEBG tools">
             <FlytheBGLogo className="cinematicLogo" imageClassName="cinematicBrandMark" size={28} />
             <div className="cinematicTabs">
-              <Link href="/remove-background">Remove BG</Link>
-              <Link href="/features/passport-photo">Passport</Link>
-              <Link href="/faq">FAQ</Link>
-              <Link href="/privacy">Security</Link>
-              <Link href="/about">About</Link>
+              <Link className="cinematicHomeRemoveBg" href="/remove-background">Remove BG</Link>
+              <Link href="/features">Features</Link>
+              <Link className="cinematicHomePassport" href="/features/passport-photo">Passport</Link>
+              <Link className="cinematicHomeFaq" href="/faq">FAQ</Link>
+              <Link className="cinematicHomeSecurity" href="/privacy">Security</Link>
+              <Link className="cinematicHomeAbout" href="/about">About</Link>
             </div>
           </nav>
 
