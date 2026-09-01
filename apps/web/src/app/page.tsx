@@ -85,7 +85,7 @@ export default function HomePage() {
             <div className="cinematicBadge"><span className="cinematicBadgeIcon" aria-hidden="true">L</span><span>FLYTHEBG · Local AI · your photo stays on-device</span></div>
             <h1 id="flythebg-hero-title">FLYTHEBG<br /><em>Remove backgrounds. Make passport photos.</em></h1>
             <p>FLYTHEBG is a free browser-first image toolkit for creating clean transparent cutouts and print-ready passport sheets directly in your browser. Fast local processing, precise framing controls, and no image-processing upload required.</p>
-            <Link className="cinematicCta" href="/remove-background"><span className="cinematicCtaLabel">Start with your photo</span><span className="cinematicCtaArrow" aria-hidden="true">→</span></Link>
+            <Link className="cinematicCta" href="/features"><span className="cinematicCtaLabel">See features</span><span className="cinematicCtaArrow" aria-hidden="true">→</span></Link>
             <div className="cinematicTrust" aria-label="FLYTHEBG benefits"><span>Free to use</span><span aria-hidden="true">·</span><span>No account</span><span aria-hidden="true">·</span><span>Images stay local</span></div>
             <a className="landingScrollCue" href="#what-flythebg-does">Scroll to explore <span aria-hidden="true">↓</span></a>
           </section>
