@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/features", priority: .9, changeFrequency: "weekly" as const },
     { path: "/remove-background", priority: .95, changeFrequency: "weekly" as const },
     { path: "/ai-watermark-remover", priority: .98, changeFrequency: "weekly" as const },
+    { path: "/donate", priority: .8, changeFrequency: "monthly" as const },
     { path: "/features/passport-photo", priority: .9, changeFrequency: "weekly" as const },
     { path: "/faq", priority: .88, changeFrequency: "monthly" as const },
     { path: "/dashboard", priority: .55, changeFrequency: "daily" as const },
