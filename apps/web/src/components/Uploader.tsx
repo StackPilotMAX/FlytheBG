@@ -3,6 +3,7 @@
 import { ChangeEvent, ClipboardEvent, DragEvent, useId, useRef, useState } from "react";
 import { CropEditor } from "@/components/CropEditor";
 import { removeBackgroundWithFallback } from "@/lib/browser-background-removal";
+import { protectForegroundDetails } from "@/lib/foreground-protection";
 import { validateUploadBasics } from "@/lib/image-validation";
 
 const MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB || "12") || 12;
@@ -110,12 +111,15 @@ export function Uploader() {
       originalPreview = await createPreview(file, "Original image");
       setOriginal(originalPreview);
       const output = await removeBackgroundWithFallback(file, setProgress);
-      resultPreview = await createPreview(output.blob, "Background removed image");
-      setResultBlob(output.blob);
+      setProgress("Checking the cutout for face, clothing, and interior detail…");
+      const protectedOutput = await protectForegroundDetails(file, output.blob).catch(() => ({ blob: output.blob, protected: false }));
+      resultPreview = await createPreview(protectedOutput.blob, "Background removed image");
+      setResultBlob(protectedOutput.blob);
       setResult(resultPreview);
       const qualityNotes = [
         `IMG.LY ${output.modelLabel}`,
         output.edgeRefined ? "refined alpha edges" : "model alpha",
+        protectedOutput.protected ? "face/clothing protection" : "conservative mask",
         output.restoredResolution ? "source detail restored" : output.optimizedForMemory ? "memory-safe output" : "full working resolution",
         "local GPU/CPU path",
       ];
@@ -195,7 +199,7 @@ export function Uploader() {
         </div>
 
         <div className="resultActionsBar">
-          <div><strong>Transparent PNG</strong><span>Eligible results now receive conservative alpha-matte cleanup. When a resized inference mask was used and memory allows, FlytheBG can reapply that refined mask to higher-resolution source detail.</span></div>
+          <div><strong>Transparent PNG</strong><span>FlytheBG now adds a conservative interior-detail pass that protects likely face, shirt, and other subject pixels without restoring the outer background silhouette.</span></div>
           <div className="buttonRow">
             <button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Browser AI" })}>Crop</button>
             <button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button>
@@ -215,7 +219,7 @@ export function Uploader() {
       </div>
 
       <div className="modelFlow" aria-label="Browser background-removal model">
-        <div><span>01</span><strong>Smart local model</strong><small>FP16 on capable WebGPU devices · quantized on constrained devices · CPU/WASM fallback</small></div>
+        <div><span>01</span><strong>Smart local model</strong><small>FP16 on capable WebGPU devices · quantized on constrained devices · CPU/WASM fallback · conservative face/clothing protection</small></div>
       </div>
 
       <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/*" onChange={onInput} disabled={stage === "processing"}/>
@@ -233,7 +237,7 @@ export function Uploader() {
             <span className="spinner" aria-hidden="true"/>
             <strong>Removing the background in your browser…</strong>
             <p>{progress}</p>
-            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, refines eligible transparency edges, and retries with CPU/WASM if WebGPU cannot finish.</small>
+            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, protects interior face/clothing detail, refines eligible transparency edges, and retries with CPU/WASM if WebGPU cannot finish.</small>
           </div>
         ) : (
           <div className="uploadPrompt">
