@@ -18,64 +18,18 @@ import "./passport-manual-controls.css";
 import "./top-ad-placement.css";
 import "./feature-fixes.css";
 import "./mobile-header-fixes.css";
-import { FeatureAnnouncement } from "@/components/FeatureAnnouncement";
+import "./watermark-tool.css";
 import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
 import { appConfig } from "@/lib/config";
-
 const instrumentSerif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], display: "swap", variable: "--font-instrument-serif" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", variable: "--font-inter" });
-
 const siteVideo = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4";
 const defaultTitle = `FLYTHEBG | Free AI Background Remover & Passport Photo Maker`;
-const defaultDescription = "FLYTHEBG is a free browser-first image toolkit for removing photo backgrounds, creating transparent PNGs, and making print-ready passport photo sheets. Your working photo stays on your device.";
+const defaultDescription = "FLYTHEBG is a free browser-first image toolkit for removing backgrounds, making passport photos, and working with AI watermark-removal media utilities. Supported working media stays on the user's device.";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || "";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(appConfig.siteUrl),
-  title: { default: defaultTitle, template: `%s | FLYTHEBG` },
-  description: defaultDescription,
-  applicationName: "FLYTHEBG",
-  keywords: ["FLYTHEBG", "FlytheBG", "Fly the BG", "flythebg.com", "free background remover", "remove background online", "remove image background", "free AI background remover", "transparent PNG maker", "passport photo maker", "passport size photo maker", "browser background remover", "local AI background remover", "private background remover", "no upload background remover"],
-  authors: [{ name: "FLYTHEBG", url: appConfig.siteUrl }], creator: "FLYTHEBG", publisher: "FLYTHEBG",
-  category: "Image editing tools", classification: "Browser-based image editing and background removal", referrer: "origin-when-cross-origin",
-  manifest: "/manifest.webmanifest", formatDetection: { telephone: false, address: false, email: false },
-  robots: { index: true, follow: true, nocache: false, googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
-  openGraph: { title: defaultTitle, description: defaultDescription, siteName: "FLYTHEBG", locale: "en_US", type: "website", url: "/" },
-  twitter: { card: "summary", title: defaultTitle, description: defaultDescription },
-  appleWebApp: { capable: true, title: "FLYTHEBG", statusBarStyle: "default" },
-  verification: { ...(googleVerification ? { google: googleVerification } : {}), ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}) },
-  icons: { icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }], shortcut: "/brand/flythebg-mark.svg", apple: "/brand/flythebg-mark.svg" },
-  other: { "application-name": "FLYTHEBG", "apple-mobile-web-app-title": "FLYTHEBG" },
-};
-
+export const metadata: Metadata = { metadataBase: new URL(appConfig.siteUrl), title: { default: defaultTitle, template: `%s | FLYTHEBG` }, description: defaultDescription, applicationName: "FLYTHEBG", keywords: ["FLYTHEBG", "FlytheBG", "free background remover", "Gemini watermark remover", "Meta AI watermark remover", "AI watermark remover", "remove background online", "transparent PNG maker", "passport photo maker"], authors: [{ name: "FLYTHEBG", url: appConfig.siteUrl }], creator: "FLYTHEBG", publisher: "FLYTHEBG", category: "Image editing tools", classification: "Browser-based image editing and media utilities", referrer: "origin-when-cross-origin", manifest: "/manifest.webmanifest", formatDetection: { telephone: false, address: false, email: false }, robots: { index: true, follow: true, nocache: false, googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } }, openGraph: { title: defaultTitle, description: defaultDescription, siteName: "FLYTHEBG", locale: "en_US", type: "website", url: "/" }, twitter: { card: "summary", title: defaultTitle, description: defaultDescription }, appleWebApp: { capable: true, title: "FLYTHEBG", statusBarStyle: "default" }, verification: { ...(googleVerification ? { google: googleVerification } : {}), ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}) }, icons: { icon: [{ url: "/brand/flythebg-mark.svg", type: "image/svg+xml", sizes: "any" }], shortcut: "/brand/flythebg-mark.svg", apple: "/brand/flythebg-mark.svg" }, other: { "application-name": "FLYTHEBG", "apple-mobile-web-app-title": "FLYTHEBG" } };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d9d5ef", colorScheme: "light" };
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <head>
-        <meta name="monetag" content="5e777e0aa6ce027ca2e1a8ec1c8325b3" />
-        <MonetizationHead />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-S50DRFD37X" strategy="lazyOnload" />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`window.dataLayer = window.dataLayer || [];
-function gtag(){window.dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-S50DRFD37X');`}
-        </Script>
-      </head>
-      <body className={`${instrumentSerif.variable} ${inter.variable}`}>
-        <div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="none"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div>
-        <MotionLayer />
-        <FeatureAnnouncement />
-        <header className="siteHeader"><div className="shell navShell"><FlytheBGLogo priority /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/remove-background">Try it free <span>↗</span></Link><Link className="mobileFeaturesButton" href="/features" aria-label="Open FlytheBG features">Features <span>↗</span></Link></div></header>
-        {children}
-        <footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><FlytheBGLogo size={42}/><p>Browser-first image tools. Your working photo stays on your device while the browser runs the local AI model.</p></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer>
-        <MonetizationScripts />
-      </body>
-    </html>
-  );
-}
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) { return <html lang="en"><head><meta name="monetag" content="5e777e0aa6ce027ca2e1a8ec1c8325b3" /><MonetizationHead /><Script src="https://www.googletagmanager.com/gtag/js?id=G-S50DRFD37X" strategy="lazyOnload" /><Script id="google-analytics" strategy="lazyOnload">{`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S50DRFD37X');`}</Script></head><body className={`${instrumentSerif.variable} ${inter.variable}`}><div className="siteVideoBackdrop" aria-hidden="true"><video className="siteBackdropVideo" autoPlay muted loop playsInline preload="none"><source src={siteVideo} type="video/mp4" /></video><div className="siteBackdropWash" /></div><MotionLayer /><header className="siteHeader"><div className="shell navShell"><FlytheBGLogo priority /><nav className="navLinks" aria-label="Primary navigation"><Link href="/remove-background">Remove BG</Link><Link href="/ai-watermark-remover">Watermark Remover</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link></nav><Link className="navCta" href="/ai-watermark-remover">Try it free <span>↗</span></Link><Link className="mobileFeaturesButton" href="/features" aria-label="Open FlytheBG features">Features <span>↗</span></Link></div></header>{children}<footer className="siteFooter"><div className="shell footerGrid"><div className="footerBrand"><FlytheBGLogo size={42}/><p>Browser-first image and media tools. Supported workflows keep working media on your device.</p><div className="footerSocials"><a href="https://github.com/StackPilotMAX" target="_blank" rel="noreferrer" aria-label="FlytheBG GitHub">GitHub</a><a href="https://instagram.com/@flythebg" target="_blank" rel="noreferrer" aria-label="FlytheBG Instagram">Instagram</a></div></div><div className="footerLinks"><Link href="/remove-background">Remove Background</Link><Link href="/ai-watermark-remover">AI Watermark Remover</Link><Link href="/features/passport-photo">Passport Photo</Link><Link href="/features">Features</Link><Link href="/guides">Guides</Link><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link></div></div><div className="shell footerBottom"><span>© {new Date().getFullYear()} {appConfig.name}</span>{appConfig.contactEmail && <span>{appConfig.contactEmail}</span>}</div></footer><MonetizationScripts /></body></html>; }
