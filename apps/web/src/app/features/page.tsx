@@ -1,53 +1,9 @@
 import Link from "next/link";
-
-export const metadata = {
-  title: "FlytheBG Features: Image Tools",
-  description: "Explore FlytheBG's live browser image tools for background removal and passport-photo creation, with clear privacy behavior and supporting guidance.",
-  alternates: { canonical: "/features" },
-  openGraph: {
-    title: "FlytheBG Features: Free Browser Image Tools",
-    description: "Explore FlytheBG's background remover and passport photo maker, built for fast browser-side image processing and clear privacy behavior.",
-    url: "/features",
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "FlytheBG Features: Free Browser Image Tools",
-    description: "Explore FlytheBG's live background removal and passport-photo tools.",
-  },
-};
-
+export const metadata = { title: "FlytheBG Features: Image & AI Media Tools", description: "Explore FlytheBG's browser-first tools for background removal, passport photos, and AI watermark-removal workflows.", alternates: { canonical: "/features" }, openGraph: { title: "FlytheBG Features: Image & AI Media Tools", description: "Explore FlytheBG's live browser-first media tools.", url: "/features", type: "website" }, twitter: { card: "summary", title: "FlytheBG Features: Image & AI Media Tools", description: "Explore FlytheBG's live browser-first media tools." } };
 const tools = [
-  { index: "01", href: "/remove-background", name: "Remove Background", status: "Live", icon: "✦", description: "Browser-only IMG.LY removal with the smaller quantized IS-Net model, conservative fine-edge preservation, transparent PNG download, and crop workflow." },
-  { index: "02", href: "/features/passport-photo", name: "Passport Photo Maker", status: "Live", icon: "▣", description: "Exact physical sizing, optional local background removal with the same smaller browser model, framing, background color, multiple copies, and measured print-sheet export." },
-  { index: "03", href: "/about", name: "How FlytheBG Works", status: "Guide", icon: "◎", description: "A plain-language explanation of the browser-first architecture, small-model image lifecycle, product limitations, and the principles used for the current production tools." },
+ { index:"01", href:"/remove-background", name:"Remove Background", status:"Live", icon:"✦", description:"Browser-side IMG.LY background removal with adaptive local processing, fine-edge safeguards, transparent PNG download, and crop workflow." },
+ { index:"02", href:"/ai-watermark-remover", name:"AI Watermark Remover", status:"Live", icon:"◈", description:"Gemini-focused search page with separate Gemini and Meta AI source labels, image reconstruction, and a conservative local video preview workflow." },
+ { index:"03", href:"/features/passport-photo", name:"Passport Photo Maker", status:"Live", icon:"▣", description:"Exact physical sizing, framing, background color, multiple copies, measured print-sheet export, and local background removal." },
+ { index:"04", href:"/about", name:"How FlytheBG Works", status:"Guide", icon:"◎", description:"Plain-language explanation of browser-first architecture, privacy behavior, third-party model attribution, and product limitations." },
 ];
-
-export default function FeaturesPage() {
-  return (
-    <main className="featurePage">
-      <section className="pageHero">
-        <div className="shell narrowHero"><span className="eyebrow"><i/> Feature hub</span><h1>Image tools with a browser-first production model.</h1><p>FlytheBG keeps the catalog focused on features that are already available. Each live tool has its own readable workspace, clear privacy behavior, and supporting guidance that explains how to use the workflow and where its limits are.</p></div>
-      </section>
-
-      <section className="section">
-        <div className="shell featureCatalog">
-          {tools.map((tool) => (
-            <Link key={tool.name} href={tool.href} className="catalogCard">
-              <div className="catalogTop"><span className="featureIndex">{tool.index}</span><span className={`statusPill ${tool.status === "Live" ? "live" : ""}`}>{tool.status}</span></div>
-              <div className="featureMark">{tool.icon}</div><h2>{tool.name}</h2><p>{tool.description}</p><span className="featureCta">{tool.status === "Live" ? "Open tool ↗" : "Read the guide ↗"}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="section principlesSection" id="principles">
-        <div className="shell workflowGrid"><div className="sectionHeading compact"><span className="eyebrow"><i/> Product principles</span><h2>Useful output comes before decorative complexity.</h2><p>The production site separates the cinematic landing experience from the workspaces where people select, process, inspect, and download images.</p></div><div className="principleList"><article><strong>Readable surfaces</strong><p>Tools use opaque panels and predictable spacing so animated backgrounds never reduce legibility or make controls difficult to distinguish.</p></article><article><strong>Native interactions</strong><p>File selection uses native inputs; drag/drop and paste are additions, not fragile replacements. A visitor should still understand what the page does without relying on an animation.</p></article><article><strong>Browser compute first</strong><p>Image processing stays client-side when practical, which keeps source image bytes out of a FlytheBG inference server in the current production architecture.</p></article><article><strong>Explain the limitations</strong><p>Automatic segmentation and passport-photo preparation cannot guarantee perfect edges or document acceptance. FlytheBG publishes those limitations next to the tools instead of hiding them behind marketing claims.</p></article></div></div>
-      </section>
-
-      <section className="section toolInfoSection">
-        <div className="shell infoCards"><article><span>Background removal</span><h2>For transparent cutouts and follow-up design work.</h2><p>Use the remover when the main goal is a transparent PNG. The supporting guide explains difficult edges, source-image choices, why the first run can be slower, and what is retained in browser memory.</p><Link className="textLink" href="/remove-background">Read and use Remove Background ↗</Link></article><article><span>Passport workflow</span><h2>For measured photo rectangles and print sheets.</h2><p>Use the Passport Photo Maker when physical dimensions, DPI, framing, repeated copies, and a printable sheet matter. Always verify the issuing authority’s current rules before submitting a photo.</p><Link className="textLink" href="/features/passport-photo">Read and use Passport Photo Maker ↗</Link></article><article><span>Architecture</span><h2>For the details behind the product.</h2><p>The About page documents what runs in the browser, why FlytheBG uses the smaller quantized model, what FlytheBG does not promise, and how the current site treats image data and advertising during review.</p><Link className="textLink" href="/about">About FlytheBG ↗</Link></article></div>
-      </section>
-    </main>
-  );
-}
+export default function FeaturesPage(){return <main className="featurePage"><section className="pageHero"><div className="shell narrowHero"><span className="eyebrow"><i/> Feature hub</span><h1>Image tools with a browser-first production model.</h1><p>FlytheBG keeps the catalog focused on usable features. Each tool has a readable workspace, clear privacy behavior, source attribution, and practical guidance.</p></div></section><section className="section"><div className="shell featureCatalog">{tools.map(tool=><Link key={tool.name} href={tool.href} className="catalogCard"><div className="catalogTop"><span className="featureIndex">{tool.index}</span><span className={`statusPill ${tool.status === "Live" ? "live" : ""}`}>{tool.status}</span></div><div className="featureMark">{tool.icon}</div><h2>{tool.name}</h2><p>{tool.description}</p><span className="featureCta">{tool.status === "Live" ? "Open tool ↗" : "Read the guide ↗"}</span></Link>)}</div></section><section className="section principlesSection" id="principles"><div className="shell workflowGrid"><div className="sectionHeading compact"><span className="eyebrow"><i/> Product principles</span><h2>Useful output comes before decorative complexity.</h2><p>The cinematic landing experience stays separate from workspaces where people select, process, inspect, and download media.</p></div><div className="principleList"><article><strong>Clear labels</strong><p>Gemini and Meta AI are presented as separate source labels rather than a misleading combined brand.</p></article><article><strong>Native interactions</strong><p>File selection uses native browser inputs, with drag/drop as an optional convenience.</p></article><article><strong>Browser compute first</strong><p>Supported image-processing workflows stay client-side when practical, reducing the need for a FlytheBG inference server.</p></article><article><strong>Explain limitations</strong><p>Automatic reconstruction cannot guarantee perfect results, so the tools tell visitors to inspect output before publishing.</p></article></div></div></section><section className="section toolInfoSection"><div className="shell infoCards"><article><span>Watermarks</span><h2>Gemini search intent, Meta AI support.</h2><p>One themed workspace handles the common editing flow while keeping provider names separate and clearly attributed.</p><Link className="textLink" href="/ai-watermark-remover">Open AI Watermark Remover ↗</Link></article><article><span>Background removal</span><h2>Transparent cutouts.</h2><p>Use the local AI remover for portraits, products, graphics, and other subjects where a transparent PNG is useful.</p><Link className="textLink" href="/remove-background">Open Remove Background ↗</Link></article><article><span>Passport workflow</span><h2>Measured photo sheets.</h2><p>Set physical dimensions and DPI, frame the subject, repeat copies, and create a printable sheet.</p><Link className="textLink" href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article></div></section></main>}
