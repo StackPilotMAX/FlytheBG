@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-const BMC_URL = "https://buymeacoffee.com/flythebg";
+const BMC_URL = "https://www.buymeacoffee.com/flythebg";
 
 export const metadata: Metadata = {
   title: "Buy Me a Book · FlytheBG",
@@ -34,7 +34,7 @@ export default function DonatePage() {
               📖 Buy Me a Book <span>↗</span>
             </a>
             <div className="bmcHandle">
-              Official support page: <a href={BMC_URL} target="_blank" rel="noopener noreferrer">buymeacoffee.com/flythebg</a>
+              Official support page: <a href={BMC_URL} target="_blank" rel="noopener noreferrer">www.buymeacoffee.com/flythebg</a>
             </div>
             <div className="donateStatus">
               <strong>Payment status:</strong> Buy Me a Coffee is the payment processor. A return to this
