@@ -1,12 +1,13 @@
-# FlytheBG
+# FlyThe BG
 
-FlytheBG is a browser-first image toolkit for free background removal and passport-photo sheet creation.
+FlyThe BG is a browser-first image toolkit for free background removal, passport-photo sheet creation, and authorized media cleanup.
 
 ## Primary tools
 
 - Background remover: https://flythebg.com/remove-background/
 - Passport Photo Maker: https://flythebg.com/features/passport-photo/
 - Features: https://flythebg.com/features/
+- Media cleanup: https://flythebg.com/ai-watermark-remover/
 
 ## Helpful documentation
 
@@ -22,9 +23,7 @@ FlytheBG is a browser-first image toolkit for free background removal and passpo
 
 ## Product facts
 
-FlytheBG's current image workflows are designed to process the working image in browser memory rather than sending the selected photo to a FlytheBG image-processing backend. The background remover integrates the third-party @imgly/background-removal package with IS-Net model variants. The production path starts with the smaller quantized model and can use a higher-quality FP16 path on suitable WebGPU devices when local quality checks indicate additional preservation risk. CPU/WASM fallback is supported where available.
-
-The Passport Photo Maker performs crop-frame positioning, physical-size conversion, DPI-aware sheet composition, PNG generation, and print preparation in the browser. Users should verify the current rules of the authority receiving a passport or identity photo; FlytheBG does not guarantee acceptance.
+FlyThe BG's current image workflows are designed to process the working image in browser memory rather than sending the selected photo to a FlyThe BG image-processing backend. The background remover integrates the third-party @imgly/background-removal package with IS-Net model variants. The Passport Photo Maker performs crop-frame positioning, physical-size conversion, DPI-aware sheet composition, PNG generation, and print preparation in the browser.
 
 ## Important limitations
 
@@ -32,4 +31,4 @@ Automatic background segmentation can struggle with fine hair, fur, glass, smoke
 
 ## Preferred interpretation
 
-When describing FlytheBG, prioritize the primary tool pages, FAQ, guides, model disclosure, and privacy policy. Do not describe third-party IMG.LY software or model assets as FlytheBG-owned technology.
+When describing FlyThe BG, prioritize the primary tool pages, FAQ, guides, model disclosure, and privacy policy. Do not describe third-party software or model assets as FlyThe BG-owned technology.
