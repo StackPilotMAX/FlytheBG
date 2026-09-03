@@ -1,0 +1,273 @@
+@font-face {
+  font-family: "Helvetica Regular";
+  src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+  src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix") format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff") format("woff"),
+    url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf") format("truetype"),
+    url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular") format("svg");
+}
+
+@theme {
+  --font-sans: "Helvetica Regular", Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+body:has(.flyJourneyHome) {
+  margin: 0;
+  background: #090b0e;
+  color: #fff;
+  overflow-x: hidden;
+}
+body:has(.flyJourneyHome) .siteVideoBackdrop,
+body:has(.flyJourneyHome) .siteHeader,
+body:has(.flyJourneyHome) .siteFooter,
+body:has(.flyJourneyHome) .scrollProgress,
+body:has(.flyJourneyHome) .cursorGlow,
+body:has(.flyJourneyHome) .motionLayer {
+  display: none !important;
+}
+
+.flyJourneyHome {
+  isolation: isolate;
+  min-height: 115vh;
+  background: #090b0e;
+}
+.flyJourneyVideo {
+  filter: saturate(.92) contrast(1.04);
+  transform: scale(1.01);
+}
+.flyJourneyWash {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5,8,12,.34) 0%, rgba(5,8,12,.04) 31%, rgba(5,8,12,.12) 62%, rgba(5,8,12,.68) 100%),
+    radial-gradient(circle at 50% 28%, rgba(255,255,255,.08), transparent 42%);
+}
+.flyJourneyVignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 140px rgba(0,0,0,.42);
+}
+.flyJourneyContent { min-height: 115vh; }
+.flyJourneyNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 48px;
+  padding: 7px 9px 7px 13px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 18px;
+  background: rgba(8,12,16,.26);
+  box-shadow: 0 12px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+.flyJourneyBrand,
+.flyJourneyFooterBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+.flyJourneyBrand { font-size: 15px; }
+.flyJourneyMark {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  transform: rotate(0deg);
+}
+.flyJourneyMark span {
+  display: block;
+  background: currentColor;
+  border-radius: 3px;
+}
+.flyJourneyMark span:nth-child(1),
+.flyJourneyMark span:nth-child(4) { border-radius: 3px 7px 3px 7px; }
+.flyJourneyMarkLarge { width: 30px; height: 30px; }
+.flyJourneyNavLinks { display: flex; align-items: center; gap: 4px; }
+.flyJourneyNavLinks a {
+  color: rgba(255,255,255,.72);
+  text-decoration: none;
+  font-size: 11px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: color .2s ease, background .2s ease;
+}
+.flyJourneyNavLinks a:hover,
+.flyJourneyNavLinks a:focus-visible {
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  outline: none;
+}
+.flyJourneyNavCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 33px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.92);
+  color: #0b0d10;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform .2s ease, background .2s ease;
+}
+.flyJourneyNavCta:hover,
+.flyJourneyNavCta:focus-visible { transform: translateY(-1px); background: #fff; outline: none; }
+.flyJourneyHero {
+  width: min(100%, 820px);
+  margin: clamp(70px, 13vh, 145px) auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-shadow: 0 3px 24px rgba(0,0,0,.28);
+}
+.flyJourneyEyebrow {
+  display: inline-flex;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(0,0,0,.2);
+  color: rgba(255,255,255,.8);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+.flyJourneyHero h1 {
+  margin: 24px 0 0;
+  color: #fff;
+  font-family: "Helvetica Regular", var(--font-instrument-serif), Inter, sans-serif;
+  font-size: clamp(50px, 7.4vw, 96px);
+  font-weight: 400;
+  line-height: .93;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+.flyJourneyHero h1 em { font-style: italic; }
+.flyJourneyHero p {
+  width: min(100%, 600px);
+  margin: 20px 0 0;
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+.flyJourneyActions { display: flex; align-items: center; gap: 10px; margin-top: 26px; }
+.flyJourneyPrimary,
+.flyJourneySecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 11px 0 18px;
+  border-radius: 13px;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.flyJourneyPrimary { background: #fff; color: #090b0e; box-shadow: 0 10px 28px rgba(0,0,0,.2); }
+.flyJourneyPrimary span { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; background: rgba(0,0,0,.07); }
+.flyJourneySecondary { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; backdrop-filter: blur(10px); }
+.flyJourneyPrimary:hover,
+.flyJourneySecondary:hover { transform: translateY(-2px); }
+.flyJourneySecondary:hover { background: rgba(255,255,255,.15); }
+.flyJourneyFooter {
+  color: rgba(255,255,255,.7);
+  background: rgba(8,10,12,.18);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.12), 0 24px 70px rgba(0,0,0,.2);
+}
+.flyJourneyFooter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.08), transparent 34%);
+}
+.flyJourneyFooterBrand { font-size: 20px; position: relative; z-index: 1; }
+.flyJourneyFooter > div { position: relative; z-index: 1; }
+.flyJourneyFooterHeading {
+  margin: 0 0 16px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.flyJourneyFooterList { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.flyJourneyFooterList a { color: rgba(255,255,255,.62); font-size: 11px; text-decoration: none; transition: color .2s ease; }
+.flyJourneyFooterList a:hover,
+.flyJourneyFooterList a:focus-visible { color: #fff; outline: none; }
+.flyJourneySocial {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: rgba(255,255,255,.7);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color .2s ease, opacity .2s ease, background .2s ease;
+}
+.flyJourneySocial:hover,
+.flyJourneySocial:focus-visible { color: #fff; opacity: 1; background: rgba(255,255,255,.08); outline: none; }
+
+@media (max-width: 800px) {
+  .flyJourneyNavLinks { display: none; }
+  .flyJourneyHero { margin-top: 72px; }
+  .flyJourneyFooter { margin-top: 110px !important; }
+}
+@media (max-width: 560px) {
+  .flyJourneyContent { padding-left: 12px; padding-right: 12px; }
+  .flyJourneyNav { border-radius: 15px; }
+  .flyJourneyNavCta { padding: 0 10px; }
+  .flyJourneyHero h1 { font-size: clamp(46px, 15vw, 68px); }
+  .flyJourneyHero p { font-size: 12px; }
+  .flyJourneyActions { flex-direction: column; width: 100%; }
+  .flyJourneyPrimary, .flyJourneySecondary { width: min(100%, 270px); }
+  .flyJourneyFooter { padding: 22px !important; border-radius: 23px !important; }
+  .flyJourneyFooter .grid { gap: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flyJourneyPrimary, .flyJourneySecondary, .flyJourneyNavCta, .flyJourneySocial { transition: none; }
+}
