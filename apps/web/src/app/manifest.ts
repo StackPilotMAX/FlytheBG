@@ -14,15 +14,15 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "any",
-    background_color: "#d9d5ef",
-    theme_color: "#d9d5ef",
+    background_color: "#050505",
+    theme_color: "#050505",
     lang: "en",
     categories: ["photo", "utilities", "productivity"],
     icons: [{ src: icon, sizes: "any", type: "image/svg+xml", purpose: "any" }],
     shortcuts: [
       { name: "Remove Background", short_name: "Remove BG", description: "Open the local browser background remover.", url: "/remove-background", icons: [{ src: icon, sizes: "any", type: "image/svg+xml" }] },
       { name: "Passport Photo Maker", short_name: "Passport Photo", description: "Create a measured passport-photo print sheet.", url: "/features/passport-photo", icons: [{ src: icon, sizes: "any", type: "image/svg+xml" }] },
-      { name: "FAQ", short_name: "FAQ", description: "Open FlytheBG questions and answers.", url: "/faq", icons: [{ src: icon, sizes: "any", type: "image/svg+xml" }] },
+      { name: "FAQ", short_name: "FAQ", description: "Open FlyThe BG questions and answers.", url: "/faq", icons: [{ src: icon, sizes: "any", type: "image/svg+xml" }] },
     ],
   };
 }
