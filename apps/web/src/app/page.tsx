@@ -5,30 +5,87 @@ import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { appConfig } from "@/lib/config";
 
-const homeTitle = "FLYTHEBG | Free Background Remover & Passport Photo Maker";
-const homeDescription = "FLYTHEBG is a free browser-first image toolkit for removing photo backgrounds, creating transparent PNGs, and making print-ready passport photo sheets. Your working photo stays on your device.";
 const SUPPORT_URL = "https://buymeacoffee.com/flythebg";
+const homeTitle = "FLYTHEBG | Free Background Remover, Passport Photos & Media Tools";
+const homeDescription = "FLYTHEBG is a browser-first toolkit for background removal, passport photo sheets, and authorized AI-media cleanup. Your working media stays in your browser.";
 
-export const metadata: Metadata = { title: { absolute: homeTitle }, description: homeDescription, keywords: ["FLYTHEBG", "FlytheBG", "Fly the BG", "flythebg.com", "free background remover", "remove background online", "local AI background remover", "private background remover", "transparent PNG maker", "passport photo maker", "passport size photo maker", "browser background remover"], alternates: { canonical: "/" }, openGraph: { title: homeTitle, description: homeDescription, url: "/", siteName: "FLYTHEBG", locale: "en_US", type: "website" }, twitter: { card: "summary", title: homeTitle, description: homeDescription } };
+export const metadata: Metadata = {
+  title: { absolute: homeTitle },
+  description: homeDescription,
+  keywords: ["FLYTHEBG", "background remover", "passport photo maker", "Gemini watermark remover", "browser image tools", "private image editor"],
+  alternates: { canonical: "/" },
+};
 
-const landingFaqs = [
-  ["Does my photo stay on my device?", "The current image tools are designed to keep the working source and generated output in browser memory. The page still downloads app, model, runtime, video, font, and optional advertising assets separately."],
-  ["Which model does background removal use?", "FlytheBG integrates IMG.LY's browser background-removal package and can use quantized IS-Net or FP16 IS-Net depending on device capability, with CPU/WASM fallback when WebGPU cannot finish."],
-  ["Where can I read all FAQs?", "FlytheBG has a dedicated FAQ page, plus deeper FAQ sections on the Background Remover and Passport Photo Maker pages."],
+const faqs = [
+  ["Does FLYTHEBG upload my photo?", "The core image workflows run in the browser. Your selected working media is processed in browser memory rather than being sent to a FLYTHEBG image-processing server."],
+  ["What can I do with FLYTHEBG?", "Remove backgrounds, create measured passport-photo sheets, and use the media cleanup tools for supported Gemini/Veo and other authorized media."],
+  ["Is it free?", "Yes. FLYTHEBG is designed as a free browser-first toolkit with no account required for the core workflows."],
 ] as const;
 
 export default function HomePage() {
-  const structuredData = { "@context": "https://schema.org", "@graph": [ { "@type": "WebSite", "@id": `${appConfig.siteUrl}/#website`, name: "FLYTHEBG", alternateName: ["FlytheBG", "Fly the BG", "FlytheBG.com"], url: appConfig.siteUrl, inLanguage: "en", description: homeDescription }, { "@type": "Organization", "@id": `${appConfig.siteUrl}/#publisher`, name: "FLYTHEBG", alternateName: "FlytheBG", url: appConfig.siteUrl, logo: `${appConfig.siteUrl}/brand/flythebg-mark.svg`, ...(appConfig.contactEmail ? { email: appConfig.contactEmail } : {}) }, { "@type": "SoftwareApplication", "@id": `${appConfig.siteUrl}/#app`, name: "FLYTHEBG Background Remover & Passport Photo Maker", applicationCategory: "MultimediaApplication", operatingSystem: "Web", browserRequirements: "JavaScript and WebAssembly; WebGPU optional", url: appConfig.siteUrl, isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: homeDescription, featureList: ["Local browser background removal", "Transparent PNG export", "Passport photo sizing and print sheets", "Manual per-photo passport positioning", "WebGPU and CPU/WASM inference"] } ] };
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "FLYTHEBG",
+    url: appConfig.siteUrl,
+    description: homeDescription,
+  };
 
   return (
-    <main className="cinematicLanding">
+    <main className="flyHome">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <section className="cinematicHero"><div className="cinematicHeroWash" aria-hidden="true" /><div className="cinematicHeroLayer"><nav className="cinematicNav" aria-label="FLYTHEBG tools"><FlytheBGLogo className="cinematicLogo" imageClassName="cinematicBrandMark" size={28} /><div className="cinematicTabs"><Link className="cinematicHomeRemoveBg" href="/remove-background">Remove BG</Link><Link href="/features">Features</Link><Link className="cinematicHomePassport" href="/features/passport-photo">Passport</Link><Link className="cinematicHomeFaq" href="/faq">FAQ</Link><Link className="cinematicHomeSecurity" href="/privacy">Security</Link><Link className="cinematicHomeAbout" href="/about">About</Link></div></nav><div className="landingHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="landing-inline-1" format="leaderboard" /></div><section className="cinematicHeroContent" aria-labelledby="flythebg-hero-title"><div className="cinematicBadge"><span className="cinematicBadgeIcon" aria-hidden="true">L</span><span>FLYTHEBG · Local AI · your photo stays on-device</span></div><h1 id="flythebg-hero-title">FLYTHEBG<br /><em>Remove backgrounds. Make passport photos.</em></h1><p>FLYTHEBG is a free browser-first image toolkit for creating clean transparent cutouts and print-ready passport sheets directly in your browser. Fast local processing, precise framing controls, and no image-processing upload required.</p><div className="cinematicHeroActions"><Link className="cinematicCta" href="/features"><span className="cinematicCtaLabel">See features</span><span className="cinematicCtaArrow" aria-hidden="true">→</span></Link><a className="cinematicCta cinematicSupportCta" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer"><span className="cinematicCtaLabel">📖 Support FlytheBG</span><span className="cinematicCtaArrow" aria-hidden="true">↗</span></a><a className="cinematicCta cinematicSupportCta" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer"><span className="cinematicCtaLabel">📖 Donate FlytheBG</span><span className="cinematicCtaArrow" aria-hidden="true">↗</span></a></div><div className="cinematicTrust" aria-label="FLYTHEBG benefits"><span>Free to use</span><span aria-hidden="true">·</span><span>No account</span><span aria-hidden="true">·</span><span>Images stay local</span></div><a className="landingScrollCue" href="#what-flythebg-does">Scroll to explore <span aria-hidden="true">↓</span></a></section></div></section>
-      <section className="cinematicLandingSection" id="what-flythebg-does"><div className="landingSectionShell"><div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Built for real image tasks</span><h2>One cinematic theme. Two practical tools.</h2><p>The homepage now continues beyond the first screen, using the same video backdrop and glass language as the rest of FLYTHEBG.</p></div><div className="landingCards"><article className="landingCard landingReveal"><span>Remove BG</span><h3>Transparent cutouts in the browser.</h3><p>Keep portrait, landscape, square, vertical, and panoramic proportions while the browser adapts model choice and working resolution to the device.</p><Link href="/remove-background">Open Background Remover ↗</Link></article><article className="landingCard landingReveal"><span>Passport</span><h3>Measured sheets with manual control.</h3><p>Frame the subject, adjust individual copies, choose physical dimensions and DPI, then print at 100% or download a PNG sheet.</p><Link href="/features/passport-photo">Open Passport Photo Maker ↗</Link></article><article className="landingCard landingReveal"><span>Privacy</span><h3>Browser-first by architecture.</h3><p>The current image workflow does not intentionally require a FLYTHEBG image-upload backend or image database for processing your working photo.</p><Link href="/privacy">Read Privacy & AI Policy ↗</Link></article></div></div></section>
-      <section className="cinematicLandingSection"><div className="landingSectionShell"><div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Search-ready product guide</span><h2>Free background removal and passport-photo tools, explained clearly.</h2><p>FLYTHEBG combines browser-based background removal with a measured passport photo workflow. Use the background remover for transparent PNG cutouts, or use the Passport Photo Maker when you need physical dimensions, DPI, crop framing, repeated copies, and a print-ready sheet. The working image is designed to stay in browser memory rather than being sent to a FLYTHEBG image-processing server.</p></div><div className="landingCards"><article className="landingCard landingReveal"><span>Background remover</span><h3>Remove an image background without a forced crop.</h3><p>Start with portraits, products, graphics, or other clear subjects. The tool preserves the source ratio, uses bounded inference dimensions for large images, and exports a transparent PNG. Difficult hair, fur, glass, smoke, blur, reflections, and similar-colored boundaries can still need review.</p><Link href="/remove-background">Learn about background removal ↗</Link></article><article className="landingCard landingReveal"><span>Passport photos</span><h3>Create measured photo sheets in the browser.</h3><p>Set a physical photo size and DPI, keep the source photo stationary, move the crop frame, customize individual copies, and generate a printable sheet. Always verify the current requirements of the authority receiving the photo.</p><Link href="/features/passport-photo">Learn about passport photo sheets ↗</Link></article><article className="landingCard landingReveal"><span>Privacy</span><h3>Understand browser-first image processing.</h3><p>The browser downloads software and model assets separately from your selected photo. FLYTHEBG documents working-memory cleanup, model attribution, advertising behavior, and the limits of what a website can control on a visitor&apos;s device.</p><Link href="/guides/browser-privacy">Read the browser privacy guide ↗</Link></article></div></div></section>
-      <section className="cinematicLandingSection"><div className="landingSectionShell"><div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Model transparency</span><h2>Third-party AI is named, attributed, and explained.</h2><p>FLYTHEBG uses IMG.LY&apos;s browser background-removal package with IS-Net model variants. The site does not claim those third-party model/runtime assets as FLYTHEBG property, does not claim to train them with your selected photo, and documents the current licensing statement and technical limits.</p></div><div className="landingCards"><article className="landingCard landingReveal"><span>Package</span><h3>@imgly/background-removal 1.7.0</h3><p>Integrated for browser-side background segmentation, with separate FLYTHEBG safeguards and output handling around the generated mask.</p><Link href="/model-disclosure">Model & Open Source Disclosure ↗</Link></article><article className="landingCard landingReveal"><span>Runtime</span><h3>WebGPU first, CPU/WASM fallback.</h3><p>Capable devices can try the FP16 model; constrained devices use the smaller quantized model. Runtime fallback protects compatibility when WebGPU fails.</p><Link href="/guides/browser-privacy">Browser privacy guide ↗</Link></article><article className="landingCard landingReveal"><span>Limits</span><h3>AI output is an estimate.</h3><p>Fine hair, fur, glass, smoke, reflections, motion blur, compression, and low contrast can still produce imperfect segmentation.</p><Link href="/faq">Read common questions ↗</Link></article></div></div></section>
-      <section className="cinematicLandingSection" id="landing-faq"><div className="landingSectionShell"><div className="landingSectionHeader landingReveal"><span className="eyebrow"><i/> Quick FAQ</span><h2>Questions open smoothly here—and the full FAQ has its own page.</h2><p>Click to open or close each answer. Tool-specific questions remain available directly on their respective tool pages.</p></div><div className="landingFaqGrid"><HoverFaqList items={landingFaqs} /></div><div className="landingFaqActions landingReveal"><Link className="cinematicCta" href="/faq"><span className="cinematicCtaLabel">Open all FAQs</span><span className="cinematicCtaArrow" aria-hidden="true">→</span></Link><Link className="textLink" href="/remove-background#faq">Background remover FAQ ↗</Link><Link className="textLink" href="/features/passport-photo#faq">Passport FAQ ↗</Link></div></div></section>
-      <footer className="cinematicLandingFooter"><FlytheBGLogo className="landingBrandLogo" imageClassName="landingBrandMark" size={44} /><nav aria-label="Landing footer"><Link href="/faq">FAQ</Link><Link href="/model-disclosure">Model Disclosure</Link><Link href="/privacy">Privacy & AI</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><Link href="/contact">Contact</Link><a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">📖 Support FlytheBG ↗</a></nav></footer>
+      <section className="flyHero">
+        <div className="flyHeroGrid" aria-hidden="true" />
+        <div className="flyHeroInner">
+          <div className="flyHeroKicker"><span className="flyDot" /> BROWSER-FIRST · PRIVATE BY DESIGN</div>
+          <h1>Make the background<br /><em>disappear.</em></h1>
+          <p className="flyHeroLead">Clean cutouts, measured passport photos, and practical media tools — built to work in your browser without turning your photo into a server upload.</p>
+          <div className="flyHeroActions">
+            <Link className="flyPrimary" href="/remove-background">Remove background <span>↗</span></Link>
+            <Link className="flySecondary" href="/features/passport-photo">Make passport photos <span>↗</span></Link>
+          </div>
+          <div className="flyHeroMeta"><span>Free</span><i /> <span>No account</span><i /> <span>Browser-first</span><i /> <span>PNG export</span></div>
+        </div>
+        <div className="flyHeroSide"><span>FLYTHEBG / 01</span><span>IMAGE · MEDIA · UTILITY</span></div>
+      </section>
+
+      <section className="flySection flyTools" id="tools">
+        <div className="flySectionHead"><span className="flyEyebrow">01 / TOOLS</span><h2>Small tools.<br /><em>Real jobs.</em></h2><p>Open a tool, drop in your media, make the adjustment, and export. No account wall between you and the result.</p></div>
+        <div className="flyToolGrid">
+          <Link href="/remove-background" className="flyToolCard flyToolFeatured"><span className="flyToolIndex">01</span><div><span className="flyToolLabel">BACKGROUND REMOVER</span><h3>Turn a busy image into a clean transparent PNG.</h3><p>Browser-based segmentation with practical framing and export controls.</p></div><b>↗</b></Link>
+          <Link href="/features/passport-photo" className="flyToolCard"><span className="flyToolIndex">02</span><div><span className="flyToolLabel">PASSPORT PHOTO</span><h3>Build a measured, print-ready sheet.</h3><p>Set dimensions, DPI, crop framing and individual copies.</p></div><b>↗</b></Link>
+          <Link href="/ai-watermark-remover" className="flyToolCard"><span className="flyToolIndex">03</span><div><span className="flyToolLabel">MEDIA CLEANUP</span><h3>Work with supported AI-media marks.</h3><p>Use the browser workflow for authorized Gemini/Veo and compatible media.</p></div><b>↗</b></Link>
+          <Link href="/features" className="flyToolCard"><span className="flyToolIndex">04</span><div><span className="flyToolLabel">ALL FEATURES</span><h3>See everything FLYTHEBG can do.</h3><p>Browse the complete toolkit and choose the workflow you need.</p></div><b>↗</b></Link>
+        </div>
+      </section>
+
+      <section className="flySection flyManifesto">
+        <div className="flyManifestoMark">BG</div>
+        <div><span className="flyEyebrow">02 / THE IDEA</span><h2>Your photo is the input.<br /><em>Not the product.</em></h2><p>FLYTHEBG is built around a simple principle: use the browser for the work whenever the workflow allows it. Software, models and runtime assets may be downloaded, but your selected working image is designed to stay in browser memory during core processing.</p><Link className="flyInline" href="/privacy">Read the privacy & AI policy ↗</Link></div>
+      </section>
+
+      <section className="flySection flyProcess">
+        <div className="flySectionHead"><span className="flyEyebrow">03 / WORKFLOW</span><h2>Drop. Adjust.<br /><em>Export.</em></h2></div>
+        <div className="flySteps"><div><span>01</span><h3>Choose</h3><p>Pick the tool that matches the job and add your image or supported media.</p></div><div><span>02</span><h3>Shape</h3><p>Review the result and use the available crop, position, size or strength controls.</p></div><div><span>03</span><h3>Export</h3><p>Download the finished PNG, sheet or supported media output from your browser.</p></div></div>
+      </section>
+
+      <section className="flySection flyGuide">
+        <div className="flyGuideCopy"><span className="flyEyebrow">04 / TRANSPARENCY</span><h2>Open about the<br /><em>technology.</em></h2><p>FLYTHEBG uses third-party packages and models where they make the product better. Their attribution, licensing, limitations and browser behavior are documented instead of hidden.</p><div className="flyGuideLinks"><Link href="/model-disclosure">Model disclosure ↗</Link><Link href="/guides/browser-privacy">Browser privacy guide ↗</Link><Link href="/faq">Frequently asked questions ↗</Link></div></div>
+        <div className="flyGuideStat"><strong>100%</strong><span>browser-first<br />core workflow</span></div>
+      </section>
+
+      <section className="flySection flyFaq" id="faq">
+        <div className="flySectionHead"><span className="flyEyebrow">05 / FAQ</span><h2>Before you<br /><em>start.</em></h2></div>
+        <HoverFaqList items={faqs} />
+      </section>
+
+      <section className="flySupport">
+        <div><span className="flyEyebrow">06 / SUPPORT</span><h2>If FLYTHEBG<br />saves you time, <em>buy it a book.</em></h2></div>
+        <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="flySupportButton">Support FLYTHEBG <span>↗</span></a>
+      </section>
+
+      <div className="flyHomeAd"><AdPlaceholder slot="landing-inline-1" format="leaderboard" /></div>
+      <footer className="flyHomeFooter"><FlytheBGLogo size={36} /><span>FLYTHEBG — browser-first image & media tools.</span><Link href="/contact">Contact ↗</Link></footer>
     </main>
   );
 }
