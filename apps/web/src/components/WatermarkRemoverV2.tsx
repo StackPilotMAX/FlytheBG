@@ -29,12 +29,65 @@ function repairMetaRegion(c: HTMLCanvasElement, box: Rect) {
   ctx.restore();
 }
 
+function resizeAlphaMap(source: Float32Array, sourceSize: number, targetSize: number) {
+  if (targetSize === sourceSize) return new Float32Array(source);
+  const out = new Float32Array(targetSize * targetSize);
+  const max = Math.max(1, sourceSize - 1);
+  for (let y = 0; y < targetSize; y++) {
+    const sy = (y / Math.max(1, targetSize - 1)) * max;
+    const y0 = Math.floor(sy), y1 = Math.min(max, y0 + 1), fy = sy - y0;
+    for (let x = 0; x < targetSize; x++) {
+      const sx = (x / Math.max(1, targetSize - 1)) * max;
+      const x0 = Math.floor(sx), x1 = Math.min(max, x0 + 1), fx = sx - x0;
+      const a = source[y0 * sourceSize + x0] ?? 0;
+      const b = source[y0 * sourceSize + x1] ?? a;
+      const c = source[y1 * sourceSize + x0] ?? a;
+      const d = source[y1 * sourceSize + x1] ?? a;
+      out[y * targetSize + x] = a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
+    }
+  }
+  return out;
+}
+
+function applyReverseAlphaBlend(c: HTMLCanvasElement, alphaMap: Float32Array, position: Rect, gain: number) {
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Canvas unavailable.");
+  const image = ctx.getImageData(0, 0, c.width, c.height);
+  const alphaWidth = Math.max(1, Math.round(position.w));
+  const alphaHeight = Math.max(1, Math.round(position.h));
+  const x0 = Math.max(0, Math.round(position.x));
+  const y0 = Math.max(0, Math.round(position.y));
+  const w = Math.min(alphaWidth, c.width - x0);
+  const h = Math.min(alphaHeight, c.height - y0);
+  if (w <= 0 || h <= 0) return;
+  const safeGain = clamp(gain, 0.25, 2.5);
+  for (let row = 0; row < h; row++) {
+    for (let col = 0; col < w; col++) {
+      const raw = alphaMap[row * alphaWidth + col] ?? 0;
+      const magnitude = Math.abs(raw);
+      const signal = Math.max(0, magnitude - 3 / 255) * safeGain;
+      if (signal < 0.002) continue;
+      const alpha = Math.min(magnitude * safeGain, 0.99);
+      const oneMinus = 1 - alpha;
+      const logo = raw < 0 ? 0 : 255;
+      const idx = ((y0 + row) * image.width + (x0 + col)) * 4;
+      for (let channel = 0; channel < 3; channel++) {
+        const watermarked = image.data[idx + channel];
+        const original = (watermarked - alpha * logo) / oneMinus;
+        image.data[idx + channel] = Math.max(0, Math.min(255, Math.round(original)));
+      }
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+}
+
 export function WatermarkRemoverV2() {
   const [kind, setKind] = useState<Kind>("image");
   const [provider, setProvider] = useState<Provider>("Gemini");
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
   const [sel, setSel] = useState<Rect | null>(null);
+  const [strength, setStrength] = useState(100);
   const [scale, setScale] = useState(100);
   const [ox, setOx] = useState(0);
   const [oy, setOy] = useState(0);
@@ -71,11 +124,14 @@ export function WatermarkRemoverV2() {
   }, [engine, mediaSize, provider]);
 
   const active = sel ? {
-    x: clamp(sel.x + ox, 0, 100), y: clamp(sel.y + oy, 0, 100),
+    x: clamp(sel.x + ox / Math.max(1, mediaSize.w) * 100, 0, 100),
+    y: clamp(sel.y + oy / Math.max(1, mediaSize.h) * 100, 0, 100),
     w: clamp(sel.w * scale / 100, 1, 100), h: clamp(sel.h * scale / 100, 1, 100)
   } : preset ? {
-    x: clamp(preset.x / mediaSize.w * 100 + ox, 0, 100), y: clamp(preset.y / mediaSize.h * 100 + oy, 0, 100),
-    w: clamp(preset.w / mediaSize.w * 100 * scale / 100, 1, 100), h: clamp(preset.h / mediaSize.h * 100 * scale / 100, 1, 100)
+    x: clamp((preset.x + (preset.w - preset.w * scale / 100) / 2 + ox) / mediaSize.w * 100, 0, 100),
+    y: clamp((preset.y + (preset.h - preset.h * scale / 100) / 2 + oy) / mediaSize.h * 100, 0, 100),
+    w: clamp(preset.w / mediaSize.w * 100 * scale / 100, 1, 100),
+    h: clamp(preset.h / mediaSize.h * 100 * scale / 100, 1, 100)
   } : null;
 
   const point = (event: ReactPointerEvent) => {
@@ -96,19 +152,39 @@ export function WatermarkRemoverV2() {
   const choose = (next: File | null) => {
     if (!next) return;
     setFile(next); setKind(next.type.startsWith("video/") ? "video" : "image"); setSel(null); setPreviewUrl(""); setMediaSize({ w: 0, h: 0 });
+    setStrength(100); setScale(100); setOx(0); setOy(0);
     setMsg(next.type.startsWith("video/") ? "Video loaded. Processing will preserve its original aspect ratio." : "Image loaded. Detection and reconstruction will preserve its original aspect ratio.");
   };
-  const box = (w: number, h: number) => active ? { x: active.x * w / 100, y: active.y * h / 100, w: active.w * w / 100, h: active.h * h / 100 } : null;
+
+  const getCustomTarget = (w: number, h: number) => {
+    if (sel) return { x: sel.x * w / 100 + ox, y: sel.y * h / 100 + oy, w: Math.max(1, sel.w * w / 100 * scale / 100), h: Math.max(1, sel.h * h / 100 * scale / 100) };
+    if (!preset) return null;
+    const scaledW = preset.w * scale / 100;
+    const scaledH = preset.h * scale / 100;
+    return { x: preset.x + (preset.w - scaledW) / 2 + ox, y: preset.y + (preset.h - scaledH) / 2 + oy, w: Math.max(1, scaledW), h: Math.max(1, scaledH) };
+  };
 
   const processCanvas = async (source: HTMLImageElement | HTMLVideoElement, outputW: number, outputH: number) => {
     const c = canvas.current!; c.width = outputW; c.height = outputH;
     c.getContext("2d")!.drawImage(source, 0, 0, outputW, outputH);
     if (provider === "Meta AI") {
-      const target = box(outputW, outputH); if (!target) throw new Error("Select a Meta AI watermark region first.");
+      const target = getCustomTarget(outputW, outputH); if (!target) throw new Error("Select a Meta AI watermark region first.");
       repairMetaRegion(c, target); return c;
     }
     if (!engine) throw new Error("Automatic watermark processing is still loading. Try again in a moment.");
-    await engine.removeWatermarkFromImage(c);
+    if (strength === 100 && scale === 100 && ox === 0 && oy === 0) {
+      const processed = await engine.removeWatermarkFromImage(c);
+      const ctx = c.getContext("2d")!;
+      ctx.clearRect(0, 0, outputW, outputH);
+      ctx.drawImage(processed as CanvasImageSource, 0, 0, outputW, outputH);
+      return c;
+    }
+    const info = engine.getWatermarkInfo(outputW, outputH);
+    const target = getCustomTarget(outputW, outputH); if (!target) throw new Error("Watermark geometry is not available yet.");
+    const baseSize = Math.max(1, Math.round(info.size));
+    const targetSize = Math.max(1, Math.round(Math.max(target.w, target.h)));
+    const alpha = await engine.getAlphaMap(baseSize);
+    applyReverseAlphaBlend(c, resizeAlphaMap(alpha, baseSize, targetSize), { ...target, w: targetSize, h: targetSize }, strength / 100);
     return c;
   };
 
@@ -155,8 +231,21 @@ export function WatermarkRemoverV2() {
         const tick = async () => {
           try {
             ctx.drawImage(video, 0, 0, w, h);
-            if (provider === "Meta AI") { const target = box(w, h); if (target) repairMetaRegion(c, target); }
-            else if (engine) await engine.removeWatermarkFromImage(c);
+            if (provider === "Meta AI") {
+              const target = getCustomTarget(w, h); if (target) repairMetaRegion(c, target);
+            } else if (engine) {
+              if (strength === 100 && scale === 100 && ox === 0 && oy === 0) {
+                const processed = await engine.removeWatermarkFromImage(c);
+                ctx.clearRect(0, 0, w, h); ctx.drawImage(processed as CanvasImageSource, 0, 0, w, h);
+              } else {
+                const info = engine.getWatermarkInfo(w, h);
+                const target = getCustomTarget(w, h); if (!target) throw new Error("Watermark geometry is not available yet.");
+                const baseSize = Math.max(1, Math.round(info.size));
+                const targetSize = Math.max(1, Math.round(Math.max(target.w, target.h)));
+                const alpha = await engine.getAlphaMap(baseSize);
+                applyReverseAlphaBlend(c, resizeAlphaMap(alpha, baseSize, targetSize), { ...target, w: targetSize, h: targetSize }, strength / 100);
+              }
+            } else throw new Error("Automatic watermark processing is still loading.");
             if (video.ended) resolve(); else requestAnimationFrame(tick);
           } catch (error) { reject(error); }
         };
@@ -177,6 +266,8 @@ export function WatermarkRemoverV2() {
     Other: { label: "Other", note: "Automatic" },
   };
 
+  const tuningChanged = strength !== 100 || scale !== 100 || ox !== 0 || oy !== 0;
+
   return <div className="wmV2">
     <div className="wmControlsTop">
       <div className="wmSegment" role="tablist" aria-label="Media type"><button className={kind === "image" ? "active" : ""} onClick={() => setKind("image")} disabled={busy}>Image</button><button className={kind === "video" ? "active" : ""} onClick={() => setKind("video")} disabled={busy}>Video</button></div>
@@ -188,18 +279,23 @@ export function WatermarkRemoverV2() {
       </div>
       <label className="wmUpload">{file ? "Replace media" : "Upload image or video"}<input type="file" accept="image/*,video/*" onChange={(event) => choose(event.target.files?.[0] || null)} disabled={busy} /></label>
     </div>
-    <div className="wmInstructions"><strong>{provider === "Meta AI" ? "Manual selection" : "Automatic detection"}</strong><span>{provider === "Meta AI" ? "Drag over the watermark area on the original media. The preview keeps the exact media proportions." : "The watermark area is calculated from the uploaded media dimensions, so portrait, landscape, square and wide images all use the correct position."}</span></div>
+    <div className="wmInstructions"><strong>{provider === "Meta AI" ? "Manual selection" : tuningChanged ? "Fine tune detection" : "Automatic detection"}</strong><span>{provider === "Meta AI" ? "Drag over the watermark area on the original media. The preview keeps the exact media proportions." : tuningChanged ? "Fine-tune strength, size and position while keeping the original media dimensions unchanged." : "The integrated detector uses the uploaded media's real pixel dimensions and calibrated watermark geometry."}</span></div>
     <div className="wmStage" ref={stage} style={{ aspectRatio: mediaSize.w && mediaSize.h ? `${mediaSize.w} / ${mediaSize.h}` : "16 / 9" }} onPointerDown={down} onPointerMove={move} onPointerUp={() => { drag.current = null; }}>
       {file && kind === "image" && <img ref={img} src={url} alt="Watermark removal preview" draggable={false} onLoad={(event) => setMediaSize({ w: event.currentTarget.naturalWidth, h: event.currentTarget.naturalHeight })} />}
       {file && kind === "video" && <video ref={vid} src={url} controls playsInline preload="metadata" onLoadedMetadata={(event) => setMediaSize({ w: event.currentTarget.videoWidth, h: event.currentTarget.videoHeight })} />}
       {!file && <div className="wmEmpty">Upload an image or video to begin</div>}
-      {active && <div className="wmMask" style={{ left: `${active.x}%`, top: `${active.y}%`, width: `${active.w}%`, height: `${active.h}%` }}><span>{sel ? "Manual selection" : provider === "Meta AI" ? "Meta fixed preset" : "Detected watermark area"}</span></div>}
+      {active && <div className="wmMask" style={{ left: `${active.x}%`, top: `${active.y}%`, width: `${active.w}%`, height: `${active.h}%` }}><span>{sel ? "Manual selection" : provider === "Meta AI" ? "Meta fixed preset" : tuningChanged ? "Adjusted watermark area" : "Detected watermark area"}</span></div>}
     </div>
     {previewUrl && <div className="wmCompare"><div><span>Original</span>{file && <img src={url} alt="Original media" />}</div><div><span>Removal preview</span><img src={previewUrl} alt="Watermark removal result preview" /></div></div>}
     <canvas ref={canvas} className="wmHiddenCanvas" aria-hidden="true" />
-    <div className="wmActionRow"><button className="wmSecondary" onClick={() => { setSel(null); setScale(100); setOx(0); setOy(0); setPreviewUrl(""); }} disabled={busy}>Reset preset</button>{kind === "image" && <button className="wmSecondary" onClick={previewImage} disabled={!file || !active || busy}>Preview result</button>}{kind === "image" ? <button className="wmPrimary" onClick={exportImage} disabled={!file || !active || busy}>{busy ? `Processing ${elapsed.toFixed(1)}s…` : "Remove & Export Image"}</button> : <button className="wmPrimary" onClick={exportVideo} disabled={!file || !active || busy}>{busy ? `Processing ${elapsed.toFixed(1)}s…` : "Remove & Export Video"}</button>}</div>
+    <div className="wmActionRow"><button className="wmSecondary" onClick={() => { setSel(null); setStrength(100); setScale(100); setOx(0); setOy(0); setPreviewUrl(""); }} disabled={busy}>Reset controls</button>{kind === "image" && <button className="wmSecondary" onClick={previewImage} disabled={!file || !active || busy}>Preview result</button>}{kind === "image" ? <button className="wmPrimary" onClick={exportImage} disabled={!file || !active || busy}>{busy ? `Processing ${elapsed.toFixed(1)}s…` : "Remove & Export Image"}</button> : <button className="wmPrimary" onClick={exportVideo} disabled={!file || !active || busy}>{busy ? `Processing ${elapsed.toFixed(1)}s…` : "Remove & Export Video"}</button>}</div>
     {busy && <div className="wmProgress" role="status">Processing locally — <strong>{elapsed.toFixed(1)}s elapsed</strong>. Do not refresh or close this tab.</div>}
-    <div className="wmFine"><label>Size scale <output>{scale}%</output><input type="range" min="60" max="160" value={scale} onChange={(event) => setScale(Number(event.target.value))} disabled={busy} /></label><label>Position X <output>{ox > 0 ? "+" : ""}{ox}%</output><input type="range" min="-20" max="20" value={ox} onChange={(event) => setOx(Number(event.target.value))} disabled={busy} /></label><label>Position Y <output>{oy > 0 ? "+" : ""}{oy}%</output><input type="range" min="-20" max="20" value={oy} onChange={(event) => setOy(Number(event.target.value))} disabled={busy} /></label></div>
+    <div className="wmFine wmFineFour">
+      <label><span>Strength (Gain)</span><output>{strength}%</output><input type="range" min="40" max="180" step="1" value={strength} onChange={(event) => setStrength(Number(event.target.value))} disabled={busy} /></label>
+      <label><span>Size Scale</span><output>{scale}%</output><input type="range" min="60" max="160" step="1" value={scale} onChange={(event) => setScale(Number(event.target.value))} disabled={busy} /></label>
+      <label><span>Position X</span><output>{ox > 0 ? "+" : ""}{ox}px</output><input type="range" min="-200" max="200" step="1" value={ox} onChange={(event) => setOx(Number(event.target.value))} disabled={busy} /></label>
+      <label><span>Position Y</span><output>{oy > 0 ? "+" : ""}{oy}px</output><input type="range" min="-200" max="200" step="1" value={oy} onChange={(event) => setOy(Number(event.target.value))} disabled={busy} /></label>
+    </div>
     <p className="wmStatus" role="status">{msg}</p>
   </div>;
 }
