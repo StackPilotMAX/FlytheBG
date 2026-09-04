@@ -26,7 +26,7 @@ import "./flythebg-redesign.css";
 import "./flythebg-cinematic.css";
 import "./flythebg-journey.css";
 import "./seo-landing.css";
-import { FlytheBGLogo } from "@/components/FlyTheBGLogo";
+import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { GitHubStars } from "@/components/GitHubStars";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
