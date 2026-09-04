@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { FlyTheBGJourney } from "@/components/FlyTheBGJourney";
+import { LandingFAQ } from "@/components/LandingFAQ";
 import { appConfig } from "@/lib/config";
 
 const homeTitle = "FlyThe BG | Free Background Remover, Passport Photos & Media Tools";
@@ -14,10 +15,9 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   const structuredData = { "@context": "https://schema.org", "@type": "WebSite", name: "FlyThe BG", url: appConfig.siteUrl, description: homeDescription };
-  return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <FlyTheBGJourney />
-    </>
-  );
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <FlyTheBGJourney />
+    <LandingFAQ />
+  </>;
 }
