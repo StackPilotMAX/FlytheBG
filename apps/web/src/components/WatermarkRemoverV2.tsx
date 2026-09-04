@@ -42,7 +42,7 @@ export function WatermarkRemoverV2() {
   const [elapsed, setElapsed] = useState(0);
   const [previewUrl, setPreviewUrl] = useState("");
   const [mediaSize, setMediaSize] = useState({ w: 0, h: 0 });
-  const [msg, setMsg] = useState("Upload an image or video. Gemini/Veo processing uses the MIT-licensed @pilio/gemini-watermark-remover browser engine and stays local.");
+  const [msg, setMsg] = useState("Upload an image or video. Processing stays local in your browser.");
   const [engine, setEngine] = useState<WatermarkEngine | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const img = useRef<HTMLImageElement>(null);
@@ -50,7 +50,7 @@ export function WatermarkRemoverV2() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
 
-  useEffect(() => { createWatermarkEngine().then(setEngine).catch(() => setMsg("The Gemini watermark engine could not initialize in this browser.")); }, []);
+  useEffect(() => { createWatermarkEngine().then(setEngine).catch(() => setMsg("The automatic watermark engine could not initialize in this browser.")); }, []);
   useEffect(() => { if (!file) return; const objectUrl = URL.createObjectURL(file); setUrl(objectUrl); return () => URL.revokeObjectURL(objectUrl); }, [file]);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
   useEffect(() => {
@@ -96,7 +96,7 @@ export function WatermarkRemoverV2() {
   const choose = (next: File | null) => {
     if (!next) return;
     setFile(next); setKind(next.type.startsWith("video/") ? "video" : "image"); setSel(null); setPreviewUrl(""); setMediaSize({ w: 0, h: 0 });
-    setMsg(next.type.startsWith("video/") ? "Video loaded. Gemini/Veo frames will be processed locally." : "Image loaded. Gemini/Veo detection and reconstruction will run locally in your browser.");
+    setMsg(next.type.startsWith("video/") ? "Video loaded. Processing will preserve its original aspect ratio." : "Image loaded. Detection and reconstruction will preserve its original aspect ratio.");
   };
   const box = (w: number, h: number) => active ? { x: active.x * w / 100, y: active.y * h / 100, w: active.w * w / 100, h: active.h * h / 100 } : null;
 
@@ -107,7 +107,7 @@ export function WatermarkRemoverV2() {
       const target = box(outputW, outputH); if (!target) throw new Error("Select a Meta AI watermark region first.");
       repairMetaRegion(c, target); return c;
     }
-    if (!engine) throw new Error("Gemini watermark engine is still loading. Try again in a moment.");
+    if (!engine) throw new Error("Automatic watermark processing is still loading. Try again in a moment.");
     await engine.removeWatermarkFromImage(c);
     return c;
   };
@@ -170,14 +170,30 @@ export function WatermarkRemoverV2() {
     finally { setBusy(false); }
   };
 
+  const providerDetails: Record<Provider, { label: string; note: string }> = {
+    Gemini: { label: "Gemini", note: "Automatic" },
+    "Veo 3": { label: "Veo 3", note: "Automatic" },
+    "Meta AI": { label: "Meta AI", note: "Manual" },
+    Other: { label: "Other", note: "Automatic" },
+  };
+
   return <div className="wmV2">
-    <div className="wmControlsTop"><div className="wmSegment"><button className={kind === "image" ? "active" : ""} onClick={() => setKind("image")} disabled={busy}>Image</button><button className={kind === "video" ? "active" : ""} onClick={() => setKind("video")} disabled={busy}>Video</button></div><div className="wmProvider"><span>Source</span><select value={provider} onChange={(event) => { setProvider(event.target.value as Provider); setSel(null); setPreviewUrl(""); }} disabled={busy}><option>Gemini</option><option>Veo 3</option><option>Meta AI</option><option>Other</option></select></div><label className="wmUpload">{file ? "Replace media" : "Upload image or video"}<input type="file" accept="image/*,video/*" onChange={(event) => choose(event.target.files?.[0] || null)} disabled={busy} /></label></div>
-    <div className="wmInstructions"><strong>{provider === "Meta AI" ? "Fixed legacy Meta preset" : "Gemini / Veo client-side engine"}</strong><span>{provider === "Meta AI" ? "Legacy visible Meta labels use the existing editable preset. Newer invisible provenance signals are not targeted." : "Uses @pilio/gemini-watermark-remover for automatic detection and reverse-alpha reconstruction in browser memory. No image-processing server is required."}</span></div>
-    <div className="wmStage" ref={stage} onPointerDown={down} onPointerMove={move} onPointerUp={() => { drag.current = null; }}>
+    <div className="wmControlsTop">
+      <div className="wmSegment" role="tablist" aria-label="Media type"><button className={kind === "image" ? "active" : ""} onClick={() => setKind("image")} disabled={busy}>Image</button><button className={kind === "video" ? "active" : ""} onClick={() => setKind("video")} disabled={busy}>Video</button></div>
+      <div className="wmProvider" aria-label="Choose source">
+        <span className="wmProviderLabel">Source</span>
+        <div className="wmProviderChoices" role="tablist" aria-label="Watermark source">
+          {(Object.keys(providerDetails) as Provider[]).map((item) => <button key={item} type="button" className={provider === item ? "active" : ""} onClick={() => { setProvider(item); setSel(null); setPreviewUrl(""); }} disabled={busy} aria-selected={provider === item}><strong>{providerDetails[item].label}</strong><small>{providerDetails[item].note}</small></button>)}
+        </div>
+      </div>
+      <label className="wmUpload">{file ? "Replace media" : "Upload image or video"}<input type="file" accept="image/*,video/*" onChange={(event) => choose(event.target.files?.[0] || null)} disabled={busy} /></label>
+    </div>
+    <div className="wmInstructions"><strong>{provider === "Meta AI" ? "Manual selection" : "Automatic detection"}</strong><span>{provider === "Meta AI" ? "Drag over the watermark area on the original media. The preview keeps the exact media proportions." : "The watermark area is calculated from the uploaded media dimensions, so portrait, landscape, square and wide images all use the correct position."}</span></div>
+    <div className="wmStage" ref={stage} style={{ aspectRatio: mediaSize.w && mediaSize.h ? `${mediaSize.w} / ${mediaSize.h}` : "16 / 9" }} onPointerDown={down} onPointerMove={move} onPointerUp={() => { drag.current = null; }}>
       {file && kind === "image" && <img ref={img} src={url} alt="Watermark removal preview" draggable={false} onLoad={(event) => setMediaSize({ w: event.currentTarget.naturalWidth, h: event.currentTarget.naturalHeight })} />}
       {file && kind === "video" && <video ref={vid} src={url} controls playsInline preload="metadata" onLoadedMetadata={(event) => setMediaSize({ w: event.currentTarget.videoWidth, h: event.currentTarget.videoHeight })} />}
       {!file && <div className="wmEmpty">Upload an image or video to begin</div>}
-      {active && <div className="wmMask" style={{ left: `${active.x}%`, top: `${active.y}%`, width: `${active.w}%`, height: `${active.h}%` }}><span>{sel ? "Manual selection" : provider === "Meta AI" ? "Meta fixed preset" : "Engine detection area"}</span></div>}
+      {active && <div className="wmMask" style={{ left: `${active.x}%`, top: `${active.y}%`, width: `${active.w}%`, height: `${active.h}%` }}><span>{sel ? "Manual selection" : provider === "Meta AI" ? "Meta fixed preset" : "Detected watermark area"}</span></div>}
     </div>
     {previewUrl && <div className="wmCompare"><div><span>Original</span>{file && <img src={url} alt="Original media" />}</div><div><span>Removal preview</span><img src={previewUrl} alt="Watermark removal result preview" /></div></div>}
     <canvas ref={canvas} className="wmHiddenCanvas" aria-hidden="true" />
@@ -185,6 +201,5 @@ export function WatermarkRemoverV2() {
     {busy && <div className="wmProgress" role="status">Processing locally — <strong>{elapsed.toFixed(1)}s elapsed</strong>. Do not refresh or close this tab.</div>}
     <div className="wmFine"><label>Size scale <output>{scale}%</output><input type="range" min="60" max="160" value={scale} onChange={(event) => setScale(Number(event.target.value))} disabled={busy} /></label><label>Position X <output>{ox > 0 ? "+" : ""}{ox}%</output><input type="range" min="-20" max="20" value={ox} onChange={(event) => setOx(Number(event.target.value))} disabled={busy} /></label><label>Position Y <output>{oy > 0 ? "+" : ""}{oy}%</output><input type="range" min="-20" max="20" value={oy} onChange={(event) => setOy(Number(event.target.value))} disabled={busy} /></label></div>
     <p className="wmStatus" role="status">{msg}</p>
-    <p className="wmAttribution">Gemini/Veo processing is powered by the MIT-licensed <a href="https://github.com/GargantuaX/gemini-watermark-remover" target="_blank" rel="noreferrer">GargantuaX/gemini-watermark-remover</a>. Only edit media you own or have permission to modify.</p>
   </div>;
 }
