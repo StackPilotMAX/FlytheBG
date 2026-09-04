@@ -1,52 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "FlytheBG Model & Open Source",
-  description: "See which third-party browser AI package and model variants FlytheBG uses, how local model selection and subject-protection processing work, licensing information, and limitations.",
-  alternates: { canonical: "/model-disclosure" },
-};
+export const metadata: Metadata = { title: "FlyThe BG Model & Open Source", description: "See which third-party browser AI and visible-watermark assets FlyThe BG uses, how local processing works, and the relevant licensing and limitations.", alternates: { canonical: "/model-disclosure" } };
 
 export default function ModelDisclosurePage() {
-  return (
-    <main className="featurePage modelDisclosurePage">
-      <section className="pageHero compactHero">
-        <div className="shell narrowHero landingReveal">
-          <span className="eyebrow"><i/> Model & open source disclosure</span>
-          <h1>Clear attribution for the browser AI behind background removal.</h1>
-          <p>FlytheBG does not present third-party AI software or model assets as its own. This page describes the current production integration and separates FlytheBG&apos;s interface/post-processing code from the third-party background-removal stack.</p>
-        </div>
-      </section>
-
-      <section className="section toolInfoSection">
-        <div className="shell">
-          <div className="infoCards">
-            <article><span>Third-party package</span><h2>IMG.LY background removal</h2><p>FlytheBG currently integrates <code>@imgly/background-removal</code> version <strong>1.7.0</strong> for browser-side segmentation. IMG.LY is the author/provider of that package; FlytheBG does not claim ownership of it.</p></article>
-            <article><span>Model variants</span><h2>IS-Net quantized first, adaptive FP16 when useful</h2><p>The production workflow starts with <code>isnet_quint8</code> for the faster common path. On suitable WebGPU devices, FlytheBG can automatically retry with <code>isnet_fp16</code> when a local mask check detects higher preservation risk around pale subject regions or fine semi-transparent edges. If WebGPU cannot finish, supported paths can fall back to CPU/WASM.</p></article>
-            <article><span>FlytheBG processing</span><h2>Validation, bounded inference, and conservative subject protection</h2><p>FlytheBG adds browser-side input validation, bounded working-image sizes for faster inference, output validation, conservative alpha-edge protection, limited pale-foreground recovery for pixels surrounded by detected foreground, optional source-detail restoration, UI controls, and export workflows around the third-party segmentation result.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section workflowSection">
-        <div className="shell workflowGrid">
-          <div className="sectionHeading compact landingReveal"><span className="eyebrow"><i/> Licensing & attribution</span><h2>What the current package documentation says.</h2><p>IMG.LY&apos;s published package documentation states that its background-removal software is available under the AGPL license and directs users to IMG.LY for other licensing options. Model/runtime assets and other dependencies may also carry their own accompanying notices or terms.</p></div>
-          <div className="principleList">
-            <article><strong>No ownership claim</strong><p>FlytheBG does not claim copyright, trademark rights, authorship, or exclusive ownership over IMG.LY&apos;s library, IS-Net model variants, runtime assets, or other third-party dependencies.</p></article>
-            <article><strong>No training claim</strong><p>FlytheBG does not train or fine-tune the IMG.LY model with a visitor&apos;s selected photo. The current workflow uses the image as an inference input in the browser.</p></article>
-            <article><strong>Your image rights remain your responsibility</strong><p>Using FlytheBG does not transfer ownership of your photo to FlytheBG. You remain responsible for having the rights and permissions needed to process, edit, download, print, or publish the image.</p></article>
-            <article><strong>Automated output still has limits</strong><p>Segmentation and FlytheBG&apos;s local preservation heuristics are estimates. Fine hair, fur, white or pale clothing against a similar background, transparent objects, smoke, blur, reflections, low contrast, compression artifacts, and unusual scenes can still produce imperfect masks. Review important output before relying on it.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section toolInfoSection">
-        <div className="shell infoCards">
-          <article><span>Network behavior</span><h2>Model/runtime assets are downloaded separately.</h2><p>The browser may contact IMG.LY-configured distribution infrastructure or a runtime fallback source to retrieve software/model assets. FlytheBG does not intentionally attach the selected source image to those asset-download requests.</p></article>
-          <article><span>Legal policies</span><h2>Read the site policies too.</h2><p>This disclosure is informational and is not a substitute for the applicable third-party licenses or terms.</p><Link className="textLink" href="/privacy">Privacy & AI Policy ↗</Link><br/><Link className="textLink" href="/terms">Terms of Use ↗</Link></article>
-          <article><span>Questions</span><h2>Need the product-level explanation?</h2><p>The FAQ explains model choice, browser processing, advertising separation, and common workflow questions in simpler language.</p><Link className="textLink" href="/faq">Open FAQ ↗</Link></article>
-        </div>
-      </section>
-    </main>
-  );
+  return <main className="featurePage modelDisclosurePage">
+    <section className="pageHero compactHero"><div className="shell narrowHero landingReveal"><span className="eyebrow"><i/> Model &amp; open source disclosure</span><h1>Clear attribution for the software behind FlyThe BG.</h1><p>FlyThe BG does not present third-party software, model assets, or reference watermark assets as its own. This page separates FlyThe BG interface code from the external processing components it uses.</p></div></section>
+    <section className="section toolInfoSection"><div className="shell"><div className="infoCards">
+      <article><span>Background removal</span><h2>IMG.LY background removal</h2><p>FlyThe BG integrates <code>@imgly/background-removal</code> for browser-side segmentation. IMG.LY is the author/provider of that package; FlyThe BG does not claim ownership of it.</p></article>
+      <article><span>Watermark removal</span><h2>ishara-madu reference assets</h2><p>The visible Gemini/Veo workflow uses the calibrated <code>bg_48.png</code> and <code>bg_96.png</code> reference assets and reverse-alpha method from the MIT-licensed <a href="https://github.com/ishara-madu/gemini-watermark-remover">ishara-madu/gemini-watermark-remover</a>, adapted for the FlyThe BG browser workspace.</p></article>
+      <article><span>FlyThe BG processing</span><h2>Local validation and export</h2><p>FlyThe BG adds browser-side input validation, bounded working dimensions, preview/export controls, UI state, and conservative workflow safeguards around these third-party processing components.</p></article>
+    </div></div></section>
+    <section className="section workflowSection"><div className="shell workflowGrid"><div className="sectionHeading compact landingReveal"><span className="eyebrow"><i/> Licensing &amp; attribution</span><h2>Third-party licences stay separate.</h2><p>The ishara-madu repository is published under the MIT License. Its README describes the Gemini/Veo workflow as client-side mathematical alpha unblending and credits the reverse-alpha approach. Third-party packages, model/runtime assets, and reference data can have their own licences and notices.</p></div><div className="principleList"><article><strong>No ownership claim</strong><p>FlyThe BG does not claim copyright, trademark rights, authorship, or exclusive ownership over third-party libraries, models, reference masks, or provider marks.</p></article><article><strong>No training claim</strong><p>FlyThe BG does not train or fine-tune third-party models using a visitor&apos;s selected media.</p></article><article><strong>Visible vs invisible marks</strong><p>The Gemini/Veo tool targets visible pixel overlays. Google SynthID and newer Meta provenance systems such as Content Seal are invisible provenance mechanisms and are not removed by the visible-mark workflow.</p></article><article><strong>Results still need review</strong><p>Exact reverse-alpha reconstruction can be very clean when the calibrated mark and geometry match. Provider changes, rescaling, compression, different watermark variants, or unsupported layouts can produce artifacts.</p></article></div></div></section>
+    <section className="section toolInfoSection"><div className="shell infoCards"><article><span>Network behavior</span><h2>Software assets can be downloaded separately.</h2><p>The browser may contact configured distribution infrastructure for model/runtime/reference assets. FlyThe BG does not intentionally attach the selected source image to those asset requests.</p></article><article><span>Legal policies</span><h2>Keep the documentation together.</h2><p>This disclosure is informational and does not replace third-party licences or terms.</p><Link className="textLink" href="/privacy">Privacy &amp; AI Policy ↗</Link><br/><Link className="textLink" href="/terms">Terms of Use ↗</Link></article><article><span>Questions</span><h2>Need the simpler explanation?</h2><p>The FAQ covers browser processing, watermark limitations, advertising separation, and common workflows.</p><Link className="textLink" href="/faq">Open FAQ ↗</Link></article></div></section>
+  </main>;
 }
