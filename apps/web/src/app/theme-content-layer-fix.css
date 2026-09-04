@@ -1,0 +1,51 @@
+/* Keep theme decoration behind real page content. */
+body > main:not(.cinematicHero) > section > .shell > *,
+body > main:not(.cinematicHero) > .shell > *,
+body > main:not(.cinematicHero) > .passportWorkspace.shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* FAQ readability on the glass theme. */
+.landingFaqGrid,
+.animatedFaqList,
+.faqGrid {
+  position: relative;
+  z-index: 1;
+}
+
+.landingFaqGrid details,
+.animatedFaqList details {
+  color: var(--fly-ink, #1b133c) !important;
+  overflow: hidden;
+}
+
+.landingFaqGrid summary,
+.animatedFaqList summary {
+  position: relative;
+  z-index: 2;
+  color: var(--fly-ink, #1b133c) !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+.landingFaqGrid details p,
+.animatedFaqList details p,
+.landingFaqGrid details span,
+.animatedFaqList details span {
+  position: relative;
+  z-index: 2;
+  color: var(--fly-ink-soft, rgba(27,19,60,.70)) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.faqJumpLinks,
+.faqJumpLinks a {
+  position: relative;
+  z-index: 2;
+}
+
+.faqJumpLinks a {
+  color: var(--fly-ink, #1b133c) !important;
+}
