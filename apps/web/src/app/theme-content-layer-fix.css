@@ -5,11 +5,11 @@ body > main:not(.cinematicHero) > .passportWorkspace.shell > * { position: relat
 
 /* FAQ readability on the glass theme. */
 .landingFaqGrid,.animatedFaqList,.faqGrid { position:relative; z-index:1; }
-.landingFaqGrid details,.animatedFaqList details { color:var(--fly-ink,#1b133c)!important; overflow:hidden; }
-.landingFaqGrid summary,.animatedFaqList summary { position:relative; z-index:2; color:var(--fly-ink,#1b133c)!important; background:transparent!important; text-shadow:none!important; }
-.landingFaqGrid details p,.animatedFaqList details p,.landingFaqGrid details span,.animatedFaqList details span { position:relative; z-index:2; color:var(--fly-ink-soft,rgba(27,19,60,.70))!important; opacity:1!important; text-shadow:none!important; }
+.landingFaqGrid details,.animatedFaqList details { color:#050505!important; overflow:hidden; }
+.landingFaqGrid summary,.animatedFaqList summary { position:relative; z-index:2; color:#050505!important; background:transparent!important; text-shadow:none!important; }
+.landingFaqGrid details p,.animatedFaqList details p,.landingFaqGrid details span,.animatedFaqList details span { position:relative; z-index:2; color:#050505!important; opacity:1!important; text-shadow:none!important; }
 .faqJumpLinks,.faqJumpLinks a { position:relative; z-index:2; }
-.faqJumpLinks a { color:var(--fly-ink,#1b133c)!important; }
+.faqJumpLinks a { color:#050505!important; }
 
 /* Watermark remover: real media geometry + themed controls. */
 .wmV2{position:relative;z-index:2;color:var(--text,#f7f7f2)}
