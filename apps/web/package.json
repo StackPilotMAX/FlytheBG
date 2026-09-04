@@ -2,9 +2,7 @@
   "name": "@flythebg/web",
   "version": "1.0.0",
   "private": true,
-  "engines": {
-    "node": "22.x"
-  },
+  "engines": { "node": "22.x" },
   "scripts": {
     "predev": "node scripts/prepare-public.mjs",
     "dev": "next dev",
@@ -15,6 +13,7 @@
   },
   "dependencies": {
     "@imgly/background-removal": "1.7.0",
+    "@pilio/gemini-watermark-remover": "1.0.41",
     "lucide-react": "^0.468.0",
     "motion": "^12.23.24",
     "next": "15.5.21",
