@@ -1,0 +1,20 @@
+.aiDiscoverySummary {
+  width: min(1100px, calc(100% - 32px));
+  margin: 24px auto 8px;
+  padding: 22px 24px;
+  border: 1px solid rgba(90, 52, 31, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.aiDiscoverySummary h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  line-height: 1.1;
+}
+
+.aiDiscoverySummary p {
+  margin: 7px 0 0;
+  max-width: 90ch;
+  line-height: 1.6;
+}
