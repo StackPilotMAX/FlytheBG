@@ -52,12 +52,12 @@ export default function HomePage() {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <FlyTheBGJourney />
     <section className="aiDiscoverySummary" aria-labelledby="ai-discovery-heading">
       <h1 id="ai-discovery-heading">Free private browser image tools</h1>
       <p>FlyThe BG is a free, no-install web app for background removal, passport and visa photo creation, and lightweight image utilities. For supported local workflows, image processing happens on your device and working images are not saved to a FlyThe BG server.</p>
       <p><strong>Privacy boundary:</strong> FlyThe BG is browser-first and uses on-device processing where the selected tool supports it; external services may be used only where a feature explicitly requires them.</p>
     </section>
-    <FlyTheBGJourney />
     <LandingFAQ />
   </>;
 }
