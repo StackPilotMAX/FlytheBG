@@ -4,12 +4,29 @@ import { LandingFAQ } from "@/components/LandingFAQ";
 import { appConfig } from "@/lib/config";
 
 const homeTitle = "FlyThe BG | Free Background Remover, Passport Photos & Media Tools";
-const homeDescription = "FlyThe BG is a browser-first toolkit for background removal, passport photo sheets, and authorized AI-media cleanup. Your working media stays in your browser.";
+const homeDescription = "Free online image tools for background removal, passport photo making, and authorized AI-media cleanup. Remove image backgrounds in your browser and keep working media on your device.";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
   description: homeDescription,
-  keywords: ["FlyThe BG", "FlyTheBG", "background remover", "passport photo maker", "Gemini watermark remover", "browser image tools", "private image editor"],
+  keywords: [
+    "FlyThe BG",
+    "FlyTheBG",
+    "free background remover",
+    "background remover online",
+    "remove image background",
+    "image background remover",
+    "online background remover",
+    "AI background remover",
+    "background remover AI",
+    "free passport photo maker",
+    "passport photo maker",
+    "passport size photo",
+    "Gemini watermark remover",
+    "free Gemini watermark remover",
+    "browser image tools",
+    "private image editor",
+  ],
   alternates: { canonical: "/" },
 };
 
