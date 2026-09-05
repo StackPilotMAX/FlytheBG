@@ -1,10 +1,12 @@
 .aiDiscoverySummary {
+  position: relative;
+  z-index: 20;
   width: min(1100px, calc(100% - 32px));
   margin: 24px auto 8px;
   padding: 22px 24px;
   border: 1px solid rgba(90, 52, 31, 0.16);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .aiDiscoverySummary h1 {
@@ -17,4 +19,19 @@
   margin: 7px 0 0;
   max-width: 90ch;
   line-height: 1.6;
+}
+
+/* Homepage already has its own scene selector inside FlyTheBGJourney.
+   Keep shared SceneUI off homepage so discovery copy never sits underneath it. */
+body:has(.flyJourneyHome) .sharedSceneUI {
+  display: none !important;
+}
+
+@media (max-width: 560px) {
+  .aiDiscoverySummary {
+    width: min(100% - 20px, 1100px);
+    margin-top: 14px;
+    padding: 18px;
+    border-radius: 16px;
+  }
 }
