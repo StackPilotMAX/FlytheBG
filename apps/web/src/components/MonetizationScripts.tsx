@@ -1,21 +1,23 @@
-const ADSENSE_CLIENT =
-  process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-7486274445029717";
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "";
 const ADSENSE_ENABLED =
-  process.env.NEXT_PUBLIC_ADSENSE_ENABLED?.trim().toLowerCase() === "true";
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED?.trim().toLowerCase() === "true" && Boolean(ADSENSE_CLIENT);
 
-// Monetag is enabled unless explicitly disabled. If AdSense is enabled,
-// Monetag only loads when the deployer explicitly confirms compatibility.
+// Production monetization is opt-in from Render environment variables.
+// Keep provider IDs and zones out of source control; NEXT_PUBLIC_* values are
+// still browser-visible once enabled, so they must never contain private keys.
 const MONETAG_ENABLED =
-  process.env.NEXT_PUBLIC_MONETAG_ENABLED?.trim().toLowerCase() !== "false";
+  process.env.NEXT_PUBLIC_MONETAG_ENABLED?.trim().toLowerCase() === "true";
 const MONETAG_ADSENSE_SAFE =
   process.env.NEXT_PUBLIC_MONETAG_ADSENSE_SAFE?.trim().toLowerCase() === "true";
-const MONETAG_SCRIPT_SRC =
-  process.env.NEXT_PUBLIC_MONETAG_SCRIPT_SRC?.trim() || "https://quge5.com/88/tag.min.js";
-const MONETAG_ZONE =
-  process.env.NEXT_PUBLIC_MONETAG_ZONE_LANDING?.trim() || "273485";
+const MONETAG_SCRIPT_SRC = process.env.NEXT_PUBLIC_MONETAG_SCRIPT_SRC?.trim() || "";
+const MONETAG_ZONE = process.env.NEXT_PUBLIC_MONETAG_ZONE_LANDING?.trim() || "";
 
 export function MonetizationHead() {
-  const loadMonetag = MONETAG_ENABLED && (!ADSENSE_ENABLED || MONETAG_ADSENSE_SAFE);
+  const loadMonetag =
+    MONETAG_ENABLED &&
+    Boolean(MONETAG_SCRIPT_SRC) &&
+    Boolean(MONETAG_ZONE) &&
+    (!ADSENSE_ENABLED || MONETAG_ADSENSE_SAFE);
 
   return (
     <>
@@ -29,8 +31,6 @@ export function MonetizationHead() {
           />
         </>
       ) : null}
-
-      <meta name="monetag" content="5e777e0aa6ce027ca2e1a8ec1c8325b3" />
 
       {loadMonetag ? (
         <script
