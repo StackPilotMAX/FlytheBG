@@ -25,7 +25,7 @@ export async function readVideoMetadata(file: File): Promise<VideoMetadata> {
       videoTrack.getDisplayWidth(),
       videoTrack.getDisplayHeight(),
       videoTrack.getDurationFromMetadata(),
-      videoTrack.computeFrameRateMetrics({ targetFrameCount: 120 }),
+      videoTrack.computeFrameRateMetrics({ targetPacketCount: 120 }),
       input.getPrimaryAudioTrack(),
     ]);
 
