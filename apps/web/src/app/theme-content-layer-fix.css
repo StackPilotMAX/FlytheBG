@@ -3,11 +3,13 @@ body > main:not(.cinematicHero) > section > .shell > *,
 body > main:not(.cinematicHero) > .shell > *,
 body > main:not(.cinematicHero) > .passportWorkspace.shell > * { position: relative; z-index: 1; }
 
-/* FAQ readability on the glass theme. */
-.landingFaqGrid,.animatedFaqList,.faqGrid { position:relative; z-index:1; }
-.landingFaqGrid details,.animatedFaqList details { color:#050505!important; overflow:hidden; }
-.landingFaqGrid summary,.animatedFaqList summary { position:relative; z-index:2; color:#050505!important; background:transparent!important; text-shadow:none!important; }
-.landingFaqGrid details p,.animatedFaqList details p,.landingFaqGrid details span,.animatedFaqList details span { position:relative; z-index:2; color:#050505!important; opacity:1!important; text-shadow:none!important; }
+/* FAQ readability on the glass theme. Keep all FAQ questions and answers explicitly dark. */
+.landingFaqGrid,.animatedFaqList,.faqGrid,.faqSection { position:relative; z-index:1; }
+.landingFaqGrid details,.animatedFaqList details,.faqGrid details,.faqSection details { color:#050505!important; overflow:hidden; }
+.landingFaqGrid summary,.animatedFaqList summary,.faqGrid summary,.faqSection summary { position:relative; z-index:2; color:#050505!important; background:transparent!important; text-shadow:none!important; }
+.landingFaqGrid details p,.animatedFaqList details p,.faqGrid details p,.faqSection details p,
+.landingFaqGrid details span,.animatedFaqList details span,.faqGrid details span,.faqSection details span,
+.landingFaqGrid details strong,.animatedFaqList details strong,.faqGrid details strong,.faqSection details strong { position:relative; z-index:2; color:#050505!important; opacity:1!important; text-shadow:none!important; }
 .faqJumpLinks,.faqJumpLinks a { position:relative; z-index:2; }
 .faqJumpLinks a { color:#050505!important; }
 
@@ -32,5 +34,6 @@ body > main:not(.cinematicHero) > .passportWorkspace.shell > * { position: relat
 .wmActionRow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}.wmPrimary,.wmSecondary{min-height:42px;padding:0 15px;border-radius:10px;font:700 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}.wmPrimary{background:var(--fly-accent,#d8ff45);border:1px solid var(--fly-accent,#d8ff45);color:#050505}.wmSecondary{background:rgba(255,255,255,.035);border:1px solid var(--line,rgba(255,255,255,.14));color:#aaa9a2}.wmPrimary:disabled,.wmSecondary:disabled,.wmSegment button:disabled,.wmProviderChoices button:disabled,.wmUpload:has(input:disabled){opacity:.45;cursor:not-allowed}
 .wmProgress,.wmStatus{margin-top:10px;color:#aaa9a2;font:500 10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}.wmProgress{padding:10px 12px;border:1px solid rgba(216,255,69,.18);border-radius:10px;background:rgba(216,255,69,.04)}
 .wmFine{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.wmFine label{display:grid;gap:7px;padding:10px 11px;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;background:rgba(255,255,255,.025);color:#777;font:700 8px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em}.wmFine label span{color:#aaa9a2}.wmFine output{color:var(--fly-accent,#d8ff45);font-weight:800}.wmFine input{width:100%;accent-color:var(--fly-accent,#d8ff45)}.wmHiddenCanvas{display:none}
-@media(max-width:900px){.wmControlsTop{grid-template-columns:1fr}.wmProviderChoices{grid-template-columns:repeat(2,minmax(0,1fr))}.wmUpload{width:100%}.wmFine{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.wmMethodsSection{position:relative;z-index:1}.wmMethodsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.wmMethodCard{position:relative;padding:22px;border:1px solid var(--line,rgba(255,255,255,.14));border-radius:18px;background:rgba(255,255,255,.035);color:#050505}.wmMethodCard h3,.wmMethodCard h4,.wmMethodCard p,.wmMethodCard li{color:#050505}.wmMethodCard h3{margin:0 0 5px;font-size:20px}.wmMethodCard h4{margin:0 0 12px;font-size:13px}.wmMethodCard p,.wmMethodCard li{font-size:12px;line-height:1.65}.wmMethodCard ol{padding-left:20px}.wmMethodCard a{color:#050505;text-decoration:underline;text-underline-offset:3px}.wmMethodNumber{display:inline-flex;margin-bottom:12px;color:#050505;font:800 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.wmMethodLink{display:inline-block;margin-top:6px;font-weight:800}.wmMethodNote{padding:10px 12px;border-left:3px solid var(--fly-accent,#d8ff45);background:rgba(216,255,69,.08)}
+@media(max-width:900px){.wmControlsTop{grid-template-columns:1fr}.wmProviderChoices{grid-template-columns:repeat(2,minmax(0,1fr))}.wmUpload{width:100%}.wmFine{grid-template-columns:repeat(2,minmax(0,1fr))}.wmMethodsGrid{grid-template-columns:1fr}}
 @media(max-width:600px){.wmInstructions{display:grid;gap:6px}.wmStage{min-height:180px;border-radius:14px}.wmCompare{grid-template-columns:1fr}.wmActionRow>*{flex:1 1 100%}.wmFine{grid-template-columns:1fr}.wmProviderChoices button{padding:10px}}
