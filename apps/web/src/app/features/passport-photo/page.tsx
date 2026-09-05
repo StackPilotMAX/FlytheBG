@@ -1,23 +1,24 @@
+import type { Metadata } from "next";
 import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { PassportDragEnhancer } from "@/components/PassportDragEnhancer";
 import { PassportPhotoMaker } from "@/components/PassportPhotoMaker";
 
-export const metadata = {
-  title: "Passport Photo Maker: Print & Download",
-  description: "Create measured passport-photo sheets in your browser, move the crop frame over a stationary photo, adjust individual crops, print at 100%, or download a high-resolution PNG.",
-  keywords: ["passport photo maker", "passport size photo", "passport photo crop frame", "passport photo print", "passport photo PNG", "35x45 photo maker", "2x2 passport photo", "print passport photos online"],
+export const metadata: Metadata = {
+  title: "Free Passport Photo Maker — Passport Size Photo Online",
+  description: "Create a passport size photo online for free in your browser. Set physical dimensions, move the crop frame, make printable passport photo sheets, print at 100%, or download a high-resolution PNG.",
+  keywords: ["passport photo maker", "free passport photo maker", "passport size photo", "passport photo online", "passport photo crop frame", "passport photo print", "passport photo PNG", "35x45 photo maker", "2x2 passport photo", "print passport photos online", "visa photo maker", "visa photo online"],
   alternates: { canonical: "/features/passport-photo" },
   openGraph: {
-    title: "Passport Photo Maker: Print & Download Online",
-    description: "Create measured passport photo sheets in your browser with movable crop framing, individual copy adjustments, DPI-aware PNG export, and 100% printing.",
+    title: "Free Passport Photo Maker — Passport Size Photo Online",
+    description: "Create measured passport and visa photo sheets in your browser with movable crop framing, individual copy adjustments, DPI-aware PNG export, and 100% printing.",
     url: "/features/passport-photo",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Passport Photo Maker: Print & Download Online",
-    description: "Create measured passport photo sheets with movable crop framing and DPI-aware export.",
+    title: "Free Passport Photo Maker — Passport Size Photo Online",
+    description: "Create passport size photos online with movable crop framing and DPI-aware export.",
   },
 };
 
@@ -38,7 +39,7 @@ export default function PassportPhotoPage() {
     <main className="passportPage">
       <section className="pageHero compactHero">
         <div className="shell pageHeroGrid">
-          <div><span className="eyebrow"><i/> Passport Photo Maker</span><h1>Move the crop frame, then print or download your passport sheet.</h1><p>Set the required physical size, keep the source photo stationary, and move the crop frame over the photo until the subject is positioned correctly. You can also customize the crop frame for individual copies in the final sheet.</p><div className="heroProof inline"><span><strong>Movable crop frame</strong><small>photo stays stationary</small></span><span><strong>Print directly</strong><small>Actual Size / 100%</small></span><span><strong>PNG download</strong><small>DPI-aware sheet export</small></span></div></div>
+          <div><span className="eyebrow"><i/> Free Passport Photo Maker</span><h1>Create a passport size photo online, then print the sheet.</h1><p>Set the required physical size, keep the source photo stationary, and move the crop frame over the photo until the subject is positioned correctly. You can also customize the crop frame for individual copies in the final sheet.</p><div className="heroProof inline"><span><strong>Passport size photo</strong><small>measured physical dimensions</small></span><span><strong>Movable crop frame</strong><small>photo stays stationary</small></span><span><strong>Print at 100%</strong><small>DPI-aware PNG sheet</small></span></div></div>
           <aside className="pageHeroAside"><span className="kicker">Before you print</span><ol><li><b>01</b><span><strong>Verify the authority</strong><small>size + photo rules</small></span></li><li><b>02</b><span><strong>Position the crop frame</strong><small>move + crop zoom</small></span></li><li><b>03</b><span><strong>Print at 100%</strong><small>disable fit-to-page</small></span></li></ol></aside>
         </div>
         <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="passport-inline-1" format="leaderboard" /></div>
@@ -48,7 +49,7 @@ export default function PassportPhotoPage() {
 
       <section className="section passportNotes">
         <div className="shell">
-          <div className="sectionHeading"><span className="eyebrow"><i/> Printing guide</span><h2>Physical size, crop position, pixels, and DPI are different things.</h2><p>A passport photo is normally specified by a physical width and height, while a digital file is measured in pixels. FlytheBG converts the requested physical dimensions into pixels using the export DPI. The crop frame determines which stationary part of the source image is placed inside those output dimensions.</p></div>
+          <div className="sectionHeading"><span className="eyebrow"><i/> Passport photo online guide</span><h2>Physical size, crop position, pixels, and DPI are different things.</h2><p>A passport photo is normally specified by a physical width and height, while a digital file is measured in pixels. FlytheBG converts the requested physical dimensions into pixels using the export DPI. The crop frame determines which stationary part of the source image is placed inside those output dimensions.</p></div>
           <div className="infoCards">
             <article><span>Physical output</span><h2>Dimensions drive the export.</h2><p>Centimetres, millimetres, or inches define the target size on paper. The on-screen preview can appear larger or smaller depending on your display and browser zoom, so preview size should never be used as a ruler.</p></article>
             <article><span>Crop-frame positioning</span><h2>The photo stays still while the frame moves.</h2><p>Drag or nudge the main crop frame over the stationary source photo. For individual printed copies, select a copy and drag directly on the sheet or adjust its own crop-frame position or crop zoom without moving the source image itself.</p></article>
@@ -59,7 +60,7 @@ export default function PassportPhotoPage() {
 
       <section className="section workflowSection">
         <div className="shell workflowGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Acceptance depends on more than size</span><h2>Check the issuing authority before relying on any preset.</h2><p>FlytheBG can help with measurement and layout, but it cannot know every current document rule or guarantee acceptance.</p></div>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Acceptance depends on more than size</span><h2>Check the issuing authority before relying on any passport photo preset.</h2><p>FlytheBG can help with measurement and layout, but it cannot know every current document rule or guarantee acceptance.</p></div>
           <div className="principleList">
             <article><strong>Head position and scale</strong><p>Many authorities define the acceptable distance from chin to crown, eye-line position, or the amount of space above the head. Move and resize the crop frame so the source photo is sampled correctly, then compare the result with the authority&apos;s current instructions.</p></article>
             <article><strong>Background and lighting</strong><p>Rules may require a plain light background, even lighting, natural skin tone, no strong shadows, and no visible objects behind the subject. Background removal can help with layout, but some authorities restrict editing.</p></article>
