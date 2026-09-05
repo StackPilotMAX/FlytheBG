@@ -5,12 +5,12 @@ import { HoverFaqList } from "@/components/HoverFaqList";
 import { Uploader } from "@/components/Uploader";
 
 export const metadata: Metadata = {
-  title: "Free Background Remover: Local AI",
-  description: "Remove image backgrounds online for free with FlytheBG. Browser AI uses adaptive quality checks, protects fine foreground detail, preserves source ratios, and needs no image-processing backend.",
-  keywords: ["free background remover online","remove background online","remove image background","remove bg free","AI background remover","background eraser","transparent background maker","transparent PNG","browser background remover","no upload background remover","local AI background remover","FlytheBG","Fly the BG"],
+  title: "Free Background Remover Online — AI Image Background Remover",
+  description: "Remove image backgrounds online for free with FlyTheBG. This AI background remover runs in your browser, creates transparent PNGs, protects fine foreground detail, and needs no image-processing backend.",
+  keywords: ["free background remover", "free background remover online", "background remover online", "remove image background", "image background remover", "online background remover", "AI background remover", "background remover AI", "remove bg free", "background eraser", "transparent background maker", "transparent PNG", "browser background remover", "no upload background remover", "local AI background remover", "FlytheBG", "Fly the BG"],
   alternates: { canonical: "/remove-background" },
-  openGraph: { title: "Free Background Remover Online — FlytheBG", description: "Fast browser-side AI background removal with adaptive quality checks and conservative fine-edge protection, without uploading the working photo to an inference server.", url: "/remove-background", type: "website" },
-  twitter: { card: "summary", title: "Free Background Remover Online — FlytheBG", description: "Fast browser-side background removal with adaptive model selection, hair-edge protection, and low-memory safeguards." },
+  openGraph: { title: "Free Background Remover Online — FlytheBG", description: "Free AI background remover that runs in your browser with adaptive quality checks, fine-edge protection, and transparent PNG export.", url: "/remove-background", type: "website" },
+  twitter: { card: "summary", title: "Free Background Remover Online — FlytheBG", description: "Remove image backgrounds online with browser AI, hair-edge protection, and local transparent PNG export." },
 };
 
 const removalFaqs = [
@@ -34,7 +34,7 @@ export default function RemoveBackgroundPage() {
     <main className="toolPage">
       <section className="pageHero compactHero">
         <div className="shell pageHeroGrid">
-          <div><span className="eyebrow"><i/> Free Background Remover</span><h1>Keep the subject. Lose the background.</h1><p>Remove backgrounds from portrait, landscape, square, vertical, or panoramic images without forcing a preset crop. FlytheBG starts with a fast local model, uses bounded working dimensions for large images, protects connected fine edges conservatively, and can escalate to a higher-quality WebGPU pass only when a local result check says it may help.</p><div className="heroProof inline"><span><strong>Fast common path</strong><small>quantized first · bounded inference</small></span><span><strong>Adaptive quality</strong><small>FP16 only when risk is detected</small></span><span><strong>Subject protection</strong><small>hair + pale-region safeguards</small></span></div></div>
+          <div><span className="eyebrow"><i/> Free Background Remover Online</span><h1>Remove image backgrounds online. Keep the subject.</h1><p>Use a free AI background remover in your browser for portrait, landscape, square, vertical, or panoramic images. FlytheBG starts with a fast local model, uses bounded working dimensions for large images, protects connected fine edges conservatively, and can escalate to a higher-quality WebGPU pass only when a local result check says it may help.</p><div className="heroProof inline"><span><strong>Free online tool</strong><small>browser-first · no signup</small></span><span><strong>AI background remover</strong><small>quantized first · adaptive quality</small></span><span><strong>Transparent PNG</strong><small>subject + fine-edge protection</small></span></div></div>
           <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Decode + fast working size</strong><small>type, dimensions, device memory</small></span></li><li><b>02</b><span><strong>Fast local AI first</strong><small>WebGPU/CPU · adaptive quality check</small></span></li><li><b>03</b><span><strong>Protect + export</strong><small>fine edges · pale foreground · PNG</small></span></li></ol></aside>
         </div>
         <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="remove-bg-inline-1" format="leaderboard" /></div>
@@ -44,7 +44,7 @@ export default function RemoveBackgroundPage() {
 
       <section className="section toolInfoSection">
         <div className="shell">
-          <div className="sectionHeading"><span className="eyebrow"><i/> Background removal guide</span><h2>What happens after you choose an image.</h2><p>Background removal is foreground segmentation, not a simple color delete. The model estimates an alpha mask describing how visible each foreground pixel should remain. FlytheBG validates that mask, protects eligible subject edges locally, and exports a transparent PNG without changing the image ratio.</p></div>
+          <div className="sectionHeading"><span className="eyebrow"><i/> AI background remover guide</span><h2>Free online background removal without sending the working photo to an image-processing server.</h2><p>Background removal is foreground segmentation, not a simple color delete. The model estimates an alpha mask describing how visible each foreground pixel should remain. FlytheBG validates that mask, protects eligible subject edges locally, and exports a transparent PNG without changing the image ratio.</p></div>
           <div className="infoCards">
             <article><span>Step 1</span><h2>The browser prepares a bounded working image when useful.</h2><p>FlytheBG validates the file and caps oversized inference dimensions according to model/device capability. This makes high-resolution inputs faster to process and reduces browser memory spikes while preserving the original aspect ratio.</p></article>
             <article><span>Step 2</span><h2>The smaller model runs first.</h2><p>The quantized IS-Net path is the fast default. A lightweight local mask check looks for preservation risk around pale subject regions and connected semi-transparent edges. On suitable WebGPU devices, only risky results are retried with FP16 for extra quality.</p></article>
@@ -55,7 +55,7 @@ export default function RemoveBackgroundPage() {
 
       <section className="section workflowSection">
         <div className="shell workflowGrid">
-          <div className="sectionHeading compact"><span className="eyebrow"><i/> Better source photos</span><h2>How to get cleaner edges before you upload.</h2><p>The model can only work with detail that exists in the source image. A few photography choices make difficult boundaries easier to identify.</p></div>
+          <div className="sectionHeading compact"><span className="eyebrow"><i/> Better source photos</span><h2>How to get cleaner edges before you use the online background remover.</h2><p>The model can only work with detail that exists in the source image. A few photography choices make difficult boundaries easier to identify.</p></div>
           <div className="principleList">
             <article><strong>Keep the subject sharp</strong><p>Motion blur and missed focus blend foreground and background pixels together. If possible, use a photo where hair, shoulders, product edges, and clothing seams remain visibly defined.</p></article>
             <article><strong>Give pale clothing some separation</strong><p>White clothing against a white wall is intrinsically difficult because the model sees very similar pixels on both sides of the subject boundary. A slightly different background tone, shadow, or edge contrast gives segmentation more evidence.</p></article>
