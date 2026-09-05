@@ -1,0 +1,58 @@
+/* Final FAQ readability override: this file is imported last in layout.tsx. */
+.landingFaqGrid details,
+.landingFaqGrid details > summary,
+.landingFaqGrid details > summary span,
+.landingFaqGrid details > p,
+.animatedFaqList .faqItem,
+.animatedFaqList .faqQuestion,
+.animatedFaqList .faqQuestion span,
+.animatedFaqList .faqPlus,
+.animatedFaqList .faqAnswerMotion,
+.animatedFaqList .faqAnswerInner,
+.animatedFaqList .faqAnswerInner p,
+.faqGrid .faqItem,
+.faqGrid .faqQuestion,
+.faqGrid .faqQuestion span,
+.faqGrid .faqPlus,
+.faqGrid .faqAnswerMotion,
+.faqGrid .faqAnswerInner,
+.faqGrid .faqAnswerInner p,
+.faqSection details,
+.faqSection details > summary,
+.faqSection details > summary span,
+.faqSection details > p {
+  color: #050505 !important;
+  text-shadow: none !important;
+}
+
+.landingFaqGrid summary,
+.faqSection summary,
+.animatedFaqList .faqQuestion,
+.faqGrid .faqQuestion {
+  -webkit-text-fill-color: #050505 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.animatedFaqList .faqQuestion,
+.faqGrid .faqQuestion {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.animatedFaqList .faqPlus,
+.faqGrid .faqPlus,
+.landingFaqGrid details > summary span,
+.faqSection details > summary span {
+  color: #050505 !important;
+  -webkit-text-fill-color: #050505 !important;
+}
+
+/* Keep the FAQ content above decorative theme layers on every tool page. */
+.faqSection,
+.faqGrid,
+.landingFaqGrid,
+.animatedFaqList {
+  position: relative;
+  z-index: 20 !important;
+}
