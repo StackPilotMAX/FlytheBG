@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import VideoCompressor from "@/components/video-compressor/VideoCompressor";
+import "./video-compressor-seo.css";
 
 export const metadata: Metadata = {
   title: "Free Video Compressor — Compress Videos in Your Browser | FlyThe BG",
