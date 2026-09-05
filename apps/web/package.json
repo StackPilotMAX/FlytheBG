@@ -15,6 +15,7 @@
     "@imgly/background-removal": "1.7.0",
     "@pilio/gemini-watermark-remover": "1.0.41",
     "lucide-react": "^0.468.0",
+    "mediabunny": "^1.55.3",
     "motion": "^12.23.24",
     "next": "15.5.21",
     "onnxruntime-web": "1.21.0",
