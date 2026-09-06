@@ -1,0 +1,134 @@
+/* Content visibility fix — legal pages and long-form articles must never collapse or clip text. */
+
+.legalMain,
+.legalShell,
+.legalBody,
+.legalBody section,
+.legalBody article,
+.legalBody p,
+.legalBody h1,
+.legalBody h2,
+.legalBody h3,
+.legalBody ul,
+.legalBody ol,
+.legalBody li,
+.blogsPage,
+.blogArticlePage,
+.blogArticleBody,
+.blogArticleBody section,
+.blogArticleBody article,
+.blogArticleBody p,
+.blogArticleBody h1,
+.blogArticleBody h2,
+.blogArticleBody h3,
+.blogArticleBody h4,
+.blogArticleBody ul,
+.blogArticleBody ol,
+.blogArticleBody li {
+  max-height: none !important;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  content-visibility: visible;
+  contain: none;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  -webkit-box-orient: initial;
+}
+
+.legalMain {
+  width: 100%;
+  min-height: 70vh;
+  display: block;
+}
+
+.legalShell {
+  width: min(960px, calc(100% - 40px));
+  margin-inline: auto;
+  padding: 64px 0 96px;
+}
+
+.legalHeading {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.legalHeading h1 {
+  margin: 10px 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.legalBody {
+  width: 100%;
+  display: block;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.legalBody p {
+  display: block;
+  width: 100%;
+  margin: 0 0 18px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.legalBody h2,
+.legalBody h3 {
+  display: block;
+  width: 100%;
+  margin-top: 38px;
+  margin-bottom: 14px;
+  overflow-wrap: anywhere;
+}
+
+.legalBody ul,
+.legalBody ol {
+  display: block;
+  width: 100%;
+  margin: 0 0 22px;
+  padding-left: 1.5rem;
+}
+
+.legalBody li {
+  display: list-item;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.legalBody a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.blogArticleBody {
+  width: min(820px, calc(100% - 40px));
+  margin-inline: auto;
+  display: block;
+}
+
+.blogArticleBody section {
+  display: block;
+  width: 100%;
+}
+
+.blogArticleBody p,
+.blogArticleBody li {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 620px) {
+  .legalShell,
+  .blogArticleBody {
+    width: min(100% - 28px, 960px);
+  }
+
+  .legalShell {
+    padding-top: 40px;
+    padding-bottom: 64px;
+  }
+}
