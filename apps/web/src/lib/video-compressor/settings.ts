@@ -26,21 +26,28 @@ export const TARGET_SIZE_BYTES: Record<Exclude<TargetSizePreset, "none" | "custo
   "100mb": 100 * 1024 * 1024,
 };
 
-// Default to high quality so the first compression does not visibly destroy detail.
-// Users can still choose Medium/Low when a smaller file is more important than quality.
 export const DEFAULT_SETTINGS: CompressionSettings = {
   quality: "high",
   resolution: "original",
   targetSize: "none",
 };
 
-export function targetBytes(settings: CompressionSettings): number | null {
+export function targetBytes(settings: CompressionSettings, sourceBytes?: number): number | null {
   if (settings.targetSize === "none") return null;
+
+  let requested: number;
   if (settings.targetSize === "custom") {
     const mb = Number(settings.customTargetMb);
-    return Number.isFinite(mb) && mb > 0 ? mb * 1024 * 1024 : null;
+    requested = Number.isFinite(mb) && mb > 0 ? mb * 1024 * 1024 : 0;
+  } else {
+    requested = TARGET_SIZE_BYTES[settings.targetSize];
   }
-  return TARGET_SIZE_BYTES[settings.targetSize];
+
+  if (!requested) return null;
+  // Never deliberately turn a smaller source into a larger file in target mode.
+  return Number.isFinite(sourceBytes) && sourceBytes! > 0
+    ? Math.min(requested, Math.floor(sourceBytes! * 0.98))
+    : requested;
 }
 
 export function calculateOutputDimensions(
@@ -79,13 +86,40 @@ export function calculateTargetVideoBitrate(
     throw new Error("A valid video duration is required for target-size mode.");
   }
 
-  const totalBitrate = (targetBytesValue * 8 * 0.88) / durationSeconds;
+  const totalBitrate = (targetBytesValue * 8 * 0.90) / durationSeconds;
   const estimatedVideoBitrate = Math.max(80_000, totalBitrate - audioBitrate);
   const pixels = outputWidth * outputHeight;
-  const minimum = Math.max(80_000, Math.round(pixels * 0.035));
+  const minimum = Math.max(80_000, Math.round(pixels * 0.018));
   const maximum = Math.min(40_000_000, Math.max(500_000, Math.round(pixels * 0.28)));
 
   return Math.round(Math.min(maximum, Math.max(minimum, estimatedVideoBitrate)));
+}
+
+/**
+ * Quality presets are bitrate presets, not cosmetic labels. They are derived
+ * from the source's estimated bitrate so High/Medium/Low produce materially
+ * different outputs and High does not normally inflate a compressed file.
+ */
+export function calculateQualityVideoBitrate(
+  sourceBytes: number,
+  durationSeconds: number,
+  outputWidth: number,
+  outputHeight: number,
+  quality: QualityPreset,
+  audioBitrate = 96_000,
+): number {
+  if (!Number.isFinite(sourceBytes) || sourceBytes <= 0 || !Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    throw new Error("A valid source size and duration are required for quality mode.");
+  }
+
+  const sourceTotalBitrate = (sourceBytes * 8) / durationSeconds;
+  const sourceVideoBitrate = Math.max(160_000, sourceTotalBitrate - audioBitrate);
+  const factor = quality === "high" ? 0.82 : quality === "medium" ? 0.58 : 0.38;
+  const pixels = outputWidth * outputHeight;
+  const minimum = Math.max(80_000, Math.round(pixels * 0.018));
+  const maximum = Math.min(24_000_000, Math.max(500_000, Math.round(pixels * 0.22)));
+
+  return Math.round(Math.min(maximum, Math.max(minimum, sourceVideoBitrate * factor)));
 }
 
 export function even(value: number): number {
