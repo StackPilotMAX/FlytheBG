@@ -31,11 +31,21 @@ test("compression stays browser-local and uses no upload endpoint", () => {
   assert.match(component, /Your source stays in your browser/);
 });
 
-test("capability detection checks WebCodecs and H.264", () => {
+test("capability detection checks H.264 encoding without blocking native decode fallback", () => {
   assert.match(capabilities, /VideoEncoder/);
-  assert.match(capabilities, /VideoFrame/);
   assert.match(capabilities, /getEncodableVideoCodecs/);
   assert.match(capabilities, /\[\"avc\"\]/);
+  assert.match(capabilities, /canvas fallback/);
+  assert.match(capabilities, /VideoDecoder/);
+  assert.doesNotMatch(capabilities, /!\("VideoFrame" in window\)/);
+});
+
+test("decoder fallback uses native video frames and encodes H.264 MP4", () => {
+  assert.match(engine, /CanvasSource/);
+  assert.match(engine, /document\.createElement\("video"\)/);
+  assert.match(engine, /new CanvasSource/);
+  assert.match(engine, /codec: "avc"/);
+  assert.match(engine, /await seekVideo/);
 });
 
 test("output is advertised as real H.264 MP4 and has a downloadable filename", () => {
