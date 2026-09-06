@@ -40,8 +40,9 @@ test("capability detection checks WebCodecs and H.264", () => {
 
 test("output is advertised as real H.264 MP4 and has a downloadable filename", () => {
   assert.match(engine, /mimeType: \"video\/mp4\"/);
-  assert.match(settings, /-compressed\.mp4/);
+  assert.match(settings, /buildOutputName/);
   assert.match(component, /download=\{outputName\}/);
+  assert.match(component, /MP4 \/ H\.264/);
 });
 
 test("route has canonical SEO metadata and the tools catalog links to it", () => {
@@ -54,4 +55,15 @@ test("route has canonical SEO metadata and the tools catalog links to it", () =>
 test("Mediabunny is the browser media dependency", () => {
   assert.match(packageJson, /\"mediabunny\": \"\^1\.55\.3\"/);
   assert.doesNotMatch(packageJson, /ffmpeg/i);
+});
+
+test("blog hub and article routes are part of the first-party content architecture", () => {
+  const blogIndex = read("../src/app/blogs/page.tsx");
+  const blogArticle = read("../src/app/blogs/[slug]/page.tsx");
+  const blogData = read("../src/lib/blogs.ts");
+  assert.match(blogIndex, /canonical: "\/blogs"/);
+  assert.match(blogIndex, /blogPosts\.map/);
+  assert.match(blogArticle, /generateStaticParams/);
+  assert.match(blogData, /private-browser-image-tools/);
+  assert.match(blogData, /compress-video-in-your-browser/);
 });
