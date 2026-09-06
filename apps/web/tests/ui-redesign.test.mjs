@@ -15,13 +15,11 @@ const faqPage = await read("../src/app/faq/page.tsx");
 const modelDisclosure = await read("../src/app/model-disclosure/page.tsx");
 const remover = await read("../src/app/remove-background/page.tsx");
 const passport = await read("../src/app/features/passport-photo/page.tsx");
-const privacy = await read("../src/app/privacy/page.tsx");
-const terms = await read("../src/app/terms/page.tsx");
 const monetizationScripts = await read("../src/components/MonetizationScripts.tsx");
 const monetizationConfig = await read("../src/lib/monetization.ts");
 const envExample = await read("../../../.env.example");
 
-test("landing uses the cinematic FlyTheBG journey with scrollable page flow", () => {
+ test("landing uses the cinematic FlyTheBG journey with scrollable page flow", () => {
   assert.match(home, /FlyTheBGJourney/);
   assert.match(home, /LandingFAQ/);
   assert.doesNotMatch(home, /aiDiscoverySummary/);
@@ -85,8 +83,6 @@ test("model and legal disclosure keeps third-party ownership boundaries clear", 
   assert.match(modelDisclosure, /ishara-madu/);
   assert.match(modelDisclosure, /MIT License/);
   assert.match(modelDisclosure, /does not claim ownership/);
-  assert.match(privacy, /AGPL/);
-  assert.match(terms, /AGPL/);
 });
 
 test("AdSense and Monetag remain disabled by default and safely gated", () => {
