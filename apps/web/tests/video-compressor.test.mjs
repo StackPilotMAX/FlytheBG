@@ -10,7 +10,7 @@ const page = read("../src/app/tools/video-compressor/page.tsx");
 const component = read("../src/components/video-compressor/VideoCompressor.tsx");
 const packageJson = read("../package.json");
 
- test("video compressor exposes all required resolution presets and never upscales", () => {
+test("video compressor exposes all required resolution presets and never upscales", () => {
   for (const preset of ["original", "1080p", "720p", "480p", "360p"]) assert.match(settings, new RegExp(`\\\"${preset}\\\"`));
   assert.match(settings, /longestSide <= limit/);
   assert.match(settings, /scale = limit \/ longestSide/);
@@ -39,8 +39,8 @@ test("capability detection checks WebCodecs and H.264", () => {
 });
 
 test("output is advertised as real H.264 MP4 and has a downloadable filename", () => {
-  assert.match(engine, /type: \"video\/mp4\"/);
-  assert.match(engine, /-compressed\.mp4/);
+  assert.match(engine, /mimeType: \"video\/mp4\"/);
+  assert.match(settings, /-compressed\.mp4/);
   assert.match(component, /download=\{outputName\}/);
 });
 
