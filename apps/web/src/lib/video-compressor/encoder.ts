@@ -13,6 +13,7 @@ import {
 import {
   buildOutputName,
   calculateOutputDimensions,
+  calculateQualityVideoBitrate,
   calculateTargetVideoBitrate,
   targetBytes,
 } from "./settings";
@@ -47,8 +48,10 @@ export async function compressVideo(
   if (metadata.duration > MAX_DURATION_SECONDS) throw new Error("This video is longer than the current four-hour browser safety limit.");
 
   const dimensions = calculateOutputDimensions(metadata.width, metadata.height, settings.resolution);
-  const target = targetBytes(settings);
-  let bitrate = target ? calculateTargetVideoBitrate(target, metadata.duration, dimensions.width, dimensions.height) : null;
+  const target = targetBytes(settings, file.size);
+  let bitrate = target
+    ? calculateTargetVideoBitrate(target, metadata.duration, dimensions.width, dimensions.height)
+    : calculateQualityVideoBitrate(file.size, metadata.duration, dimensions.width, dimensions.height, settings.quality);
   let lastResult: CompressionResult | null = null;
 
   for (let pass = 1; pass <= (target ? MAX_TARGET_PASSES : 1); pass += 1) {
@@ -73,7 +76,7 @@ export async function compressVideo(
     if (pass === MAX_TARGET_PASSES) break;
     const currentBitrate = bitrate ?? 0;
     if (currentBitrate <= 0) break;
-    bitrate = Math.round(currentBitrate * Math.min(1.5, Math.max(0.55, 1 / ratio)));
+    bitrate = Math.round(currentBitrate * Math.min(1.55, Math.max(0.55, 1 / ratio)));
   }
 
   if (!lastResult) throw new Error("Compression did not produce an output file.");
@@ -101,7 +104,18 @@ async function runConversion(options: ConversionRunOptions): Promise<Compression
 
   try {
     callbacks.onProgress?.({ progress: 0.01, stage: "decoding", processedTime: 0, pass, totalPasses });
+
+    // Ask Mediabunny whether the actual source track is decodable before
+    // starting Conversion. This prevents unsupported HEVC/VP9/etc. sources
+    // from sitting at 0% while the conversion engine waits for a decoder.
+    const videoTrack = await input.getPrimaryVideoTrack();
+    if (!videoTrack) throw new Error("No video track was found in this file.");
+    if (!(await videoTrack.canDecode())) {
+      throw new Error("The source video codec is not available to WebCodecs; use the native browser decoder fallback.");
+    }
+
     const audioTrack = await input.getPrimaryAudioTrack();
+    const audioCanDecode = audioTrack ? await audioTrack.canDecode() : false;
     const conversionOptions = {
       codec: "avc" as const,
       width: dimensions.width,
@@ -109,7 +123,7 @@ async function runConversion(options: ConversionRunOptions): Promise<Compression
       fit: "contain" as const,
       forceTranscode: true,
       hardwareAcceleration: "no-preference" as const,
-      ...(bitrate ? { quality: new Quality({ bitrate }) } : { quality: new Quality(settings.quality) }),
+      quality: new Quality({ bitrate: bitrate ?? calculateQualityVideoBitrate(file.size, metadata.duration, dimensions.width, dimensions.height, settings.quality) }),
     };
 
     conversion = await Conversion.init({
@@ -117,14 +131,14 @@ async function runConversion(options: ConversionRunOptions): Promise<Compression
       output,
       tracks: "primary",
       video: conversionOptions,
-      ...(audioTrack ? {} : { audio: { discard: true } }),
+      ...(audioTrack && audioCanDecode ? {} : { audio: { discard: true } }),
       tags: {},
       showWarnings: false,
     });
 
     if (!conversion.isValid) throw new Error("This browser cannot decode the source video with WebCodecs.");
     removeAbortListener = attachAbort(signal, () => void conversion?.cancel());
-    conversion.onProgress = (progress, processedTime) => callbacks.onProgress?.({ progress: Math.min(0.98, Math.max(0, progress)), stage: progress < 0.1 ? "decoding" : "encoding", processedTime, pass, totalPasses });
+    conversion.onProgress = (progress, processedTime) => callbacks.onProgress?.({ progress: Math.min(0.98, Math.max(0.01, progress)), stage: progress < 0.1 ? "decoding" : "encoding", processedTime, pass, totalPasses });
     await conversion.execute();
     throwIfAborted(signal);
 
@@ -166,7 +180,7 @@ async function runCanvasFallback({ file, metadata, dimensions, settings, bitrate
     const output = new Output({ format: new Mp4OutputFormat({ fastStart: "in-memory" }), target: new BufferTarget() });
     const source = new CanvasSource(canvas, {
       codec: "avc",
-      quality: bitrate ? new Quality({ bitrate }) : new Quality(settings.quality),
+      quality: new Quality({ bitrate: bitrate ?? calculateQualityVideoBitrate(file.size, metadata.duration, dimensions.width, dimensions.height, settings.quality) }),
       hardwareAcceleration: "no-preference",
       sizeChangeBehavior: "deny",
     });
@@ -183,7 +197,7 @@ async function runCanvasFallback({ file, metadata, dimensions, settings, bitrate
       context.drawImage(video, 0, 0, dimensions.width, dimensions.height);
       await source.add(timestamp, Math.min(frameDuration, duration - timestamp));
       callbacks.onProgress?.({
-        progress: Math.min(0.98, timestamp / duration),
+        progress: Math.min(0.98, 0.02 + (timestamp / duration) * 0.96),
         stage: timestamp < duration * 0.1 ? "decoding" : "encoding",
         processedTime: timestamp,
         pass,
@@ -222,7 +236,7 @@ function makeResult(buffer: ArrayBuffer | Uint8Array, dimensions: { width: numbe
 function isDecoderFailure(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const message = error.message.toLowerCase();
-  return message.includes("decode") || message.includes("webcodecs") || message.includes("codec") || message.includes("decoder") || message.includes("not supported") || message.includes("conversion is invalid");
+  return message.includes("decode") || message.includes("webcodecs") || message.includes("codec") || message.includes("decoder") || message.includes("not supported") || message.includes("conversion is invalid") || message.includes("native browser decoder fallback");
 }
 
 function waitForVideoMetadata(video: HTMLVideoElement): Promise<void> {
