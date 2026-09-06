@@ -34,7 +34,7 @@ import "./blogs/blogs.css";
 import "./footer-social-fix.css";
 import "./media-legal-notice.css";
 import "./page-content-fix.css";
-import { FlytheBGLogo } from "@/components/FlyTheBGLogo";
+import { FlytheBGLogo } from "@/components/FlytheBGLogo";
 import { GitHubStars } from "@/components/GitHubStars";
 import { MonetizationHead, MonetizationScripts } from "@/components/MonetizationScripts";
 import { MotionLayer } from "@/components/MotionLayer";
