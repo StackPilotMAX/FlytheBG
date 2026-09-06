@@ -211,7 +211,10 @@ async function runCanvasFallback({ file, metadata, dimensions, settings, bitrate
 
 function makeResult(buffer: ArrayBuffer | Uint8Array, dimensions: { width: number; height: number }, audioIncluded: boolean, pass: number, duration: number, callbacks: CompressionCallbacks, currentPass: number, totalPasses: number): CompressionResult {
   callbacks.onProgress?.({ progress: 0.99, stage: "finalizing", processedTime: duration, pass: currentPass, totalPasses });
-  const blob = new Blob([buffer], { type: "video/mp4" });
+  const blobBuffer = buffer instanceof ArrayBuffer
+    ? buffer
+    : buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
+  const blob = new Blob([blobBuffer], { type: "video/mp4" });
   callbacks.onProgress?.({ progress: 1, stage: "finalizing", processedTime: duration, pass: currentPass, totalPasses });
   return { blob, output: { size: blob.size, mimeType: "video/mp4", width: dimensions.width, height: dimensions.height, audioIncluded, passes: pass } };
 }
