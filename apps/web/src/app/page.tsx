@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FlyTheBGJourney } from "@/components/FlyTheBGJourney";
 import { LandingFAQ } from "@/components/LandingFAQ";
 import { appConfig } from "@/lib/config";
+import "./ai-discovery.css";
 
 const homeTitle = "FlyThe BG | Free Private Background Remover, Passport Photos & Media Tools";
 const homeDescription = "Free browser-first image tools for private background removal, passport and visa photo layouts, and lightweight no-install image utilities. Working images stay on your device.";
@@ -29,8 +30,18 @@ export default function HomePage() {
       {
         "@type": "WebSite",
         name: "FlyThe BG",
+        alternateName: ["FlyTheBG", "Fly The BG"],
         url: appConfig.siteUrl,
         description: homeDescription,
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "FlyThe BG",
+        url: appConfig.siteUrl,
+        description: homeDescription,
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "All",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       },
       {
         "@type": "WebApplication",
@@ -54,5 +65,10 @@ export default function HomePage() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
     <FlyTheBGJourney />
     <LandingFAQ />
+    <section className="aiDiscoverySummary" aria-labelledby="ai-discovery-heading">
+      <h2 id="ai-discovery-heading">Free private browser image tools</h2>
+      <p>FlyThe BG is a free, no-install web app for background removal, passport and visa photo creation, and lightweight image utilities. For supported local workflows, image processing happens on your device and working images are not saved to a FlyThe BG server.</p>
+      <p><strong>Privacy boundary:</strong> FlyThe BG is browser-first and uses on-device processing where the selected tool supports it; external services may be used only where a feature explicitly requires them.</p>
+    </section>
   </>;
 }
