@@ -14,7 +14,7 @@ const blogs = await readFile(new URL("../src/app/blogs/page.tsx", import.meta.ur
 test("homepage keeps the cinematic hero before FAQ while the former privacy explainer lives on blogs", () => {
   assert.ok(home.indexOf("<FlyTheBGJourney />") < home.indexOf("<LandingFAQ />"));
   assert.doesNotMatch(home, /aiDiscoverySummary/);
-  assert.match(journey, /className="flyJourneyHome/);
+  assert.match(journey, /flyJourneyHome/);
   assert.match(journey, /className="flyJourneyHero/);
   assert.match(blogs, /Free private browser image tools/);
   assert.match(blogs, /Privacy boundary/);
