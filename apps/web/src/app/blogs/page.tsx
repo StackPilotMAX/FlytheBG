@@ -1,0 +1,59 @@
+import Link from "next/link";
+import { blogPosts } from "@/lib/blogs";
+
+export const metadata = {
+  title: "FlyThe BG Blogs | Image, Video & Privacy Tips",
+  description: "Practical FlyThe BG articles about background removal, passport photos, video compression, image formats, watermark cleanup, and browser privacy.",
+  alternates: { canonical: "/blogs" },
+  openGraph: {
+    title: "FlyThe BG Blogs | Image, Video & Privacy Tips",
+    description: "Practical first-party articles for better image workflows, browser privacy, passport-photo preparation, and local media tools.",
+    url: "/blogs",
+    type: "website",
+  },
+};
+
+export default function BlogsPage() {
+  return (
+    <main className="featurePage blogsPage">
+      <section className="pageHero blogHero">
+        <div className="shell narrowHero">
+          <span className="eyebrow"><i /> FlyThe BG blog</span>
+          <h1>Useful ideas for better image and media workflows.</h1>
+          <p>Practical, first-party articles about browser-first tools, image quality, privacy, passport-photo preparation, and everyday media tasks.</p>
+        </div>
+      </section>
+
+      <section className="section blogIntroSection">
+        <div className="shell blogIntroGrid">
+          <article className="blogFeatured">
+            <span className="blogLabel">Why FlyThe BG exists</span>
+            <h2>Free private browser image tools</h2>
+            <p>FlyThe BG is a free, no-install web app for background removal, passport and visa photo creation, and lightweight image utilities. For supported local workflows, image processing happens on your device and working images are not saved to a FlyThe BG server.</p>
+            <p><strong>Privacy boundary:</strong> FlyThe BG is browser-first and uses on-device processing where the selected tool supports it; external services may be used only where a feature explicitly requires them.</p>
+          </article>
+          <div className="blogPrinciples">
+            <span className="blogLabel">Editorial approach</span>
+            <h2>Clear guidance, not empty SEO pages.</h2>
+            <p>Every article is written around a practical question and the real capabilities and limits of the FlyThe BG tools.</p>
+            <Link className="textLink" href="/features">Explore the tools ↗</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell blogGrid">
+          {blogPosts.map((post) => (
+            <article className="blogCard" key={post.slug}>
+              <div className="blogCardTop"><span>{post.index}</span><span>{post.category}</span></div>
+              <h2>{post.title}</h2>
+              <p>{post.excerpt}</p>
+              <div className="blogMeta"><span>{post.date}</span><span>{post.readTime}</span></div>
+              <Link className="textLink" href={`/blogs/${post.slug}`} aria-label={`Read ${post.title}`}>Read article ↗</Link>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
