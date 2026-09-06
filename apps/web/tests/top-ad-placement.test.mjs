@@ -9,12 +9,15 @@ const passport = await readFile(new URL("../src/app/features/passport-photo/page
 const faq = await readFile(new URL("../src/app/faq/page.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../src/app/top-ad-placement.css", import.meta.url), "utf8");
+const blogs = await readFile(new URL("../src/app/blogs/page.tsx", import.meta.url), "utf8");
 
-test("homepage keeps the cinematic hero before FAQ and privacy copy", () => {
+test("homepage keeps the cinematic hero before FAQ while the former privacy explainer lives on blogs", () => {
   assert.ok(home.indexOf("<FlyTheBGJourney />") < home.indexOf("<LandingFAQ />"));
-  assert.ok(home.indexOf("<LandingFAQ />") < home.indexOf("aiDiscoverySummary"));
+  assert.doesNotMatch(home, /aiDiscoverySummary/);
   assert.match(journey, /className="flyJourneyHome/);
   assert.match(journey, /className="flyJourneyHero/);
+  assert.match(blogs, /Free private browser image tools/);
+  assert.match(blogs, /Privacy boundary/);
 });
 
 test("tool ads sit below hero copy and above the editors", () => {
