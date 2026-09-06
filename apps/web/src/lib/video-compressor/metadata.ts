@@ -42,8 +42,8 @@ export async function readVideoMetadata(file: File): Promise<VideoMetadata> {
   }
 
   // Some browsers can play codecs through the HTML media pipeline that are
-  // not exposed through WebCodecs/Mediabunny (notably some HEVC phone videos).
-  // Use that decoder for metadata so those files can reach the canvas fallback.
+  // not exposed through WebCodecs/Mediabunny. Let those files reach the
+  // canvas-based decoder fallback in encoder.ts.
   return readMetadataWithVideoElement(file);
 }
 
@@ -70,25 +70,25 @@ function readMetadataWithVideoElement(file: File): Promise<VideoMetadata> {
     video.muted = true;
     video.playsInline = true;
     video.onloadedmetadata = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= 0 || !video.videoWidth || !video.videoHeight) {
+      const duration = video.duration;
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      if (!Number.isFinite(duration) || duration <= 0 || !width || !height) {
         fail("The video duration or dimensions could not be determined.");
         return;
       }
       if (settled) return;
       settled = true;
-      const fps = Number.isFinite(video.getVideoPlaybackQuality?.().totalVideoFrames ?? NaN)
-        ? null
-        : null;
       cleanup();
       resolve({
         name: file.name,
         size: file.size,
         mimeType: file.type || "video/*",
-        duration: video.duration,
-        width: video.videoWidth,
-        height: video.videoHeight,
-        fps,
-        hasAudio: true,
+        duration,
+        width,
+        height,
+        fps: null,
+        hasAudio: false,
       });
     };
     video.onerror = () => fail("This browser cannot decode this video. Try Chrome or Edge, or convert the source to H.264 MP4 first.");
