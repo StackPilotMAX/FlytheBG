@@ -26,8 +26,10 @@ export const TARGET_SIZE_BYTES: Record<Exclude<TargetSizePreset, "none" | "custo
   "100mb": 100 * 1024 * 1024,
 };
 
+// Default to high quality so the first compression does not visibly destroy detail.
+// Users can still choose Medium/Low when a smaller file is more important than quality.
 export const DEFAULT_SETTINGS: CompressionSettings = {
-  quality: "medium",
+  quality: "high",
   resolution: "original",
   targetSize: "none",
 };
