@@ -25,7 +25,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy" updated="6 September 2026">
       <p>
-        FlyThe BG is a browser-first collection of image and media utilities. This policy explains what information may be processed when you use the website, how working media is handled, how browser storage and advertising technologies may operate, and the limits of our privacy commitments.
+        FlyThe BG is a browser-first collection of image and media utilities. This policy explains what information may be processed when you use the website, how working media is handled, how browser storage and advertising technologies may operate, and the limits of our privacy commitments. By using FlyThe BG, you also agree to the <a href="/terms">Terms of Use</a>.
       </p>
 
       <h2>1. Browser-first processing</h2>
@@ -38,16 +38,27 @@ export default function PrivacyPage() {
 
       <h2>2. Images, videos, and uploaded media</h2>
       <p>
-        When you select an image, video, or other supported file, the browser makes that file available to the selected workflow. For supported local workflows, the working media is processed in browser memory and is not intentionally uploaded to a FlyThe BG image-processing server.
+        When you select, drag, paste, or otherwise provide an image, video, or other supported file, the browser makes that file available to the selected workflow. For supported local workflows, the working media is processed in browser memory and is not intentionally uploaded to a FlyThe BG image-processing server.
+      </p>
+      <p>
+        When a selected feature requires external processing, the media or other information necessary to complete that requested operation may be transmitted to the relevant provider. The scope of that transmission depends on the feature and provider integration; users should review the provider&apos;s applicable privacy terms where relevant.
       </p>
       <p>
         While a workflow is active, source and generated media may temporarily exist in browser memory, object URLs, canvas buffers, or other browser-managed state. Clearing or replacing a workflow releases page-managed resources, subject to normal browser, operating-system, cache, download, screenshot, extension, and device behavior outside FlyThe BG&apos;s control.
       </p>
       <p>
-        Downloaded files remain on your device until you delete them. Users should avoid uploading confidential or highly sensitive material unless they have determined that the selected workflow is appropriate for it.
+        Downloaded files remain on your device until you delete them. Users should avoid providing confidential or highly sensitive material unless they have determined that the selected workflow is appropriate for it.
       </p>
 
-      <h2>3. Models, runtime assets, and third-party infrastructure</h2>
+      <h2>3. Media rights and lawful use</h2>
+      <p>
+        FlyThe BG does not determine whether you have permission to use a particular image or video. You are responsible for having the rights, licences, permissions, consents, and other legal authority required to process and use the media you provide. Please do not use FlyThe BG to infringe copyright, privacy, publicity, trademark, licensing, or other rights.
+      </p>
+      <p>
+        Providing media to a workflow authorizes FlyThe BG and the technical components required for that workflow to process the media only as reasonably necessary to provide the requested operation, subject to the <a href="/terms">Terms of Use</a>. This is a limited processing authorization and does not transfer ownership of your media to FlyThe BG.
+      </p>
+
+      <h2>4. Models, runtime assets, and third-party infrastructure</h2>
       <p>
         Some FlyThe BG tools use third-party software, model weights, WebAssembly, JavaScript runtimes, or other assets. For example, background removal integrates <code>@imgly/background-removal</code>. These resources may be downloaded or cached by the browser from configured distribution infrastructure.
       </p>
@@ -58,7 +69,7 @@ export default function PrivacyPage() {
         Third-party software and model assets remain subject to their applicable licences, notices, and terms. See the <a href="/model-disclosure">Model &amp; Open Source Disclosure</a> for feature-specific information.
       </p>
 
-      <h2>4. AI-assisted image and watermark editing</h2>
+      <h2>5. AI-assisted image and watermark editing</h2>
       <p>
         The Gemini/Veo visible watermark workspace uses calibrated reference assets and reverse-alpha reconstruction adapted from an MIT-licensed open-source project. It is intended for supported and authorized media. It edits visible pixel regions and does not claim to remove invisible provenance systems such as Google SynthID or other content-authenticity mechanisms.
       </p>
@@ -66,7 +77,7 @@ export default function PrivacyPage() {
         Automated image processing can produce imperfect results. Users are responsible for ensuring that they have the rights and permissions necessary to edit and use the media they provide.
       </p>
 
-      <h2>5. Information you voluntarily provide</h2>
+      <h2>6. Information you voluntarily provide</h2>
       <p>
         Core FlyThe BG workflows do not require an account simply to use the public tools. If you contact FlyThe BG, the information you choose to provide may include your name, email address, message, screenshots or other information needed to understand your request.
       </p>
@@ -74,7 +85,7 @@ export default function PrivacyPage() {
         Contact information is used to respond to support, privacy, legal, security, feedback, or product-related requests. We do not sell contact information as a product.
       </p>
 
-      <h2>6. Technical information</h2>
+      <h2>7. Technical information</h2>
       <p>
         Like most websites, FlyThe BG and its infrastructure providers may process technical information associated with ordinary web requests. Depending on the service involved, this may include browser and operating-system information, device characteristics, approximate network or geographic information, requested pages and resources, referring information, security signals, and performance or diagnostic data.
       </p>
@@ -82,7 +93,7 @@ export default function PrivacyPage() {
         This information can be used for security, abuse prevention, reliability, troubleshooting, aggregate measurement, and service improvement.
       </p>
 
-      <h2>7. Cookies and similar technologies</h2>
+      <h2>8. Cookies and similar technologies</h2>
       <p>
         FlyThe BG may use cookies, local storage, session storage, pixels, or similar technologies for essential functionality, security, consent management, preferences, analytics, advertising, and advertising measurement where applicable.
       </p>
@@ -93,7 +104,7 @@ export default function PrivacyPage() {
         You can control cookies through your browser settings. Blocking some cookies or storage mechanisms can affect website functionality.
       </p>
 
-      <h2>8. Google AdSense and advertising cookies</h2>
+      <h2>9. Google AdSense and advertising cookies</h2>
       <p>
         FlyThe BG may use Google AdSense or other advertising providers to support operation and development of the website. If advertising is enabled, Google and its advertising partners may use cookies or similar technologies to deliver, measure, personalize, and report advertising, subject to applicable settings, policies, and consent requirements.
       </p>
@@ -107,7 +118,7 @@ export default function PrivacyPage() {
         Users can review and manage Google advertising personalization choices through Google&apos;s advertising settings and other available privacy controls. Available choices can vary by location, browser, account, and advertising configuration.
       </p>
 
-      <h2>9. Consent and regional advertising requirements</h2>
+      <h2>10. Consent and regional advertising requirements</h2>
       <p>
         Where applicable law or Google&apos;s publisher requirements require consent before certain advertising cookies, personalized advertising, or similar technologies are used, FlyThe BG may use a consent-management mechanism to obtain and respect the visitor&apos;s choices.
       </p>
@@ -118,7 +129,7 @@ export default function PrivacyPage() {
         Consent and advertising behavior can change as the site&apos;s advertising configuration or applicable requirements change. The implementation on the live site should always be treated as the source of truth for the technologies currently enabled.
       </p>
 
-      <h2>10. Third-party services</h2>
+      <h2>11. Third-party services</h2>
       <p>
         FlyThe BG may rely on third-party providers for hosting, content delivery, model/runtime assets, security, analytics, advertising, consent management, communications, or feature-specific processing. A provider may receive information necessary to deliver the service it provides.
       </p>
@@ -126,7 +137,7 @@ export default function PrivacyPage() {
         Third-party providers maintain their own privacy policies and terms. FlyThe BG does not control independent processing performed by those providers outside the instructions and technical boundaries of the relevant integration.
       </p>
 
-      <h2>11. Security and privacy limitations</h2>
+      <h2>12. Security and privacy limitations</h2>
       <p>
         FlyThe BG uses reasonable technical measures appropriate to a browser-based web application. Supported file types and sizes are validated in the browser, and large working canvases are constrained where appropriate to reduce crashes and memory exhaustion.
       </p>
@@ -134,7 +145,7 @@ export default function PrivacyPage() {
         No website, browser, network, or Internet transmission can guarantee absolute security. FlyThe BG also cannot control browser caches, downloads, extensions, screenshots, operating-system behavior, malware, or other software on a visitor&apos;s device.
       </p>
 
-      <h2>12. Data retention</h2>
+      <h2>13. Data retention</h2>
       <p>
         FlyThe BG aims to minimize unnecessary retention of user information. Browser-local working data is governed by the browser and device environment. Downloaded files remain under the visitor&apos;s control until removed from the device.
       </p>
@@ -142,17 +153,17 @@ export default function PrivacyPage() {
         Where an external service is required, information may be processed or retained according to that service&apos;s technical operation, terms, privacy policy, and applicable legal obligations. Contact information may be retained for as long as reasonably necessary to respond to a request, prevent abuse, resolve disputes, maintain appropriate support records, or meet legal requirements.
       </p>
 
-      <h2>13. Children&apos;s privacy</h2>
+      <h2>14. Children&apos;s privacy</h2>
       <p>
         FlyThe BG is a general-purpose web service and is not specifically directed toward children. We do not intentionally request personal information from children through ordinary tool workflows.
       </p>
 
-      <h2>14. Changes to this Privacy Policy</h2>
+      <h2>15. Changes to this Privacy Policy</h2>
       <p>
         This policy may be updated when FlyThe BG adds or changes tools, model/runtime assets, hosting or analytics services, advertising providers, consent mechanisms, or legal requirements. The effective date at the top of this page identifies the current version.
       </p>
 
-      <h2>15. Contact</h2>
+      <h2>16. Contact</h2>
       {appConfig.contactEmail ? (
         <p>
           For privacy, legal, or security questions, contact <a href={`mailto:${appConfig.contactEmail}`}>{appConfig.contactEmail}</a> or use the <a href="/contact">FlyThe BG Contact page</a>.
