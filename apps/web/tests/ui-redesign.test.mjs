@@ -24,7 +24,7 @@ const envExample = await read("../../../.env.example");
 test("landing uses the cinematic FlyTheBG journey with scrollable page flow", () => {
   assert.match(home, /FlyTheBGJourney/);
   assert.match(home, /LandingFAQ/);
-  assert.match(home, /aiDiscoverySummary/);
+  assert.doesNotMatch(home, /aiDiscoverySummary/);
   assert.match(journey, /className=\{`flyJourneyHome/);
   assert.match(journey, /className="flyJourneyVideoStack"/);
   assert.match(journey, /className="flyJourneyHero"/);
@@ -71,7 +71,7 @@ test("FAQ opens and closes with controlled interaction", () => {
   assert.match(faq, /onMouseLeave/);
 });
 
-test("ad inventory is a reserved labelled placement rather than a content-like box", () => {
+test("ad inventory remains a reserved labelled placement", () => {
   assert.match(adPlaceholder, /aria-label="Advertisements"/);
   assert.match(adPlaceholder, />Advertisements<\/span>/);
   assert.match(adPlaceholder, /data-ad-placeholder="true"/);
@@ -80,12 +80,10 @@ test("ad inventory is a reserved labelled placement rather than a content-like b
   assert.match(adPlaceholder, /data-monetag-placeholder/);
 });
 
-test("model and legal disclosure names the package, variants and ownership boundary", () => {
+test("model and legal disclosure keeps third-party ownership boundaries clear", () => {
   assert.match(modelDisclosure, /@imgly\/background-removal/);
-  assert.match(modelDisclosure, /1\.7\.0/);
-  assert.match(modelDisclosure, /isnet_quint8/);
-  assert.match(modelDisclosure, /isnet_fp16/);
-  assert.match(modelDisclosure, /AGPL/);
+  assert.match(modelDisclosure, /ishara-madu/);
+  assert.match(modelDisclosure, /MIT License/);
   assert.match(modelDisclosure, /does not claim ownership/);
   assert.match(privacy, /AGPL/);
   assert.match(terms, /AGPL/);
