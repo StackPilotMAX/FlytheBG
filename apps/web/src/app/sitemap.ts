@@ -1,23 +1,25 @@
 import type { MetadataRoute } from "next";
 import { appConfig } from "@/lib/config";
 import { blogPosts } from "@/lib/blogs";
+
 export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
     { path: "/features", priority: .9, changeFrequency: "weekly" as const },
     { path: "/remove-background", priority: .95, changeFrequency: "weekly" as const },
     { path: "/ai-watermark-remover", priority: .98, changeFrequency: "weekly" as const },
-    { path: "/visa-photo", priority: .92, changeFrequency: "weekly" as const },
+    { path: "/features/passport-photo", priority: .96, changeFrequency: "weekly" as const },
+    { path: "/visa-photo", priority: .93, changeFrequency: "weekly" as const },
+    { path: "/tools/video-compressor", priority: .93, changeFrequency: "weekly" as const },
     { path: "/donate", priority: .8, changeFrequency: "monthly" as const },
-    { path: "/features/passport-photo", priority: .94, changeFrequency: "weekly" as const },
     { path: "/faq", priority: .88, changeFrequency: "monthly" as const },
-    { path: "/dashboard", priority: .55, changeFrequency: "daily" as const },
     { path: "/model-disclosure", priority: .55, changeFrequency: "monthly" as const },
     { path: "/about", priority: .75, changeFrequency: "monthly" as const },
     { path: "/guides", priority: .82, changeFrequency: "monthly" as const },
     { path: "/guides/background-removal", priority: .8, changeFrequency: "monthly" as const },
-    { path: "/guides/passport-photo", priority: .8, changeFrequency: "monthly" as const },
+    { path: "/guides/passport-photo", priority: .82, changeFrequency: "monthly" as const },
     { path: "/guides/browser-privacy", priority: .8, changeFrequency: "monthly" as const },
     { path: "/privacy", priority: .4, changeFrequency: "monthly" as const },
     { path: "/terms", priority: .4, changeFrequency: "monthly" as const },
