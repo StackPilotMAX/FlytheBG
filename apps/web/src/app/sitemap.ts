@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { appConfig } from "@/lib/config";
+import { blogPosts } from "@/lib/blogs";
 export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
@@ -23,5 +24,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/cookies", priority: .4, changeFrequency: "monthly" as const },
     { path: "/contact", priority: .4, changeFrequency: "monthly" as const },
   ];
-  return routes.map((route) => ({ url: `${appConfig.siteUrl}${route.path}`, changeFrequency: route.changeFrequency, priority: route.priority }));
+  const blogRoutes = [
+    { path: "/blogs", priority: .86, changeFrequency: "weekly" as const },
+    ...blogPosts.map((post) => ({ path: `/blogs/${post.slug}`, priority: .76, changeFrequency: "monthly" as const })),
+  ];
+  return [...routes, ...blogRoutes].map((route) => ({ url: `${appConfig.siteUrl}${route.path}`, changeFrequency: route.changeFrequency, priority: route.priority }));
 }
