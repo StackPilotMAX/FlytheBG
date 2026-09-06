@@ -3,21 +3,12 @@ import Link from "next/link";
 export const metadata = {
   title: "About FlyThe BG | Browser-First Image & Media Tools",
   description:
-    "Learn how FlyThe BG works, which browser-first image and media tools are live, how privacy is handled, and what the product does and does not promise.",
-  keywords: [
-    "FlyThe BG",
-    "browser-first image tools",
-    "background remover",
-    "passport photo maker",
-    "visa photo maker",
-    "video compressor",
-    "browser privacy",
-  ],
+    "Learn how FlyThe BG was built, why it exists, which browser-first image and media tools are live, how privacy is handled, and what the product does and does not promise.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About FlyThe BG | Browser-First Image & Media Tools",
     description:
-      "Explore FlyThe BG's browser-first image and media tools, processing architecture, privacy boundary, and product principles.",
+      "Explore FlyThe BG's mission, browser-first architecture, image and media tools, privacy boundary, and product principles.",
     url: "/about",
     type: "website",
   },
@@ -25,7 +16,7 @@ export const metadata = {
     card: "summary",
     title: "About FlyThe BG | Browser-First Image & Media Tools",
     description:
-      "Learn how FlyThe BG's browser-first tools work and what the product does and does not promise.",
+      "Learn why FlyThe BG exists, how its browser-first tools work, and what the product does and does not promise.",
   },
 };
 
@@ -37,7 +28,10 @@ export default function AboutPage() {
           <span className="eyebrow"><i /> About FlyThe BG</span>
           <h1>A browser-first media toolkit built around useful, explainable workflows.</h1>
           <p>
-            FlyThe BG is a production web application for practical image and media tasks: background removal, image cleanup, measured passport and visa photo preparation, and browser-based video compression. The product focuses on complete workflows, clear limitations, and privacy-aware processing rather than a large catalog of unfinished utilities.
+            FlyThe BG was created to make everyday image and media preparation simpler, more accessible, and less dependent on complicated desktop software. The product brings practical browser-based utilities together in one place, with a focus on complete workflows, clear limitations, privacy-aware design, and useful documentation.
+          </p>
+          <p>
+            The goal is not to publish a large collection of pages that exist only to target search queries. Each product area is intended to solve a recognizable task: removing a background, preparing a passport or visa photograph, cleaning up supported media, compressing a video, or learning how to prepare an image correctly before publishing or submitting it.
           </p>
         </div>
       </section>
@@ -45,26 +39,59 @@ export default function AboutPage() {
       <section className="section">
         <div className="shell workflowGrid">
           <div className="sectionHeading compact">
-            <span className="eyebrow"><i /> What is live</span>
-            <h2>Focused tools that solve specific media problems.</h2>
+            <span className="eyebrow"><i /> Why it exists</span>
+            <h2>Useful media tools should explain the task as well as perform it.</h2>
             <p>
-              The public product catalog is intentionally limited to workflows that have a usable interface, supporting guidance, and a clear processing path.
+              Many ordinary media tasks require installing software, learning a complex interface, or paying for features that are only needed occasionally. FlyThe BG is designed to reduce that friction through focused browser-based workflows and supporting guidance.
+            </p>
+            <p>
+              The product combines interactive tools with instructions, FAQs, guides, privacy information, and transparent limitations. The result should be a place where a visitor can understand the task, use an appropriate tool, and make an informed decision about the exported result.
+            </p>
+          </div>
+          <div className="principleList">
+            <article>
+              <strong>Practical first</strong>
+              <p>Tools are organized around real media jobs rather than a collection of thin keyword variations.</p>
+            </article>
+            <article>
+              <strong>Explain before export</strong>
+              <p>Dimensions, file formats, workflow instructions, limitations, and related guidance are part of the user experience.</p>
+            </article>
+            <article>
+              <strong>Privacy-aware by design</strong>
+              <p>Supported local workflows are designed to keep working media in the browser instead of intentionally sending it to a FlyThe BG image-processing server.</p>
+            </article>
+            <article>
+              <strong>Honest about uncertainty</strong>
+              <p>AI results, browser compatibility, codecs, official document requirements, and third-party services all have technical boundaries.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell workflowGrid">
+          <div className="sectionHeading compact">
+            <span className="eyebrow"><i /> What is live</span>
+            <h2>Focused tools that solve specific image and media problems.</h2>
+            <p>
+              The public catalog is intentionally focused on workflows with a usable interface, a defined processing path, and supporting information.
             </p>
           </div>
           <div className="principleList">
             <article>
               <strong>Background removal</strong>
-              <p>A browser-first AI workflow for creating transparent cutouts. Where supported, model inference runs on the device with browser capabilities such as WebGPU and CPU/WASM fallback.</p>
+              <p>A browser-first AI workflow for creating transparent cutouts. Where supported, model inference can run on the device using browser capabilities such as WebGPU with CPU/WASM fallback.</p>
               <Link className="textLink" href="/remove-background">Open Background Remover ↗</Link>
             </article>
             <article>
               <strong>Passport &amp; Visa Photo Maker</strong>
-              <p>One measured photo workspace supports passport and visa preparation, including physical dimensions, crop framing, repeated copies, printable sheets, and DPI-aware output. Official authority requirements remain the source of truth.</p>
+              <p>One measured photo workspace supports passport and visa preparation, including physical dimensions, crop framing, repeated copies, printable sheets, and DPI-aware output. The receiving authority's current requirements remain the source of truth.</p>
               <Link className="textLink" href="/features/passport-photo">Open Passport &amp; Visa Photo Maker ↗</Link>
             </article>
             <article>
               <strong>AI image and media cleanup</strong>
-              <p>The watermark-removal workspace is explicitly presented for supported and authorized media. Automatic detection is a candidate-finding aid, not an official recognition system, and users remain responsible for rights and platform rules.</p>
+              <p>The watermark-removal workspace is presented for supported and authorized media. Automatic detection is a candidate-finding aid rather than an official recognition system, and users remain responsible for rights and platform rules.</p>
               <Link className="textLink" href="/ai-watermark-remover">Open Media Cleanup ↗</Link>
             </article>
             <article>
@@ -82,24 +109,27 @@ export default function AboutPage() {
             <span className="eyebrow"><i /> How the product works</span>
             <h2>A modern web application with browser-first processing where the selected tool supports it.</h2>
             <p>
-              FlyThe BG is maintained as a structured Next.js application with React and TypeScript, managed in GitHub and built for production as a static web output. The browser downloads the application and any model or runtime assets required by the selected workflow; supported editing work is then performed in the browser rather than by a FlyThe BG image-processing server.
+              FlyThe BG is maintained as a structured Next.js application using React and TypeScript. Its source is managed in GitHub and the production application is built for deployment as a static web output. The browser downloads the application and any model or runtime assets required by the selected workflow.
+            </p>
+            <p>
+              For supported local workflows, editing work is performed in the browser rather than by a FlyThe BG image-processing server. Video compression similarly uses browser-compatible media processing. Some capabilities vary according to browser, device hardware, memory, file format, codec support, and external dependencies.
             </p>
           </div>
           <div className="infoCards">
             <article>
               <span>1 · Select</span>
-              <h2>Your file enters the selected browser workflow.</h2>
-              <p>File selection, drag-and-drop, and supported paste flows provide the source media to the page. The application validates the input before starting the more expensive processing step.</p>
+              <h2>Choose the task and source media.</h2>
+              <p>The page validates supported file types and sizes before starting the more expensive processing step.</p>
             </article>
             <article>
               <span>2 · Process</span>
-              <h2>The browser uses the capabilities required by the tool.</h2>
-              <p>Image workflows can use local model/runtime processing, while video compression uses browser media APIs and supported codecs. Some capabilities vary by browser, device, file format, and available hardware.</p>
+              <h2>Use the capabilities required by the selected tool.</h2>
+              <p>Image workflows can use local model/runtime processing, while video compression uses browser media APIs and supported codecs.</p>
             </article>
             <article>
               <span>3 · Export</span>
-              <h2>The browser prepares the result for the user.</h2>
-              <p>The selected workflow creates its output in the browser for download or printing. This architecture reduces the need to upload working image bytes to a FlyThe BG inference server for supported local workflows.</p>
+              <h2>Review and download the result.</h2>
+              <p>The selected workflow prepares its output in the browser for download or printing. Users should review important outputs before relying on them.</p>
             </article>
           </div>
         </div>
@@ -121,7 +151,7 @@ export default function AboutPage() {
             </article>
             <article>
               <strong>External services only when required</strong>
-              <p>The privacy boundary is feature-specific. A browser-first architecture does not imply that every future or optional service will be local.</p>
+              <p>The privacy boundary is feature-specific. A browser-first architecture does not imply that every current or future service will be local.</p>
             </article>
             <article>
               <strong>Your device still matters</strong>
@@ -129,8 +159,8 @@ export default function AboutPage() {
             </article>
             <article>
               <strong>Read the full policy</strong>
-              <p>For the current image lifecycle, advertising boundary, model/runtime assets, and related privacy details, use the dedicated policy page.</p>
-              <Link className="textLink" href="/privacy">Read Privacy &amp; AI Policy ↗</Link>
+              <p>The dedicated privacy page explains working media, model/runtime assets, cookies, advertising, third-party services, and related limitations.</p>
+              <Link className="textLink" href="/privacy">Read Privacy Policy ↗</Link>
             </article>
           </div>
         </div>
@@ -140,8 +170,10 @@ export default function AboutPage() {
         <div className="shell workflowGrid">
           <div className="sectionHeading compact">
             <span className="eyebrow"><i /> Product principles</span>
-            <h2>Useful content and honest limitations are part of the product.</h2>
-            <p>A tool page should still help a visitor understand the task, requirements, workflow, and limitations before they select a file.</p>
+            <h2>Trust comes from useful content and honest limitations.</h2>
+            <p>
+              FlyThe BG treats documentation, transparency, and realistic expectations as part of the product rather than as filler around an upload button.
+            </p>
           </div>
           <div className="principleList">
             <article>
@@ -150,11 +182,11 @@ export default function AboutPage() {
             </article>
             <article>
               <strong>No acceptance guarantees</strong>
-              <p>Passport and visa output is measured for physical dimensions, but the receiving authority's current rules determine whether a photo is acceptable.</p>
+              <p>Passport and visa output can be measured for physical dimensions, but the receiving authority's current rules determine whether a photograph is acceptable.</p>
             </article>
             <article>
               <strong>No perfect AI guarantee</strong>
-              <p>Hair, fur, glass, smoke, reflections, low contrast, blur, and difficult edges can produce imperfect image masks. Important results should be checked before use.</p>
+              <p>Hair, fur, glass, smoke, reflections, low contrast, blur, and difficult edges can produce imperfect masks or edits. Important results should be checked before use.</p>
             </article>
             <article>
               <strong>No search-engine-first catalog</strong>
@@ -169,19 +201,19 @@ export default function AboutPage() {
           <article>
             <span>Guides</span>
             <h2>Learn before you edit.</h2>
-            <p>FlyThe BG's guides cover practical topics such as background removal, passport-photo sizing, printing, browser privacy, and related media workflows.</p>
+            <p>Read practical guidance on background removal, passport-photo sizing, printing, browser privacy, and related media workflows.</p>
             <Link className="textLink" href="/guides">Browse Guides ↗</Link>
           </article>
           <article>
             <span>Transparency</span>
-            <h2>Know what the product can and cannot do.</h2>
-            <p>The model disclosure explains AI-assisted features and their limitations, while the legal pages cover terms, cookies, privacy, and responsible use.</p>
+            <h2>Understand the technology and its boundaries.</h2>
+            <p>The model disclosure explains AI-assisted features and their limitations, while the legal pages cover privacy, cookies, terms, and responsible use.</p>
             <Link className="textLink" href="/model-disclosure">Read Model Disclosure ↗</Link>
           </article>
           <article>
             <span>Support</span>
             <h2>Questions, feedback, and security reports.</h2>
-            <p>Product support, privacy questions, legal notices, and security reports use the contact channel published by FlyThe BG.</p>
+            <p>Product support, privacy questions, legal notices, and security reports can be submitted through the published contact channel.</p>
             <Link className="textLink" href="/contact">Contact FlyThe BG ↗</Link>
           </article>
         </div>
