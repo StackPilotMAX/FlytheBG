@@ -16,9 +16,19 @@ test("video compressor exposes all required resolution presets and never upscale
   assert.match(settings, /scale = limit \/ longestSide/);
 });
 
-test("target-size mode uses measured duration and bounded bitrate iteration", () => {
+test("quality presets are real source-based bitrate controls", () => {
+  assert.match(settings, /calculateQualityVideoBitrate/);
+  assert.match(settings, /quality === "high" \? 0\.82/);
+  assert.match(settings, /quality === "medium" \? 0\.58/);
+  assert.match(settings, /0\.38/);
+  assert.match(engine, /calculateQualityVideoBitrate/);
+  assert.match(engine, /quality: new Quality\(\{ bitrate:/);
+});
+
+test("target-size mode uses measured duration, avoids inflating smaller sources, and has bounded bitrate iteration", () => {
   assert.match(settings, /targetBytesValue \* 8/);
   assert.match(settings, /durationSeconds/);
+  assert.match(settings, /Math\.min\(requested, Math\.floor\(sourceBytes! \* 0\.98\)\)/);
   assert.match(engine, /MAX_TARGET_PASSES = 3/);
   assert.match(engine, /result\.output\.size \/ target/);
 });
@@ -40,12 +50,18 @@ test("capability detection checks H.264 encoding without blocking native decode 
   assert.doesNotMatch(capabilities, /!\("VideoFrame" in window\)/);
 });
 
-test("decoder fallback uses native video frames and encodes H.264 MP4", () => {
+test("decoder preflight routes unsupported source codecs to native browser decoding", () => {
+  assert.match(engine, /getPrimaryVideoTrack/);
+  assert.match(engine, /await videoTrack\.canDecode\(\)/);
+  assert.match(engine, /native browser decoder fallback/);
   assert.match(engine, /CanvasSource/);
-  assert.match(engine, /document\.createElement\("video"\)/);
-  assert.match(engine, /new CanvasSource/);
-  assert.match(engine, /codec: "avc"/);
   assert.match(engine, /await seekVideo/);
+});
+
+test("audio incompatibility does not block video compression", () => {
+  assert.match(engine, /audioCanDecode/);
+  assert.match(engine, /audioTrack && audioCanDecode/);
+  assert.match(engine, /audio: \{ discard: true \}/);
 });
 
 test("output is advertised as real H.264 MP4 and has a downloadable filename", () => {
