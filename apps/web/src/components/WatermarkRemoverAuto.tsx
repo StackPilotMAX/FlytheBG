@@ -1,16 +1,62 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { removeWatermarkFromImage, type WatermarkMeta, type WatermarkPosition } from "@pilio/gemini-watermark-remover/browser";
+import { useEffect, useRef, useState } from "react";
+import {
+  createWatermarkEngine,
+  removeWatermarkFromImage,
+  type WatermarkMeta,
+  type WatermarkPosition,
+} from "@pilio/gemini-watermark-remover/browser";
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Kind = "image" | "video";
 
-const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 function toRect(position: WatermarkPosition | null | undefined): Rect | null {
   if (!position) return null;
   return { x: position.x, y: position.y, w: position.width, h: position.height };
+}
+
+function drawFrame(ctx: CanvasRenderingContext2D, source: HTMLVideoElement, width: number, height: number) {
+  ctx.drawImage(source, 0, 0, width, height);
+}
+
+function applyReverseAlpha(
+  ctx: CanvasRenderingContext2D,
+  position: Rect,
+  alpha: Float32Array,
+) {
+  const x = Math.max(0, Math.round(position.x));
+  const y = Math.max(0, Math.round(position.y));
+  const w = Math.min(Math.round(position.w), ctx.canvas.width - x);
+  const h = Math.min(Math.round(position.h), ctx.canvas.height - y);
+  if (w <= 0 || h <= 0) return;
+
+  const pixels = ctx.getImageData(x, y, w, h);
+  const alphaSize = Math.max(1, Math.round(Math.sqrt(alpha.length)));
+
+  for (let row = 0; row < h; row += 1) {
+    for (let col = 0; col < w; col += 1) {
+      const mapX = clamp(Math.floor((col / Math.max(1, w)) * alphaSize), 0, alphaSize - 1);
+      const mapY = clamp(Math.floor((row / Math.max(1, h)) * alphaSize), 0, alphaSize - 1);
+      const raw = alpha[mapY * alphaSize + mapX] || 0;
+      const magnitude = Math.abs(raw);
+      if (magnitude < 0.01) continue;
+
+      const a = Math.min(magnitude, 0.99);
+      const inverse = 1 - a;
+      const logo = raw < 0 ? 0 : 255;
+      const index = (row * w + col) * 4;
+
+      for (let channel = 0; channel < 3; channel += 1) {
+        const watermarked = pixels.data[index + channel];
+        const restored = (watermarked - a * logo) / inverse;
+        pixels.data[index + channel] = clamp(Math.round(restored), 0, 255);
+      }
+    }
+  }
+
+  ctx.putImageData(pixels, x, y);
 }
 
 function confidence(meta: WatermarkMeta | null) {
@@ -18,78 +64,54 @@ function confidence(meta: WatermarkMeta | null) {
   return typeof value === "number" ? Math.round(clamp(value, 0, 1) * 100) : null;
 }
 
-function displayRect(rect: Rect | null, mediaW: number, mediaH: number, scale: number, ox: number, oy: number) {
-  if (!rect || !mediaW || !mediaH) return null;
-  const w = rect.w * scale / 100;
-  const h = rect.h * scale / 100;
+function rectStyle(rect: Rect | null, width: number, height: number) {
+  if (!rect || !width || !height) return null;
   return {
-    x: clamp(rect.x + (rect.w - w) / 2 + ox, 0, Math.max(0, mediaW - w)),
-    y: clamp(rect.y + (rect.h - h) / 2 + oy, 0, Math.max(0, mediaH - h)),
-    w,
-    h,
+    left: `${(rect.x / width) * 100}%`,
+    top: `${(rect.y / height) * 100}%`,
+    width: `${(rect.w / width) * 100}%`,
+    height: `${(rect.h / height) * 100}%`,
   };
 }
 
-function drawSource(source: CanvasImageSource, width: number, height: number) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  canvas.getContext("2d")!.drawImage(source, 0, 0, width, height);
-  return canvas;
-}
-
-async function canvasBlob(canvas: HTMLCanvasElement) {
-  return new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Could not encode image.")), "image/png"));
+function zoomStyle(rect: Rect | null, width: number, height: number) {
+  if (!rect || !width || !height) return undefined;
+  return {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover" as const,
+    objectPosition: `${((rect.x + rect.w / 2) / width) * 100}% ${((rect.y + rect.h / 2) / height) * 100}%`,
+    transform: `scale(${Math.max(2.5, 180 / Math.max(12, rect.w))})`,
+    transformOrigin: "center",
+  };
 }
 
 export function WatermarkRemoverAuto() {
   const [file, setFile] = useState<File | null>(null);
-  const [kind, setKind] = useState<Kind>("image");
   const [sourceUrl, setSourceUrl] = useState("");
-  const [detected, setDetected] = useState<Rect | null>(null);
+  const [cleanUrl, setCleanUrl] = useState("");
+  const [position, setPosition] = useState<Rect | null>(null);
   const [meta, setMeta] = useState<WatermarkMeta | null>(null);
-  const [cleanCanvas, setCleanCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [strength, setStrength] = useState(100);
-  const [scale, setScale] = useState(100);
-  const [ox, setOx] = useState(0);
-  const [oy, setOy] = useState(0);
+  const [mediaSize, setMediaSize] = useState({ w: 0, h: 0 });
+  const [kind, setKind] = useState<"image" | "video">("image");
   const [busy, setBusy] = useState(false);
-  const [detecting, setDetecting] = useState(false);
-  const [message, setMessage] = useState("Upload a Gemini image. The watermark will be located automatically.");
+  const [message, setMessage] = useState("Upload a Gemini image or video. The visible sparkle is located automatically.");
   const [elapsed, setElapsed] = useState(0);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [progress, setProgress] = useState(0);
+
   const inputRef = useRef<HTMLInputElement>(null);
-  const previewObjectRef = useRef("");
-
-  const mediaSize = useMemo(() => ({
-    w: imgRef.current?.naturalWidth || videoRef.current?.videoWidth || 0,
-    h: imgRef.current?.naturalHeight || videoRef.current?.videoHeight || 0,
-  }), [file, sourceUrl, cleanCanvas]);
-
-  const active = displayRect(detected, mediaSize.w, mediaSize.h, scale, ox, oy);
-  const confidencePct = confidence(meta);
-  const detectionLabel = meta?.applied && active
-    ? `Auto-Detected: ${meta.decisionTier === "adaptive" ? "New Gemini (Adaptive)" : "Gemini (Verified)"} (${Math.round(active.w)}px)${confidencePct !== null ? ` (${confidencePct}% match)` : ""}`
-    : detecting ? "Scanning image for Gemini watermark…" : "Gemini watermark not detected";
+  const imageRef = useRef<HTMLImageElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const previewRef = useRef<HTMLCanvasElement>(null);
+  const objectUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
-    if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setSourceUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
-
-  useEffect(() => () => {
-    if (previewObjectRef.current) URL.revokeObjectURL(previewObjectRef.current);
+    return () => objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
   }, []);
 
-  const reset = () => {
-    setStrength(100);
-    setScale(100);
-    setOx(0);
-    setOy(0);
+  const rememberUrl = (url: string) => {
+    objectUrlsRef.current.push(url);
+    return url;
   };
 
   const selectFile = (next: File | null) => {
@@ -100,239 +122,255 @@ export function WatermarkRemoverAuto() {
       setMessage("Please choose a PNG, JPG, WebP, MP4, WebM, or MOV file.");
       return;
     }
+
     setFile(next);
     setKind(isVideo ? "video" : "image");
-    setDetected(null);
+    setSourceUrl(rememberUrl(URL.createObjectURL(next)));
+    setCleanUrl("");
+    setPosition(null);
     setMeta(null);
-    setCleanCanvas(null);
-    setPreviewUrl("");
-    reset();
-    setMessage(isVideo ? "Video loaded. Detection will use the first frame." : "Image loaded. Locating the watermark automatically…");
-    if (isImage) {
-      const objectUrl = URL.createObjectURL(next);
-      const image = new Image();
-      image.onload = async () => {
-        setDetecting(true);
-        try {
-          const result = await removeWatermarkFromImage(image, { adaptiveMode: "auto" });
-          setMeta(result.meta);
-          setDetected(toRect(result.meta?.position));
-          setCleanCanvas(result.canvas as HTMLCanvasElement);
-          if (result.meta?.applied && result.meta.position) {
-            const confidenceText = confidence(result.meta);
-            setMessage(`Watermark located automatically${confidenceText !== null ? ` with ${confidenceText}% confidence` : ""}. Preview the cleaned pixels below.`);
-          } else {
-            setMessage("No verified Gemini watermark was found. Nothing was blurred or guessed.");
-          }
-        } catch (error) {
-          setMessage(error instanceof Error ? error.message : "Automatic detection failed.");
-        } finally {
-          setDetecting(false);
-          URL.revokeObjectURL(objectUrl);
-        }
-      };
-      image.onerror = () => {
-        setDetecting(false);
-        URL.revokeObjectURL(objectUrl);
-        setMessage("The image could not be decoded.");
-      };
-      image.src = objectUrl;
-    }
+    setMediaSize({ w: 0, h: 0 });
+    setProgress(0);
+    setElapsed(0);
+    setMessage(isVideo ? "Video loaded. The first frame will locate the fixed visible sparkle automatically." : "Image loaded. Locating the visible Gemini sparkle…");
   };
 
-  const processAdjustedImage = async () => {
-    if (!imgRef.current || !detected) throw new Error("No detected watermark region is available.");
-    const source = imgRef.current;
-    const maxSide = Math.max(source.naturalWidth, source.naturalHeight);
-    const factor = Math.min(1, 4200 / maxSide);
-    const w = Math.max(1, Math.round(source.naturalWidth * factor));
-    const h = Math.max(1, Math.round(source.naturalHeight * factor));
-    const canvas = drawSource(source, w, h);
-    if (strength === 100 && scale === 100 && ox === 0 && oy === 0) return cleanCanvas || canvas;
+  const processImage = async () => {
+    if (!imageRef.current) return;
+    const started = performance.now();
+    setBusy(true);
+    setMessage("Locating the visible sparkle and reconstructing only that small region…");
 
-    const { createWatermarkEngine } = await import("@pilio/gemini-watermark-remover/browser");
-    const engine = await createWatermarkEngine();
-    const alphaSize = Math.max(1, Math.round(detected.w * factor));
-    const alpha = await engine.getAlphaMap(alphaSize);
-    const target = displayRect({ x: detected.x * factor, y: detected.y * factor, w: detected.w * factor, h: detected.h * factor }, w, h, scale, ox * factor, oy * factor);
-    if (!target) return canvas;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-    const pixels = ctx.getImageData(0, 0, w, h);
-    const gain = clamp(strength / 100, 0.15, 1.25);
-    for (let y = 0; y < Math.round(target.h); y++) {
-      for (let x = 0; x < Math.round(target.w); x++) {
-        const ax = clamp(Math.floor(x / Math.max(1, target.w) * alphaSize), 0, alphaSize - 1);
-        const ay = clamp(Math.floor(y / Math.max(1, target.h) * alphaSize), 0, alphaSize - 1);
-        const a = Math.min(0.985, Math.abs(alpha[ay * alphaSize + ax] || 0) * gain);
-        if (a < 0.002) continue;
-        const px = Math.round(target.x + x);
-        const py = Math.round(target.y + y);
-        if (px < 0 || py < 0 || px >= w || py >= h) continue;
-        const i = (py * w + px) * 4;
-        const logo = (alpha[ay * alphaSize + ax] || 0) < 0 ? 0 : 255;
-        const inv = 1 - a;
-        for (let c = 0; c < 3; c++) pixels.data[i + c] = clamp(Math.round((pixels.data[i + c] - a * logo) / inv), 0, 255);
+    try {
+      const image = imageRef.current;
+      const result = await removeWatermarkFromImage(image, { adaptiveMode: "auto" });
+      const resultMeta = result.meta || null;
+      const resultPosition = toRect(resultMeta?.position);
+      setMeta(resultMeta);
+      setPosition(resultPosition);
+
+      if (!resultMeta?.applied || !resultPosition) {
+        setCleanUrl("");
+        setMessage("No verified Gemini visible watermark was found. Nothing was blurred or guessed.");
+        return;
       }
-    }
-    ctx.putImageData(pixels, 0, 0);
-    return canvas;
-  };
 
-  const preview = async () => {
-    if (kind !== "image" || !detected) return;
-    const started = performance.now();
-    setBusy(true);
-    try {
-      const canvas = await processAdjustedImage();
-      const blob = await canvasBlob(canvas);
-      if (previewObjectRef.current) URL.revokeObjectURL(previewObjectRef.current);
-      previewObjectRef.current = URL.createObjectURL(blob);
-      setPreviewUrl(previewObjectRef.current);
+      const canvas = result.canvas as HTMLCanvasElement;
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Could not encode the cleaned image.")), "image/png");
+      });
+      const cleanObjectUrl = rememberUrl(URL.createObjectURL(blob));
+      setCleanUrl(cleanObjectUrl);
       setElapsed((performance.now() - started) / 1000);
-      setMessage("Preview ready. Compare the zoomed original and cleaned region before exporting.");
+      const match = confidence(resultMeta);
+      setMessage(`Visible watermark removed automatically${match !== null ? ` (${match}% detection confidence)` : ""}. The original pixels outside the detected region are left untouched.`);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Preview failed.");
+      setMessage(error instanceof Error ? error.message : "Automatic Gemini watermark removal failed.");
     } finally {
       setBusy(false);
     }
   };
 
-  const exportImage = async () => {
-    if (kind !== "image" || !detected) return;
+  const processVideo = async () => {
+    if (!videoRef.current) return;
     const started = performance.now();
     setBusy(true);
+    setProgress(0);
+    setCleanUrl("");
+    setMessage("Checking the first frame for the visible sparkle…");
+
     try {
-      const canvas = await processAdjustedImage();
-      const blob = await canvasBlob(canvas);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "flythebg-gemini-clean.png";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      const video = videoRef.current;
+      await new Promise<void>((resolve, reject) => {
+        if (video.readyState >= 2 && video.videoWidth) resolve();
+        else {
+          const onLoaded = () => { cleanup(); resolve(); };
+          const onError = () => { cleanup(); reject(new Error("Video could not be decoded.")); };
+          const cleanup = () => {
+            video.removeEventListener("loadeddata", onLoaded);
+            video.removeEventListener("error", onError);
+          };
+          video.addEventListener("loadeddata", onLoaded, { once: true });
+          video.addEventListener("error", onError, { once: true });
+        }
+      });
+
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      setMediaSize({ w: width, h: height });
+      video.pause();
+      video.currentTime = 0;
+      await new Promise<void>((resolve) => {
+        const done = () => { video.removeEventListener("seeked", done); resolve(); };
+        video.addEventListener("seeked", done, { once: true });
+      });
+
+      const engine = await createWatermarkEngine();
+      const firstFrame = document.createElement("canvas");
+      firstFrame.width = width;
+      firstFrame.height = height;
+      const firstCtx = firstFrame.getContext("2d", { willReadFrequently: true });
+      if (!firstCtx) throw new Error("Canvas processing is unavailable in this browser.");
+      drawFrame(firstCtx, video, width, height);
+
+      const detection = await engine.removeWatermarkFromImage(firstFrame, { adaptiveMode: "auto", engine });
+      const detectedPosition = toRect(detection.meta?.position);
+      setMeta(detection.meta || null);
+      setPosition(detectedPosition);
+      if (!detection.meta?.applied || !detectedPosition) {
+        setMessage("No verified Gemini visible watermark was found in the first frame. No video frames were altered.");
+        return;
+      }
+
+      const alpha = await engine.getAlphaMap(Math.max(8, Math.round(Math.max(detectedPosition.w, detectedPosition.h))));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) throw new Error("Canvas processing is unavailable in this browser.");
+
+      const stream = canvas.captureStream(30);
+      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
+      const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12_000_000 });
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+
+      const stopped = new Promise<void>((resolve, reject) => {
+        recorder.addEventListener("stop", () => resolve(), { once: true });
+        recorder.addEventListener("error", () => reject(new Error("Video recording failed.")), { once: true });
+      });
+
+      let lastFrameTime = -1;
+      const draw = () => {
+        if (video.ended) return;
+        drawFrame(ctx, video, width, height);
+        applyReverseAlpha(ctx, detectedPosition, alpha);
+        if (video.duration) setProgress(clamp(video.currentTime / video.duration, 0, 1));
+        if (video.currentTime !== lastFrameTime) lastFrameTime = video.currentTime;
+        if (!video.ended) requestAnimationFrame(draw);
+      };
+
+      recorder.start(250);
+      video.currentTime = 0;
+      await video.play();
+      requestAnimationFrame(draw);
+      await new Promise<void>((resolve) => {
+        const finish = () => { video.removeEventListener("ended", finish); resolve(); };
+        video.addEventListener("ended", finish, { once: true });
+      });
+      recorder.stop();
+      await stopped;
+      stream.getTracks().forEach((track) => track.stop());
+
+      const blob = new Blob(chunks, { type: mime });
+      if (blob.size < 1024) throw new Error("The cleaned video export was empty.");
+      const cleanObjectUrl = rememberUrl(URL.createObjectURL(blob));
+      setCleanUrl(cleanObjectUrl);
       setElapsed((performance.now() - started) / 1000);
-      setMessage(`Done in ${((performance.now() - started) / 1000).toFixed(1)}s. Clean PNG exported.`);
+      setProgress(1);
+      setMessage("Visible watermark removed from the fixed watermark region across the video. Export is ready as WebM.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Export failed.");
+      setMessage(error instanceof Error ? error.message : "Automatic video watermark removal failed.");
     } finally {
       setBusy(false);
+      if (videoRef.current) videoRef.current.pause();
     }
   };
 
-  const zoomStyle = (rect: Rect | null) => rect ? ({
-    objectFit: "cover" as const,
-    objectPosition: `${((rect.x + rect.w / 2) / Math.max(1, mediaSize.w)) * 100}% ${((rect.y + rect.h / 2) / Math.max(1, mediaSize.h)) * 100}%`,
-    transform: `scale(${Math.max(2.5, 180 / Math.max(12, rect.w))})`,
-    transformOrigin: "center",
-  }) : undefined;
+  const process = () => {
+    if (kind === "image") void processImage();
+    else void processVideo();
+  };
 
-  const cropBox = active ? {
-    left: `${active.x / Math.max(1, mediaSize.w) * 100}%`,
-    top: `${active.y / Math.max(1, mediaSize.h) * 100}%`,
-    width: `${active.w / Math.max(1, mediaSize.w) * 100}%`,
-    height: `${active.h / Math.max(1, mediaSize.h) * 100}%`,
-  } : null;
+  const download = () => {
+    if (!cleanUrl || !file) return;
+    const anchor = document.createElement("a");
+    anchor.href = cleanUrl;
+    anchor.download = kind === "image" ? "flythebg-gemini-visible-watermark-clean.png" : "flythebg-gemini-visible-watermark-clean.webm";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  };
+
+  const rect = rectStyle(position, mediaSize.w, mediaSize.h);
+  const zoom = zoomStyle(position, mediaSize.w, mediaSize.h);
+  const match = confidence(meta);
 
   return (
     <div style={{ maxWidth: 980, margin: "0 auto", borderRadius: 18, background: "#f7f7fb", border: "1px solid #e8e8ef", padding: 18, color: "#1f1f28", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <style>{`@media(max-width:760px){.wm-grid{grid-template-columns:1fr!important}.wm-controls{grid-template-columns:1fr 1fr!important}.wm-upload{padding:28px 16px!important}}`}</style>
-      <div className="wm-upload" style={{ border: "2px dashed #c9c9d8", borderRadius: 14, padding: "34px 24px", textAlign: "center", background: "white", cursor: "pointer" }} onClick={() => inputRef.current?.click()}>
-        <input ref={inputRef} type="file" hidden accept="image/png,image/jpeg,image/webp,video/mp4,video/webm,video/quicktime" onChange={(e) => selectFile(e.target.files?.[0] || null)} />
-        <div style={{ fontSize: 16, fontWeight: 700 }}>Upload Gemini image or video</div>
-        <div style={{ marginTop: 7, color: "#747482", fontSize: 13 }}>Drop a file here or tap to choose one</div>
+      <style>{`@media(max-width:760px){.wm-auto-grid{grid-template-columns:1fr!important}.wm-auto-upload{padding:28px 16px!important}.wm-auto-compare{grid-template-columns:1fr!important}}`}</style>
+
+      <div
+        className="wm-auto-upload"
+        style={{ border: "2px dashed #c9c9d8", borderRadius: 14, padding: "34px 24px", textAlign: "center", background: "white", cursor: "pointer" }}
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => { event.preventDefault(); selectFile(event.dataTransfer.files?.[0] || null); }}
+      >
+        <input ref={inputRef} type="file" hidden accept="image/png,image/jpeg,image/webp,video/mp4,video/webm,video/quicktime" onChange={(event) => selectFile(event.target.files?.[0] || null)} />
+        <div style={{ fontSize: 16, fontWeight: 800 }}>Upload Gemini image or video</div>
+        <div style={{ marginTop: 7, color: "#747482", fontSize: 13 }}>Drop the original export here — no X/Y positioning or watermark-size guessing.</div>
       </div>
 
-      {file && kind === "image" && (
+      {file && (
         <>
-          <div style={{ marginTop: 18, textAlign: "center", fontSize: 13, fontWeight: 700, color: detecting ? "#6756e8" : meta?.applied ? "#4b43b9" : "#777" }}>{detectionLabel}</div>
-          <div className="wm-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 185px", gap: 16, marginTop: 12 }}>
-            <div style={{ position: "relative", background: "#fff", borderRadius: 10, padding: 10, overflow: "hidden", minHeight: 240 }}>
-              <div style={{ fontSize: 11, color: "#858592", marginBottom: 7, textAlign: "center", fontWeight: 700 }}>PREVIEW (FULL FRAME)</div>
+          <div style={{ marginTop: 16, textAlign: "center", fontSize: 13, fontWeight: 800, color: busy ? "#6756e8" : meta?.applied ? "#4b43b9" : "#777" }}>
+            {busy ? (kind === "video" ? `Cleaning visible watermark… ${Math.round(progress * 100)}%` : "Locating and reconstructing visible watermark…") : message}
+          </div>
+
+          <div className="wm-auto-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 185px", gap: 16, marginTop: 12 }}>
+            <div style={{ background: "white", borderRadius: 10, padding: 10, overflow: "hidden", minHeight: 240 }}>
+              <div style={{ fontSize: 11, color: "#858592", marginBottom: 7, textAlign: "center", fontWeight: 800 }}>ORIGINAL</div>
               <div style={{ position: "relative", maxWidth: "100%", margin: "0 auto", width: "fit-content" }}>
-                <img ref={imgRef} src={sourceUrl} alt="Original" style={{ display: "block", maxWidth: "100%", maxHeight: 410, borderRadius: 7 }} />
-                {cropBox && <div style={{ position: "absolute", border: "2px solid #5147d9", pointerEvents: "none", ...cropBox }} />}
+                {kind === "image" ? (
+                  <img ref={imageRef} src={sourceUrl} alt="Original Gemini image" onLoad={(event) => setMediaSize({ w: event.currentTarget.naturalWidth, h: event.currentTarget.naturalHeight })} style={{ display: "block", maxWidth: "100%", maxHeight: 430, borderRadius: 7 }} draggable={false} />
+                ) : (
+                  <video ref={videoRef} src={sourceUrl} controls playsInline preload="metadata" onLoadedMetadata={(event) => setMediaSize({ w: event.currentTarget.videoWidth, h: event.currentTarget.videoHeight })} style={{ display: "block", maxWidth: "100%", maxHeight: 430, borderRadius: 7 }} />
+                )}
+                {rect && kind === "image" && <div style={{ position: "absolute", border: "2px solid #5147d9", boxShadow: "0 0 0 9999px rgba(81,71,217,.035)", pointerEvents: "none", ...rect }} />}
               </div>
             </div>
+
             <div style={{ display: "grid", gap: 14, alignContent: "start" }}>
               <div style={{ background: "white", borderRadius: 10, padding: 8, overflow: "hidden", border: "1px solid #e5e5eb" }}>
                 <div style={{ fontSize: 10, fontWeight: 800, color: "#70707c", textAlign: "center", marginBottom: 7 }}>⌕ ZOOMED ORIGINAL</div>
-                <div style={{ height: 150, borderRadius: 7, overflow: "hidden", background: "#ddd" }}><img src={sourceUrl} alt="Zoomed original" style={{ width: "100%", height: "100%", ...zoomStyle(active) }} /></div>
+                <div style={{ height: 150, borderRadius: 7, overflow: "hidden", background: "#ddd" }}>{kind === "image" && <img src={sourceUrl} alt="Zoomed original watermark area" style={zoom} />}</div>
               </div>
               <div style={{ background: "white", borderRadius: 10, padding: 8, overflow: "hidden", border: "1px solid #e5e5eb" }}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: "#15966f", textAlign: "center", marginBottom: 7 }}>✓ ZOOMED CLEANED</div>
-                <div style={{ height: 150, borderRadius: 7, overflow: "hidden", background: "#ddd" }}>{previewUrl ? <img src={previewUrl} alt="Zoomed cleaned" style={{ width: "100%", height: "100%", ...zoomStyle(active) }} /> : cleanCanvas ? <canvas ref={(node) => { if (node) { node.width = cleanCanvas.width; node.height = cleanCanvas.height; node.getContext("2d")?.drawImage(cleanCanvas, 0, 0); } }} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#999", fontSize: 12 }}>Waiting for detection</div>}</div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: "#15966f", textAlign: "center", marginBottom: 7 }}>✓ RECONSTRUCTED</div>
+                <div style={{ height: 150, borderRadius: 7, overflow: "hidden", background: "#ddd" }}>
+                  {cleanUrl && kind === "image" && <img src={cleanUrl} alt="Cleaned Gemini watermark area" style={zoom} />}
+                  {!cleanUrl && <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#999", fontSize: 12, textAlign: "center", padding: 16 }}>{busy ? "Repairing the small detected region…" : "Automatic result will appear here"}</div>}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="wm-controls" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginTop: 14, background: "white", borderRadius: 10, padding: "12px 14px" }}>
-            {[["Strength (Gain)", strength, setStrength, 25, 125, strength === 100 ? "1.00×" : `${(strength / 100).toFixed(2)}×`],["Size Scale", scale, setScale, 70, 140, `${(scale / 100).toFixed(2)}×`],["Position X", ox, setOx, -Math.max(300, Math.round(mediaSize.w * .15)), Math.max(300, Math.round(mediaSize.w * .15)), `${ox}px`],["Position Y", oy, setOy, -Math.max(300, Math.round(mediaSize.h * .15)), Math.max(300, Math.round(mediaSize.h * .15)), `${oy}px`]].map(([label,value,setter,min,max,display]) => <label key={String(label)} style={{ fontSize: 10, fontWeight: 800, color: "#70707d" }}><div style={{ display: "flex", justifyContent: "space-between", gap: 5, marginBottom: 7 }}><span>{String(label)}</span><span style={{ color: "#5147d9" }}>{String(display)}</span></div><input aria-label={String(label)} type="range" min={Number(min)} max={Number(max)} value={Number(value)} onChange={(e) => (setter as (v:number)=>void)(Number(e.target.value))} style={{ width: "100%", accentColor: "#5147d9" }} /></label>)}
+          <div className="wm-auto-compare" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 14 }}>
+            <div style={{ padding: 12, borderRadius: 10, background: "white", border: "1px solid #e5e5eb" }}>
+              <strong style={{ fontSize: 12 }}>Automatic detection</strong>
+              <p style={{ margin: "6px 0 0", color: "#70707c", fontSize: 12 }}>{position ? `${Math.round(position.w)} × ${Math.round(position.h)} px region located${match !== null ? ` • ${match}% confidence` : ""}.` : "The tool only applies a repair after the Gemini-specific detector confirms a visible candidate."}</p>
+            </div>
+            <div style={{ padding: 12, borderRadius: 10, background: "white", border: "1px solid #e5e5eb" }}>
+              <strong style={{ fontSize: 12 }}>What gets changed</strong>
+              <p style={{ margin: "6px 0 0", color: "#70707c", fontSize: 12 }}>Only the visible sparkle region is reconstructed. This is not a blur, crop, or whole-image filter.</p>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
-            <button type="button" onClick={reset} disabled={busy} style={{ border: "1px solid #dddde6", background: "white", borderRadius: 9, padding: "10px 16px", cursor: "pointer" }}>↻ Reset Sliders</button>
-            <button type="button" onClick={preview} disabled={busy || !detected} style={{ border: "1px solid #d5d2fb", background: "white", color: "#5147d9", borderRadius: 9, padding: "10px 18px", fontWeight: 700, cursor: "pointer" }}>{busy ? "Processing…" : "Preview Result"}</button>
-            <button type="button" onClick={exportImage} disabled={busy || !detected} style={{ border: 0, background: "#5147d9", color: "white", borderRadius: 9, padding: "10px 20px", fontWeight: 800, cursor: "pointer" }}>Remove &amp; Export Image</button>
+
+          <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+            {!cleanUrl && <button type="button" onClick={process} disabled={busy} style={{ border: 0, background: "linear-gradient(90deg,#6255df,#493bd0)", color: "white", borderRadius: 9, padding: "10px 20px", cursor: busy ? "not-allowed" : "pointer", fontWeight: 800 }}>{busy ? "Processing…" : kind === "image" ? "Auto-Remove Visible Watermark" : "Auto-Remove Video Watermark"}</button>}
+            {cleanUrl && <button type="button" onClick={download} style={{ border: 0, background: "#15966f", color: "white", borderRadius: 9, padding: "10px 20px", cursor: "pointer", fontWeight: 800 }}>Download Clean {kind === "image" ? "PNG" : "WebM"}</button>}
+            {cleanUrl && <button type="button" onClick={() => { setCleanUrl(""); setMeta(null); setPosition(null); setElapsed(0); setProgress(0); setMessage("Ready to process another file."); }} style={{ border: "1px solid #dddde6", background: "white", borderRadius: 9, padding: "10px 18px", cursor: "pointer", fontWeight: 700 }}>Process Another</button>}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 9, color: "#8a8a95", fontSize: 10 }}>{elapsed > 0 ? `${elapsed.toFixed(2)}s • local browser processing` : "Local browser processing • visible watermark only"}</div>
+          <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: "#fff9ed", border: "1px solid #f1dfbd", color: "#6b5730", fontSize: 11, lineHeight: 1.55 }}>
+            <strong>Important:</strong> This tool targets the visible Gemini sparkle only. It does not claim to remove SynthID or other invisible provenance systems, and a cleaned visual appearance must not be represented as proof that media was camera-captured or non-AI. Use it only for media you own or are authorized to edit, and review the exported result before publishing.
           </div>
         </>
       )}
 
-      {file && kind === "video" && <VideoPanel file={file} onMessage={setMessage} />}
-
-      <div style={{ marginTop: 12, textAlign: "center", color: "#777783", fontSize: 12 }}>{message}{elapsed > 0 ? ` • ${elapsed.toFixed(1)}s` : ""}</div>
+      <canvas ref={previewRef} hidden aria-hidden="true" />
     </div>
   );
-}
-
-function VideoPanel({ file, onMessage }: { file: File; onMessage: (s: string) => void }) {
-  const video = useRef<HTMLVideoElement>(null);
-  const [url, setUrl] = useState("");
-  const [running, setRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  useEffect(() => { const u = URL.createObjectURL(file); setUrl(u); return () => URL.revokeObjectURL(u); }, [file]);
-
-  const run = async () => {
-    if (!video.current) return;
-    setRunning(true); setProgress(0);
-    try {
-      const { createWatermarkEngine } = await import("@pilio/gemini-watermark-remover/browser");
-      const engine = await createWatermarkEngine();
-      const v = video.current;
-      await new Promise<void>((resolve) => { if (v.readyState >= 2) resolve(); else v.addEventListener("loadeddata", () => resolve(), { once: true }); });
-      const w = v.videoWidth, h = v.videoHeight;
-      const first = document.createElement("canvas"); first.width = w; first.height = h; first.getContext("2d")!.drawImage(v, 0, 0, w, h);
-      const firstResult = await removeWatermarkFromImage(first, { adaptiveMode: "auto", engine });
-      const position = firstResult.meta?.position;
-      if (!position) throw new Error("No verified Gemini watermark was found in the first frame.");
-      const alpha = await engine.getAlphaMap(Math.max(1, Math.round(position.width)));
-      const canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h;
-      const stream = canvas.captureStream(30);
-      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
-      const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12000000 });
-      const chunks: Blob[] = [];
-      recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-      const ended = new Promise<void>((resolve) => { v.onended = () => resolve(); });
-      v.currentTime = 0; await v.play();
-      const frame = () => {
-        const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-        ctx.drawImage(v, 0, 0, w, h);
-        const pixels = ctx.getImageData(Math.round(position.x), Math.round(position.y), Math.round(position.width), Math.round(position.height));
-        for (let y = 0; y < pixels.height; y++) for (let x = 0; x < pixels.width; x++) {
-          const a = Math.min(0.985, Math.abs(alpha[y * pixels.width + x] || 0)); if (a < 0.002) continue;
-          const i = (y * pixels.width + x) * 4; const logo = (alpha[y * pixels.width + x] || 0) < 0 ? 0 : 255; const inv = 1 - a;
-          for (let c = 0; c < 3; c++) pixels.data[i+c] = clamp(Math.round((pixels.data[i+c] - a * logo) / inv), 0, 255);
-        }
-        ctx.putImageData(pixels, Math.round(position.x), Math.round(position.y));
-        setProgress(v.duration ? v.currentTime / v.duration : 0);
-        if (!v.ended) requestAnimationFrame(frame);
-      };
-      recorder.start(250); requestAnimationFrame(frame); await ended; recorder.stop();
-      await new Promise<void>((resolve) => recorder.onstop = () => resolve());
-      const blob = new Blob(chunks, { type: mime });
-      const download = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = download; a.download = "flythebg-gemini-clean.webm"; a.click(); setTimeout(() => URL.revokeObjectURL(download), 2000);
-      onMessage("Video watermark detected automatically and exported as WebM.");
-    } catch (error) { onMessage(error instanceof Error ? error.message : "Video processing failed."); }
-    finally { setRunning(false); }
-  };
-
-  return <div style={{ marginTop: 18, background: "white", borderRadius: 12, padding: 14 }}><video ref={video} src={url} controls style={{ width: "100%", maxHeight: 430, borderRadius: 8 }} /><div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}><button type="button" onClick={run} disabled={running} style={{ border: 0, background: "#5147d9", color: "white", borderRadius: 9, padding: "11px 18px", fontWeight: 800 }}>{running ? `Removing… ${Math.round(progress*100)}%` : "Auto-Detect & Remove Video Watermark"}</button><span style={{ color: "#777", fontSize: 12 }}>Detection happens from the first frame; no X/Y positioning is required.</span></div></div>;
 }
