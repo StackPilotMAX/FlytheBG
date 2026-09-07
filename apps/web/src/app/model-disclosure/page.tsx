@@ -1,17 +1,124 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "FlyThe BG Model & Open Source", description: "See which third-party browser AI and visible-watermark assets FlyThe BG uses, how local processing works, and the relevant licensing and limitations.", alternates: { canonical: "/model-disclosure" } };
+export const metadata: Metadata = {
+  title: "FlyThe BG Model & Open Source",
+  description:
+    "See which third-party browser AI and visible-watermark assets FlyThe BG uses, how local processing works, and the relevant licensing and limitations.",
+  alternates: { canonical: "/model-disclosure" },
+};
 
 export default function ModelDisclosurePage() {
-  return <main className="featurePage modelDisclosurePage">
-    <section className="pageHero compactHero"><div className="shell narrowHero landingReveal"><span className="eyebrow"><i/> Model &amp; open source disclosure</span><h1>Clear attribution for the software behind FlyThe BG.</h1><p>FlyThe BG does not present third-party software, model assets, or reference watermark assets as its own. This page separates FlyThe BG interface code from the external processing components it uses.</p></div></section>
-    <section className="section toolInfoSection"><div className="shell"><div className="infoCards">
-      <article><span>Background removal</span><h2>IMG.LY background removal</h2><p>FlyThe BG integrates <code>@imgly/background-removal</code> for browser-side segmentation. IMG.LY is the author/provider of that package; FlyThe BG does not claim ownership of it.</p></article>
-      <article><span>Visible watermark cleanup</span><h2>Gemini-specific reverse-alpha engine</h2><p>The visible watermark workflow integrates <code>@pilio/gemini-watermark-remover</code> for calibrated visible-mark detection and reverse-alpha reconstruction in the browser.</p></article>
-      <article><span>FlyThe BG processing</span><h2>Local validation and export</h2><p>FlyThe BG adds browser-side input validation, bounded working dimensions, preview/export controls, UI state, and conservative workflow safeguards around these third-party processing components.</p></article>
-    </div></div></section>
-    <section className="section workflowSection"><div className="shell workflowGrid"><div className="sectionHeading compact landingReveal"><span className="eyebrow"><i/> Licensing &amp; attribution</span><h2>Third-party licences stay separate.</h2><p>Third-party packages, model/runtime assets, and calibrated reference data can have their own licences and notices. Review the upstream project before redistributing or modifying the relevant component.</p></div><div className="principleList"><article><strong>No ownership claim</strong><p>FlyThe BG does not claim copyright, trademark rights, authorship, or exclusive ownership over third-party libraries, models, reference masks, or provider marks.</p></article><article><strong>No training claim</strong><p>FlyThe BG does not train or fine-tune third-party models using a visitor&apos;s selected media.</p></article><article><strong>Visible vs invisible marks</strong><p>The watermark workflow targets visible pixel overlays. Invisible provenance systems such as SynthID are outside this workflow and are not removed or falsified.</p></article><article><strong>Results still need review</strong><p>Exact reverse-alpha reconstruction can be very clean when the calibrated mark and geometry match. Provider changes, rescaling, compression, different watermark variants, or unsupported layouts can produce artifacts.</p></article></div></div></section>
-    <section className="section toolInfoSection"><div className="shell infoCards"><article><span>Network behavior</span><h2>Software assets can be downloaded separately.</h2><p>The browser may contact configured distribution infrastructure for model/runtime/reference assets. FlyThe BG does not intentionally attach the selected source image to those asset requests.</p></article><article><span>Legal policies</span><h2>Keep the documentation together.</h2><p>This disclosure is informational and does not replace third-party licences or terms.</p><Link className="textLink" href="/privacy">Privacy Policy ↗</Link><br/><Link className="textLink" href="/terms">Terms of Use ↗</Link></article><article><span>Questions</span><h2>Need the simpler explanation?</h2><p>The FAQ covers browser processing, visible-watermark limitations, advertising separation, and common workflows.</p><Link className="textLink" href="/faq">Open FAQ ↗</Link></article></div></div></section>
-  </main>;
+  return (
+    <main className="featurePage modelDisclosurePage">
+      <section className="pageHero compactHero">
+        <div className="shell narrowHero landingReveal">
+          <span className="eyebrow">
+            <i /> Model &amp; open source disclosure
+          </span>
+          <h1>Clear attribution for the software behind FlyThe BG.</h1>
+          <p>
+            FlyThe BG does not present third-party software, model assets, or reference watermark assets as its own. This page separates FlyThe BG interface code from the external processing components it uses.
+          </p>
+        </div>
+      </section>
+
+      <section className="section toolInfoSection">
+        <div className="shell">
+          <div className="infoCards">
+            <article>
+              <span>Background removal</span>
+              <h2>IMG.LY background removal</h2>
+              <p>
+                FlyThe BG integrates <code>@imgly/background-removal</code> for browser-side segmentation. IMG.LY is the author/provider of that package; FlyThe BG does not claim ownership of it.
+              </p>
+            </article>
+            <article>
+              <span>Visible watermark cleanup</span>
+              <h2>Gemini-specific reverse-alpha engine</h2>
+              <p>
+                The visible watermark workflow integrates <code>@pilio/gemini-watermark-remover</code> for calibrated visible-mark detection and reverse-alpha reconstruction in the browser.
+              </p>
+            </article>
+            <article>
+              <span>FlyThe BG processing</span>
+              <h2>Local validation and export</h2>
+              <p>
+                FlyThe BG adds browser-side input validation, bounded working dimensions, preview/export controls, UI state, and conservative workflow safeguards around these third-party processing components.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section workflowSection">
+        <div className="shell workflowGrid">
+          <div className="sectionHeading compact landingReveal">
+            <span className="eyebrow">
+              <i /> Licensing &amp; attribution
+            </span>
+            <h2>Third-party licences stay separate.</h2>
+            <p>
+              Third-party packages, model/runtime assets, and calibrated reference data can have their own licences and notices. Review the upstream project before redistributing or modifying the relevant component.
+            </p>
+          </div>
+
+          <div className="principleList">
+            <article>
+              <strong>No ownership claim</strong>
+              <p>
+                FlyThe BG does not claim copyright, trademark rights, authorship, or exclusive ownership over third-party libraries, models, reference masks, or provider marks.
+              </p>
+            </article>
+            <article>
+              <strong>No training claim</strong>
+              <p>
+                FlyThe BG does not train or fine-tune third-party models using a visitor&apos;s selected media.
+              </p>
+            </article>
+            <article>
+              <strong>Visible vs invisible marks</strong>
+              <p>
+                The watermark workflow targets visible pixel overlays. Invisible provenance systems such as SynthID are outside this workflow and are not removed or falsified.
+              </p>
+            </article>
+            <article>
+              <strong>Results still need review</strong>
+              <p>
+                Exact reverse-alpha reconstruction can be very clean when the calibrated mark and geometry match. Provider changes, rescaling, compression, different watermark variants, or unsupported layouts can produce artifacts.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section toolInfoSection">
+        <div className="shell infoCards">
+          <article>
+            <span>Network behavior</span>
+            <h2>Software assets can be downloaded separately.</h2>
+            <p>
+              The browser may contact configured distribution infrastructure for model/runtime/reference assets. FlyThe BG does not intentionally attach the selected source image to those asset requests.
+            </p>
+          </article>
+          <article>
+            <span>Legal policies</span>
+            <h2>Keep the documentation together.</h2>
+            <p>This disclosure is informational and does not replace third-party licences or terms.</p>
+            <Link className="textLink" href="/privacy">Privacy Policy ↗</Link>
+            <br />
+            <Link className="textLink" href="/terms">Terms of Use ↗</Link>
+          </article>
+          <article>
+            <span>Questions</span>
+            <h2>Need the simpler explanation?</h2>
+            <p>
+              The FAQ covers browser processing, visible-watermark limitations, advertising separation, and common workflows.
+            </p>
+            <Link className="textLink" href="/faq">Open FAQ ↗</Link>
+          </article>
+        </div>
+      </section>
+    </main>
+  );
 }
