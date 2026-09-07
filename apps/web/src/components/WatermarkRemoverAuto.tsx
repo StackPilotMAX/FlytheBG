@@ -8,6 +8,14 @@ const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(ma
 const toRect = (p: WatermarkPosition | null | undefined): Rect | null => p ? { x: p.x, y: p.y, w: p.width, h: p.height } : null;
 const confidence = (m: WatermarkMeta | null) => typeof m?.detection?.adaptiveConfidence === "number" ? Math.round(clamp(m.detection.adaptiveConfidence, 0, 1) * 100) : null;
 
+async function canvasToBlob(canvas: HTMLCanvasElement | OffscreenCanvas, type = "image/png"): Promise<Blob> {
+  if (typeof canvas.convertToBlob === "function") return canvas.convertToBlob({ type });
+  if (typeof canvas.toBlob === "function") {
+    return new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not encode the cleaned image.")), type));
+  }
+  throw new Error("This browser does not support canvas image export.");
+}
+
 function reverseAlpha(ctx: CanvasRenderingContext2D, rect: Rect, alpha: Float32Array) {
   const x = Math.max(0, Math.round(rect.x)), y = Math.max(0, Math.round(rect.y));
   const w = Math.min(Math.round(rect.w), ctx.canvas.width - x), h = Math.min(Math.round(rect.h), ctx.canvas.height - y);
@@ -49,8 +57,7 @@ export function WatermarkRemoverAuto() {
       const result = await removeWatermarkFromImage(imageRef.current, { adaptiveMode: "auto" });
       setMeta(result.meta); const rect = toRect(result.meta?.position); setPosition(rect);
       if (!result.meta?.applied || !rect) return setMessage("No verified Gemini visible watermark was found. Nothing was blurred or guessed.");
-      const canvas = result.canvas as HTMLCanvasElement;
-      const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error("Could not encode the cleaned image.")), "image/png"));
+      const blob = await canvasToBlob(result.canvas as HTMLCanvasElement | OffscreenCanvas, "image/png");
       setClean(remember(URL.createObjectURL(blob))); const c = confidence(result.meta);
       setMessage(`Visible watermark removed automatically${c !== null ? ` (${c}% detection confidence)` : ""}.`);
     } catch (e) { setMessage(e instanceof Error ? e.message : "Automatic Gemini watermark removal failed."); }
