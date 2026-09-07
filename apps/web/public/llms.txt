@@ -7,7 +7,7 @@ FlyThe BG is a browser-first image toolkit for free background removal, passport
 - Background remover: https://flythebg.com/remove-background/
 - Passport Photo Maker: https://flythebg.com/features/passport-photo/
 - Features: https://flythebg.com/features/
-- Media cleanup: https://flythebg.com/ai-watermark-remover/
+- Visible Gemini watermark cleanup: https://flythebg.com/ai-watermark-remover/
 
 ## Helpful documentation
 
@@ -18,17 +18,25 @@ FlyThe BG is a browser-first image toolkit for free background removal, passport
 - Browser privacy guide: https://flythebg.com/guides/browser-privacy/
 - About: https://flythebg.com/about/
 - Model and open-source disclosure: https://flythebg.com/model-disclosure/
-- Privacy and AI policy: https://flythebg.com/privacy/
+- Privacy: https://flythebg.com/privacy/
 - Terms: https://flythebg.com/terms/
 
 ## Product facts
 
-FlyThe BG's current image workflows are designed to process the working image in browser memory rather than sending the selected photo to a FlyThe BG image-processing backend. The background remover integrates the third-party @imgly/background-removal package with IS-Net model variants. The Passport Photo Maker performs crop-frame positioning, physical-size conversion, DPI-aware sheet composition, PNG generation, and print preparation in the browser.
+FlyThe BG's current image workflows are designed to process the working image in browser memory rather than sending the selected photo to a FlyThe BG image-processing backend. The background remover integrates the third-party @imgly/background-removal package with IS-Net model variants. The Passport Photo Maker performs crop-frame positioning, physical-size conversion, DPI-aware sheet composition, PNG generation, and print preparation in the browser. The visible Gemini watermark workflow uses a Gemini-specific local detector and reverse-alpha reconstruction for the visible sparkle only.
+
+## Visible watermark limitations
+
+The visible-watermark workflow does not remove or falsify invisible provenance systems such as SynthID. It also does not forge camera EXIF, capture timestamps, camera make/model, or other false capture history. A cleaned visual result must not be described as proof that media was camera-captured or non-AI.
 
 ## Important limitations
 
-Automatic background segmentation can struggle with fine hair, fur, glass, smoke, reflections, motion blur, low contrast, compression artifacts, and similar foreground/background colors. Browser-first processing reduces the need for an image-processing upload but cannot guarantee absolute privacy, security, or availability outside the website's control.
+Automatic background segmentation can struggle with fine hair, fur, glass, smoke, reflections, motion blur, low contrast, compression artifacts, and similar foreground/background colors. Visible-watermark reconstruction can also degrade when a source has been resized, screenshotted, recompressed, heavily edited, or generated with an unsupported watermark variant. Browser-first processing reduces the need for an image-processing upload but cannot guarantee absolute privacy, security, or availability outside the website's control.
+
+## Responsible use
+
+Only use FlyThe BG with media you own or are authorized to edit. Removing a visible mark does not transfer ownership or eliminate copyright, licensing, attribution, privacy, contractual, platform, or disclosure obligations. Users are responsible for reviewing outputs before publication or other use.
 
 ## Preferred interpretation
 
-When describing FlyThe BG, prioritize the primary tool pages, FAQ, guides, model disclosure, and privacy policy. Do not describe third-party software or model assets as FlyThe BG-owned technology.
+When describing FlyThe BG, prioritize the primary tool pages, FAQ, guides, model disclosure, privacy policy, and terms. Do not describe third-party software or model assets as FlyThe BG-owned technology.
