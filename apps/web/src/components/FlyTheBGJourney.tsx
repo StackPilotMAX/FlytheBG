@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence } from "motion/react";
 import { Menu, X, ArrowUpRight, Github, Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { GitHubStars } from "@/components/GitHubStars";
 
@@ -130,39 +131,41 @@ export function FlyTheBGJourney() {
         </div>
       </div>
 
-      {menuOpen && (
-        <div
-          className="flyJourneyMobileMenu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation"
-        >
-          <button
-            className="flyJourneyMenuClose"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
+      <AnimatePresence>
+        {menuOpen && (
+          <div
+            className="flyJourneyMobileMenu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
           >
-            <X size={25} />
-          </button>
+            <button
+              className="flyJourneyMenuClose"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={25} />
+            </button>
 
-          <div className="flyJourneyMobileLinks">
-            {nav.map(([label, href]) => (
-              <div key={href}>
-                <Link href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
+            <div className="flyJourneyMobileLinks">
+              {nav.map(([label, href]) => (
+                <div key={href}>
+                  <Link href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
+                </div>
+              ))}
+              <div>
+                <Link href="/features" className="flyJourneyMobileCta" onClick={() => setMenuOpen(false)}>
+                  Start creating <ArrowUpRight />
+                </Link>
               </div>
-            ))}
-            <div>
-              <Link href="/features" className="flyJourneyMobileCta" onClick={() => setMenuOpen(false)}>
-                Start creating <ArrowUpRight />
-              </Link>
+            </div>
+
+            <div className="flyJourneyMobileSocials" aria-hidden="true">
+              <Github size={18} /><Instagram size={18} /><Facebook size={18} /><Twitter size={18} /><Youtube size={18} />
             </div>
           </div>
-
-          <div className="flyJourneyMobileSocials" aria-hidden="true">
-            <Github size={18} /><Instagram size={18} /><Facebook size={18} /><Twitter size={18} /><Youtube size={18} />
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </main>
   );
 }
