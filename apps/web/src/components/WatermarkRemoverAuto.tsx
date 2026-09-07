@@ -4,14 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import { createWatermarkEngine, removeWatermarkFromImage, type WatermarkMeta, type WatermarkPosition } from "@pilio/gemini-watermark-remover/browser";
 
 type Rect = { x: number; y: number; w: number; h: number };
+type CanvasExportApi = {
+  convertToBlob?: (options?: { type?: string }) => Promise<Blob>;
+  toBlob?: (callback: (blob: Blob | null) => void, type?: string) => void;
+};
+
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 const toRect = (p: WatermarkPosition | null | undefined): Rect | null => p ? { x: p.x, y: p.y, w: p.width, h: p.height } : null;
 const confidence = (m: WatermarkMeta | null) => typeof m?.detection?.adaptiveConfidence === "number" ? Math.round(clamp(m.detection.adaptiveConfidence, 0, 1) * 100) : null;
 
 async function canvasToBlob(canvas: HTMLCanvasElement | OffscreenCanvas, type = "image/png"): Promise<Blob> {
-  if (typeof canvas.convertToBlob === "function") return canvas.convertToBlob({ type });
-  if (typeof canvas.toBlob === "function") {
-    return new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not encode the cleaned image.")), type));
+  const api = canvas as unknown as CanvasExportApi;
+  if (typeof api.convertToBlob === "function") return api.convertToBlob({ type });
+  if (canvas instanceof HTMLCanvasElement && typeof api.toBlob === "function") {
+    return new Promise<Blob>((resolve, reject) => api.toBlob?.(blob => blob ? resolve(blob) : reject(new Error("Could not encode the cleaned image.")), type));
   }
   throw new Error("This browser does not support canvas image export.");
 }
@@ -57,7 +63,7 @@ export function WatermarkRemoverAuto() {
       const result = await removeWatermarkFromImage(imageRef.current, { adaptiveMode: "auto" });
       setMeta(result.meta); const rect = toRect(result.meta?.position); setPosition(rect);
       if (!result.meta?.applied || !rect) return setMessage("No verified Gemini visible watermark was found. Nothing was blurred or guessed.");
-      const blob = await canvasToBlob(result.canvas as HTMLCanvasElement | OffscreenCanvas, "image/png");
+      const blob = await canvasToBlob(result.canvas as HTMLCanvasElement | OffscreenCanvas);
       setClean(remember(URL.createObjectURL(blob))); const c = confidence(result.meta);
       setMessage(`Visible watermark removed automatically${c !== null ? ` (${c}% detection confidence)` : ""}.`);
     } catch (e) { setMessage(e instanceof Error ? e.message : "Automatic Gemini watermark removal failed."); }
