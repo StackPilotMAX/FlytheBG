@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, ArrowUpRight, Github, Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { GitHubStars } from "@/components/GitHubStars";
 
@@ -131,51 +130,39 @@ export function FlyTheBGJourney() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            className="flyJourneyMobileMenu"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+      {menuOpen && (
+        <div
+          className="flyJourneyMobileMenu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation"
+        >
+          <button
+            className="flyJourneyMenuClose"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
           >
-            <button
-              className="flyJourneyMenuClose"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-            >
-              <X size={25} />
-            </button>
+            <X size={25} />
+          </button>
 
-            <div className="flyJourneyMobileLinks">
-              {nav.map(([label, href], index) => (
-                <motion.div
-                  key={href}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05, duration: 0.5 }}
-                >
-                  <Link href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
-                <Link href="/features" className="flyJourneyMobileCta" onClick={() => setMenuOpen(false)}>
-                  Start creating <ArrowUpRight />
-                </Link>
-              </motion.div>
+          <div className="flyJourneyMobileLinks">
+            {nav.map(([label, href]) => (
+              <div key={href}>
+                <Link href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
+              </div>
+            ))}
+            <div>
+              <Link href="/features" className="flyJourneyMobileCta" onClick={() => setMenuOpen(false)}>
+                Start creating <ArrowUpRight />
+              </Link>
             </div>
+          </div>
 
-            <div className="flyJourneyMobileSocials" aria-hidden="true">
-              <Github size={18} /><Instagram size={18} /><Facebook size={18} /><Twitter size={18} /><Youtube size={18} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="flyJourneyMobileSocials" aria-hidden="true">
+            <Github size={18} /><Instagram size={18} /><Facebook size={18} /><Twitter size={18} /><Youtube size={18} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
