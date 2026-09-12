@@ -1,0 +1,194 @@
+:root {
+  --fly-maroon-950: #3b0718;
+  --fly-maroon-900: #520b24;
+  --fly-maroon-800: #6b1230;
+  --fly-maroon-700: #861c3d;
+  --fly-maroon-600: #9f294b;
+  --fly-maroon-100: #f8e9ee;
+  --fly-maroon-50: #fff7f9;
+  --fly-white: #ffffff;
+  --fly-ink: #2b1720;
+  --fly-muted: #6f5961;
+  --fly-border: #e7cbd4;
+}
+
+html, body {
+  background: var(--fly-white) !important;
+  color: var(--fly-ink) !important;
+}
+
+body {
+  background-image: none !important;
+}
+
+.siteHeader {
+  background: var(--fly-maroon-900) !important;
+  color: var(--fly-white) !important;
+  border-bottom: 1px solid var(--fly-maroon-700) !important;
+  box-shadow: 0 4px 18px rgba(82, 11, 36, .14) !important;
+}
+
+.siteHeader a,
+.siteHeader button,
+.siteHeader .navLinks a,
+.siteHeader .navCta,
+.siteHeader .mobileFeaturesButton {
+  color: var(--fly-white) !important;
+}
+
+.siteHeader a:hover,
+.siteHeader a:focus-visible {
+  color: #ffdce7 !important;
+}
+
+.siteHeader .navCta,
+.siteHeader .mobileFeaturesButton {
+  background: var(--fly-white) !important;
+  color: var(--fly-maroon-900) !important;
+  border-color: var(--fly-white) !important;
+}
+
+.siteHeader .navCta:hover,
+.siteHeader .mobileFeaturesButton:hover {
+  background: var(--fly-maroon-100) !important;
+  color: var(--fly-maroon-950) !important;
+}
+
+main,
+.pageShell,
+.shell {
+  color: var(--fly-ink);
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+[role="button"] {
+  background: var(--fly-maroon-800);
+  color: var(--fly-white);
+  border-color: var(--fly-maroon-800);
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+[role="button"]:hover {
+  background: var(--fly-maroon-900);
+  border-color: var(--fly-maroon-900);
+}
+
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+  background: #c9aab5;
+  color: var(--fly-white);
+  border-color: #c9aab5;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #e7a8ba !important;
+  outline-offset: 3px;
+}
+
+a {
+  color: var(--fly-maroon-800);
+}
+
+a:hover {
+  color: var(--fly-maroon-950);
+}
+
+input,
+textarea,
+select {
+  background: var(--fly-white) !important;
+  color: var(--fly-ink) !important;
+  border-color: var(--fly-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--fly-muted) !important;
+  opacity: 1;
+}
+
+input[type="range"] {
+  accent-color: var(--fly-maroon-800);
+}
+
+.card,
+.panel,
+.toolCard,
+.uploadCard,
+.surface,
+[class*="card"],
+[class*="panel"] {
+  border-color: var(--fly-border);
+}
+
+.siteFooter {
+  background: var(--fly-maroon-950) !important;
+  color: var(--fly-white) !important;
+  border-top: 1px solid var(--fly-maroon-700) !important;
+}
+
+.siteFooter a,
+.siteFooter p,
+.siteFooter span,
+.siteFooter h1,
+.siteFooter h2,
+.siteFooter h3,
+.siteFooter h4 {
+  color: var(--fly-white) !important;
+}
+
+.siteFooter a:hover,
+.siteFooter a:focus-visible {
+  color: #ffdce7 !important;
+}
+
+::selection {
+  background: var(--fly-maroon-700);
+  color: var(--fly-white);
+}
+
+/* Watermark tool: keep controls white, readable, and separated from maroon surfaces. */
+.watermark-tool,
+.watermark-remover,
+[data-watermark-tool] {
+  background: var(--fly-white) !important;
+  color: var(--fly-ink) !important;
+  border-color: var(--fly-border) !important;
+}
+
+.watermark-tool button,
+.watermark-remover button,
+[data-watermark-tool] button {
+  color: var(--fly-white) !important;
+  background: var(--fly-maroon-800) !important;
+}
+
+.watermark-tool label,
+.watermark-tool small,
+.watermark-tool p,
+.watermark-remover label,
+.watermark-remover small,
+.watermark-remover p,
+[data-watermark-tool] label,
+[data-watermark-tool] small,
+[data-watermark-tool] p {
+  color: var(--fly-ink) !important;
+}
+
+@media (max-width: 760px) {
+  .siteHeader {
+    background: var(--fly-maroon-900) !important;
+  }
+  .navLinks {
+    background: var(--fly-maroon-900) !important;
+  }
+}
