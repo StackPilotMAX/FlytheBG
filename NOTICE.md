@@ -1,13 +1,17 @@
-# Third-party attribution
+# Third-party notices
 
-The visible Gemini watermark detection and reconstruction implementation in:
+## Gemini watermark processing
+
+The Gemini watermark detection and reconstruction implementation in:
 
 - `apps/web/src/lib/isharaGeminiWatermarkRemover.ts`
 
-is adapted from:
+is adapted from the public project:
 
 - https://github.com/ishara-madu/gemini-watermark-remover
 
-The upstream project is distributed under the MIT License. The applicable MIT copyright and permission notice must remain with the adapted code. This notice does not imply endorsement by the upstream author.
+That upstream project is distributed under the MIT License. Commercial use, modification, distribution, and sale are permitted under that license, provided that the copyright notice and permission notice are retained with copies or substantial portions of the software.
 
-FlyTheBG's original website code, design, and other original components remain the property of their respective copyright holder and are not automatically licensed under the upstream MIT License.
+This notice is included to comply with the upstream license. It does not imply endorsement, partnership, or sponsorship by Ishara Madushanka. FlyTheBG's original website code, design, branding, and independently created components are not licensed under the upstream MIT License.
+
+See `THIRD-PARTY-LICENSES.md` for the complete applicable MIT License text.
