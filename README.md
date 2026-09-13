@@ -35,6 +35,14 @@ Use FlyThe BG only with media you own or are authorized to edit. Removing a visi
 
 Google, Gemini, Veo, and other third-party names, marks, and product assets belong to their respective owners. FlyThe BG is an independent project and does not imply sponsorship, partnership, endorsement, or ownership of those brands or assets.
 
+## Open source project
+
+FlyThe BG is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the repository `LICENSE` file for the full license text.
+
+Please also review the project's [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
+
+The project is deployed on Netlify for public preview. [Visit Netlify](https://www.netlify.com/).
+
 ## Links
 - Project: https://github.com/StackPilotMAX/FlytheBG
 - GitHub profile: https://github.com/StackPilotMAX
