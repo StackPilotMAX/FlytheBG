@@ -4,7 +4,7 @@ import { appConfig } from "@/lib/config";
 export const metadata = {
   title: "Privacy Policy | FlyThe BG",
   description:
-    "Learn how FlyThe BG handles browser-based image and media processing, working files, cookies, advertising technologies, model assets, and contact information.",
+    "Learn how FlyThe BG handles image and media processing — including the private server-side rembg pipeline — working files, cookies, advertising technologies, model assets, and contact information.",
   alternates: { canonical: "/privacy" },
   openGraph: {
     title: "Privacy Policy | FlyThe BG",
@@ -28,12 +28,12 @@ export default function PrivacyPage() {
         FlyThe BG is a browser-first collection of image and media utilities. This policy explains what information may be processed when you use the website, how working media is handled, how browser storage and advertising technologies may operate, and the limits of our privacy commitments. By using FlyThe BG, you also agree to the <a href="/terms">Terms of Use</a>.
       </p>
 
-      <h2>1. Browser-first processing</h2>
+      <h2>1. Browser-first workflows with a private AI option</h2>
       <p>
-        FlyThe BG is designed so that supported image workflows can perform processing in the visitor&apos;s browser. Background removal, photo preparation, and supported editing workflows are designed around browser-side processing rather than intentionally sending source image bytes to a FlyThe BG image-processing database.
+        FlyThe BG is designed around browser-first processing wherever practical: preview, crop, passport sheet layout, video compression, and UI editing all run in your browser and do not intentionally upload working media to a FlyThe BG database.
       </p>
       <p>
-        Browser-first does not mean that every feature is guaranteed to be completely local. Processing can depend on the selected feature, browser, device, codec, model/runtime requirements, and third-party services. Where a feature explicitly requires an external service, information necessary to provide that feature may be transmitted to that service.
+        The Background Remover is intentionally routed through FlyThe BG&apos;s own server (<code>/api/remove-background</code>) so the tool can authenticate to a private Hugging Face Gradio Space running <code>rembg</code>. The Hugging Face API token (<code>HF_TOKEN</code>) is stored as a server-only environment variable and is never sent to your browser. The server validates uploads (type, size, magic-byte signature), forwards the single request to the private Space, and returns the PNG result to the requesting browser.
       </p>
 
       <h2>2. Images, videos, and uploaded media</h2>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
         When you select, drag, paste, or otherwise provide an image, video, or other supported file, the browser makes that file available to the selected workflow. For supported local workflows, the working media is processed in browser memory and is not intentionally uploaded to a FlyThe BG image-processing server.
       </p>
       <p>
-        When a selected feature requires external processing, the media or other information necessary to complete that requested operation may be transmitted to the relevant provider. The scope of that transmission depends on the feature and provider integration; users should review the provider&apos;s applicable privacy terms where relevant.
+        When you use the Background Remover, the selected image is sent over HTTPS to FlyThe BG&apos;s server-side route and then forwarded to the configured private Hugging Face Space for that request only. FlyThe BG does not persist uploaded images to a public image database or shared gallery. Other tools (passport sheet builder, video compressor, crop editor, preview comparisons) operate locally in your browser.
       </p>
       <p>
         While a workflow is active, source and generated media may temporarily exist in browser memory, object URLs, canvas buffers, or other browser-managed state. Clearing or replacing a workflow releases page-managed resources, subject to normal browser, operating-system, cache, download, screenshot, extension, and device behavior outside FlyThe BG&apos;s control.
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
 
       <h2>4. Models, runtime assets, and third-party infrastructure</h2>
       <p>
-        Some FlyThe BG tools use third-party software, model weights, WebAssembly, JavaScript runtimes, or other assets. For example, background removal integrates <code>@imgly/background-removal</code>. These resources may be downloaded or cached by the browser from configured distribution infrastructure.
+        Some FlyThe BG tools use third-party software, model weights, or runtime assets. The Background Remover uses <code>rembg</code> running on a private Hugging Face Gradio Space, reached only through FlyThe BG&apos;s authenticated server route. The local video compressor, crop editor, and UI helpers use open-source JavaScript libraries running in your browser. See the <a href="/model-disclosure">Model &amp; Open Source Disclosure</a> for the full list.
       </p>
       <p>
         Delivering these resources can involve normal network information such as an IP address, browser information, request metadata, and other information ordinarily required by the relevant hosting or distribution provider. FlyThe BG does not use a visitor&apos;s selected image to train or fine-tune third-party model weights.

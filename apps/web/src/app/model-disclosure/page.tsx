@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "FlyThe BG Model & Open Source",
   description:
-    "See which third-party browser AI and visible-watermark assets FlyThe BG uses, how local processing works, and the relevant licensing and limitations.",
+    "See which third-party AI and open-source components FlyThe BG uses — including rembg on Hugging Face — how private server-side processing works, and the relevant licensing and limitations.",
   alternates: { canonical: "/model-disclosure" },
 };
 
@@ -23,9 +23,9 @@ export default function ModelDisclosurePage() {
 
       <section className="section toolInfoSection">
         <div className="shell"><div className="infoCards">
-          <article><span>Background removal</span><h2>IMG.LY background removal</h2><p>FlyThe BG integrates <code>@imgly/background-removal</code> for browser-side segmentation. IMG.LY is the author/provider of that package; FlyThe BG does not claim ownership of it.</p></article>
-          <article><span>Visible watermark cleanup</span><h2>Gemini-specific reverse-alpha engine</h2><p>The visible watermark workflow integrates <code>@pilio/gemini-watermark-remover</code> for calibrated visible-mark detection and reverse-alpha reconstruction in the browser.</p></article>
-          <article><span>FlyThe BG processing</span><h2>Local validation and export</h2><p>FlyThe BG adds browser-side input validation, bounded working dimensions, preview/export controls, UI state, and conservative workflow safeguards around these third-party processing components.</p></article>
+          <article><span>Background removal</span><h2>rembg on Hugging Face</h2><p>FlyThe BG removes backgrounds through its own server route (<code>/api/remove-background</code>), which authenticates to a private Hugging Face Gradio Space running <code>rembg</code>. The Hugging Face token (<code>HF_TOKEN</code>) is stored in server-only environment variables and is never sent to the browser.</p></article>
+          <article><span>Visible watermark cleanup</span><h2>Conservative AI-assisted cleanup</h2><p>The visible-watermark workflow provides a targeted, preview-first UI for cleaning text/logo overlays using third-party generative AI. Output should always be inspected before reuse.</p></article>
+          <article><span>FlyThe BG processing</span><h2>Validation, preview, export</h2><p>FlyThe BG adds server-side file validation (type, size, magic-byte checks), client-side preview and cropping, bounded canvas exports for passport sheets, local video compression, and transparent PNG download — all without requiring accounts.</p></article>
         </div></div>
       </section>
 
@@ -34,7 +34,7 @@ export default function ModelDisclosurePage() {
           <div className="sectionHeading compact landingReveal">
             <span className="eyebrow"><i /> Licensing &amp; attribution</span>
             <h2>Third-party licences stay separate.</h2>
-            <p>Third-party packages, model/runtime assets, and calibrated reference data can have their own licences and notices. The related upstream work includes the <code>ishara-madu</code> attribution and MIT License notice where applicable. Review the upstream project before redistributing or modifying the relevant component.</p>
+            <p>Third-party packages, models, and runtimes retain their own licences and notices. This notably includes <code>rembg</code> (MIT License) and its underlying model weights used on the private Hugging Face Space, plus other OSS dependencies in <code>package.json</code>. Review each upstream project before redistributing or modifying the relevant component.</p>
           </div>
           <div className="principleList">
             <article><strong>No ownership claim</strong><p>FlyThe BG does not claim copyright, trademark rights, authorship, or exclusive ownership over third-party libraries, models, reference masks, or provider marks. Third-party software remains subject to its own notices, including applicable MIT License terms.</p></article>
@@ -47,7 +47,7 @@ export default function ModelDisclosurePage() {
 
       <section className="section toolInfoSection">
         <div className="shell infoCards">
-          <article><span>Network behavior</span><h2>Software assets can be downloaded separately.</h2><p>The browser may contact configured distribution infrastructure for model/runtime/reference assets. FlyThe BG does not intentionally attach the selected source image to those asset requests.</p></article>
+          <article><span>Network behavior</span><h2>Software assets can be downloaded separately.</h2><p>For background removal, the browser sends the selected image only to FlyThe BG's <code>/api/remove-background</code> route over HTTPS. That server route connects to the configured Hugging Face Space with a secret token; the token itself is never returned to the browser. Other tools (e.g., the local video compressor and crop previews) run entirely in the browser and do not upload media.</p></article>
           <article><span>Legal policies</span><h2>Keep the documentation together.</h2><p>This disclosure is informational and does not replace third-party licences or terms.</p><Link className="textLink" href="/privacy">Privacy Policy ↗</Link><br /><Link className="textLink" href="/terms">Terms of Use ↗</Link></article>
           <article><span>Questions</span><h2>Need the simpler explanation?</h2><p>The FAQ covers browser processing, visible-watermark limitations, advertising separation, and common workflows.</p><Link className="textLink" href="/faq">Open FAQ ↗</Link></article>
         </div>

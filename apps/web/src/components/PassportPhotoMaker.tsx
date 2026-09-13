@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, DragEvent, PointerEvent, useEffect, useId, useMemo, useRef, useState } from "react";
-import { removeBackgroundWithFallback } from "@/lib/browser-background-removal";
+import { removeBackgroundViaServer } from "@/lib/server-background-removal";
 import { validateUploadBasics } from "@/lib/image-validation";
 
 type Unit = "cm" | "mm" | "in";
@@ -276,11 +276,11 @@ export function PassportPhotoMaker() {
     setError("");
     setCleanup("");
     setExportNotice("");
-    setProgress(sourceMode === "remove" ? "Starting local background removal…" : "Preparing photo in this browser…");
+    setProgress(sourceMode === "remove" ? "Starting private server-side background removal…" : "Preparing photo in this browser…");
     try {
       if (source) URL.revokeObjectURL(source.url);
       const prepared = sourceMode === "remove"
-        ? await removeBackgroundWithFallback(file, setProgress).then((result) => preparePhoto(result.blob, `IMG.LY ${result.modelLabel} cutout`))
+        ? await removeBackgroundViaServer(file, setProgress).then((result) => preparePhoto(result.blob, `${result.modelLabel} cutout`))
         : await preparePhoto(file, "Original photo");
       setSource(prepared);
       setFileName(file.name);
@@ -474,7 +474,7 @@ export function PassportPhotoMaker() {
 
       <section className="passportUploadCard">
         <div className="modeTabs" role="group" aria-label="Photo preparation mode">
-          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>Local browser AI</small></button>
+          <button className={sourceMode === "remove" ? "active" : ""} type="button" onClick={() => changeMode("remove")}><span>01</span><strong>Remove background</strong><small>Private Hugging Face AI · server-side</small></button>
           <button className={sourceMode === "direct" ? "active" : ""} type="button" onClick={() => changeMode("direct")}><span>02</span><strong>Keep original</strong><small>Skip AI and build the sheet</small></button>
         </div>
 
@@ -487,7 +487,7 @@ export function PassportPhotoMaker() {
       </section>
 
       {source && <>
-        <div className="workingImageBar"><span><small>Working image</small><strong>{source.label}</strong></span><span><small>Source size</small><strong>{source.width} × {source.height}px</strong></span><span><small>Privacy</small><strong>Browser-only flow</strong></span></div>
+        <div className="workingImageBar"><span><small>Working image</small><strong>{source.label}</strong></span><span><small>Source size</small><strong>{source.width} × {source.height}px</strong></span><span><small>Privacy</small><strong>Token stays server-side</strong></span></div>
 
         <div className="passportSteps">
           <section className="passportPanel">
