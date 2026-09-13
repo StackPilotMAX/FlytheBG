@@ -1,57 +1,80 @@
-<p align="center"><img src="apps/web/public/brand/flythebg-lockup.svg" alt="FlyThe BG" width="360" /></p>
+<p align="center">
+  <img src="apps/web/public/brand/flythebg-lockup.svg" alt="FlyThe BG" width="360" />
+</p>
+
 <h1 align="center">FlyThe BG</h1>
-<p align="center"><strong>Browser-first image and media tools for background removal, passport photos, and authorized media-editing workflows.</strong></p>
-<p align="center"><a href="https://github.com/StackPilotMAX/FlytheBG"><img alt="GitHub stars" src="https://img.shields.io/github/stars/StackPilotMAX/FlytheBG?style=flat" /></a> <img alt="Browser AI" src="https://img.shields.io/badge/AI-browser--first-7c83ff" /> <img alt="Backend" src="https://img.shields.io/badge/image%20processing-local-69d39b" /></p>
 
-FlyThe BG is a free, non-commercial, community-oriented web toolkit. The project includes a local AI background remover, a measured passport-photo maker, and browser-first image/media cleanup for supported, authorized workflows. It is independent of Google and other third-party brands.
+<p align="center"><strong>Free, browser-first image tools designed around local processing, privacy, and open collaboration.</strong></p>
 
-## User tools
+<p align="center">
+  <a href="https://github.com/StackPilotMAX/FlytheBG"><img alt="GitHub stars" src="https://img.shields.io/github/stars/StackPilotMAX/FlytheBG?style=flat" /></a>
+  <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" /></a>
+  <img alt="Browser first" src="https://img.shields.io/badge/architecture-browser--first-7c83ff" />
+  <img alt="Non-commercial" src="https://img.shields.io/badge/project-non--commercial-2f855a" />
+</p>
 
-### Gemini visible watermark remover
-The `/ai-watermark-remover` page focuses on the visible Gemini sparkle. The current workflow automatically locates a supported visible watermark candidate from uploaded media, reconstructs only that small region using the Gemini-specific reverse-alpha method, and provides a before/after inspection before download.
+FlyThe BG is an independent, free, non-commercial open-source web toolkit for useful image and media workflows. It is maintained as a community project and is not a commercial SaaS product.
 
-For video, the first frame establishes the fixed visible watermark region and the same region is reconstructed frame-by-frame in the browser. Video export is WebM where the browser supports local recording.
+## What FlyThe BG provides
 
 ### Background remover
-The background-removal workflow uses `@imgly/background-removal` with browser-side model/runtime processing, WebGPU where available, CPU/WASM fallback, adaptive quality selection, conservative edge protection, and an additional interior-detail pass intended to protect likely face and clothing pixels without restoring the outside background.
+
+Remove image backgrounds with browser-side processing using `@imgly/background-removal`, WebGPU where available, and CPU/WASM fallback. The workflow includes adaptive quality selection and conservative edge/detail handling.
 
 ### Passport Photo Maker
-Create physical-size, DPI-aware passport-photo sheets with crop framing, repeated copies, and direct printing/export. Always check the current rules of the authority receiving the photo.
 
-## Visible watermark vs. invisible provenance
+Create physical-size, DPI-aware passport-photo sheets with crop framing, repeated copies, and direct printing/export. Always check the current requirements of the authority receiving the photo.
 
-The watermark-removal workflow is intentionally limited to visible pixel overlays. It does not claim to remove, defeat, score, or falsify invisible provenance technologies such as SynthID or other content-authenticity systems.
+### Visible watermark cleanup
 
-FlyThe BG does not forge camera EXIF, capture timestamps, camera make/model, or other metadata to make edited media appear to have been camera-captured. A visually cleaned file must not be represented as proof that the media originated from a physical camera or was never AI-generated.
+The `/ai-watermark-remover` workflow is intentionally limited to supported visible pixel overlays. It provides before/after inspection and browser-side processing for supported media.
+
+It does **not** claim to remove, defeat, score, or falsify invisible provenance systems such as SynthID or other content-authenticity technologies.
+
+## Project principles
+
+FlyThe BG is built around a few simple principles:
+
+- **Free to use:** the public project is intended to remain accessible without subscriptions or paid access.
+- **Open source:** the code is published under AGPL-3.0 so others can study, modify, and share it under the license terms.
+- **Browser first:** supported editing workflows prefer processing in the user's browser rather than uploading working media to a FlyThe BG processing server.
+- **Privacy conscious:** the project avoids unnecessary collection of users' working images.
+- **Responsible editing:** tools should not be presented as a way to bypass ownership, licensing, privacy, platform, or provenance requirements.
+- **Community driven:** improvements are welcome through issues, documentation, testing, and code contributions.
 
 ## Privacy architecture
+
 Supported FlyThe BG editing workflows are designed to keep working media in browser memory rather than sending it to a FlyThe BG image-processing server. The browser still downloads application, model, runtime, font, video, and other assets as needed.
 
-## Responsible use and legal notice
+This architecture is not a promise that every browser request is local: external application assets, analytics, search/discovery services, or other integrations may still create network requests. Review the site's Privacy and Model Disclosure pages for current details.
+
+## Responsible use
 
 Use FlyThe BG only with media you own or are authorized to edit. Removing a visible mark does not transfer ownership, erase licensing conditions, eliminate attribution requirements, or override platform rules. Users remain responsible for copyright, privacy, publicity, trademark, licensing, disclosure, contractual, and other applicable obligations.
 
-## Open source project
+FlyThe BG does not forge camera EXIF, capture timestamps, camera make/model, or other metadata to make edited media appear to have been camera-captured. A visually cleaned file must not be represented as proof that media originated from a physical camera or was never AI-generated.
 
-FlyThe BG is a **non-commercial open-source project** licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. AGPL-3.0 is an OSI-approved open-source license. See the repository `LICENSE` file for the full license text.
+## Open source and project status
 
-Please read the project's [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
+FlyThe BG is a **non-commercial open-source project** licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See [`LICENSE`](LICENSE) for the full license text.
 
-The project is publicly deployed on Netlify for preview and use. [Visit Netlify](https://www.netlify.com/).
+The repository includes a top-level [Code of Conduct](CODE_OF_CONDUCT.md), [Contributing Guide](CONTRIBUTING.md), and [Security Policy](SECURITY.md).
 
-This project does not sell subscriptions, paid hosting, commercial support, or paid access to its open-source software. Contributions are welcomed through code, documentation, testing, issue reports, and other community participation.
+The project is publicly deployed on Netlify for community use. This site is powered by Netlify.
 
-## Links
-- Project: https://github.com/StackPilotMAX/FlytheBG
-- GitHub profile: https://github.com/StackPilotMAX
-- Instagram: https://www.instagram.com/flythebg/
-- Visible watermark remover: `/ai-watermark-remover`
-- FAQ: `/faq`
-- Terms: `/terms`
-- Privacy: `/privacy`
+FlyThe BG does not sell subscriptions, paid hosting, commercial support, or paid access to its open-source software. The project is maintained as a non-commercial community project.
 
-## Contact
-For project questions, feedback, collaboration, or responsible disclosure, contact **stackpilotfe@outlook.com**.
+## Community
+
+- **Source code:** https://github.com/StackPilotMAX/FlytheBG
+- **Issues:** https://github.com/StackPilotMAX/FlytheBG/issues
+- **Discussions:** https://github.com/StackPilotMAX/FlytheBG/discussions
+- **Project updates:** https://www.instagram.com/flythebg/
+- **Code of Conduct:** [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+- **Contributing:** [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- **Security:** [`SECURITY.md`](SECURITY.md)
+
+Please use public issues for normal bugs and feature discussions. Do not publish security vulnerabilities or private user data in public issues.
 
 ## Local development
 
@@ -75,4 +98,9 @@ npm run build:web
 The static production output is `apps/web/out`.
 
 ## Third-party software
+
 FlyThe BG integrates `@imgly/background-removal`, `@pilio/gemini-watermark-remover`, ONNX Runtime Web, Next.js, React, Three.js, Instrument Serif, and Inter. Review the upstream licences and notices before redistributing or operating the project.
+
+## Contact
+
+For project questions, feedback, collaboration, or responsible disclosure, contact **stackpilotfe@outlook.com**.
