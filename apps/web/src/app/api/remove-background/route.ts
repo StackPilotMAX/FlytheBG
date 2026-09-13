@@ -55,13 +55,14 @@ export async function POST(request: Request) {
   if (image.size < 1 || image.size > MAX_UPLOAD_BYTES) return errorResponse("The selected image is too large. Maximum size is 12 MB.", 413);
 
   try {
-    const imageBytes = new Uint8Array(await image.arrayBuffer());
+    const imageBuffer = await image.arrayBuffer();
+    const imageBytes = new Uint8Array(imageBuffer);
     if (!hasValidSignature(imageBytes, image.type)) {
       return errorResponse("The uploaded file does not match its declared image type.", 415);
     }
 
     const client = await Client.connect(spaceId, { token });
-    const input = new Blob([imageBytes], { type: image.type });
+    const input = new Blob([imageBuffer], { type: image.type });
     const result = await client.predict("/remove_background", {
       image: handle_file(input),
     });
