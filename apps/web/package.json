@@ -12,6 +12,7 @@
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
+    "@gradio/client": "2.6.0",
     "@imgly/background-removal": "1.7.0",
     "lucide-react": "^0.468.0",
     "mediabunny": "^1.55.3",
