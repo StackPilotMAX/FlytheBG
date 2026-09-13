@@ -8,6 +8,8 @@ export const maxDuration = 60;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 const MAX_RESULT_BYTES = 25 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const DEFAULT_SPACE_ID = "StackPilotMAX/bg-remover-api";
+const DEFAULT_API_NAME = "/remove_background";
 
 function errorResponse(message: string, status = 500) {
   return NextResponse.json({ error: message }, { status });
@@ -38,7 +40,8 @@ async function fetchWithTimeout(url: string, timeoutMs = 30_000) {
 
 export async function POST(request: Request) {
   const token = process.env.HF_TOKEN;
-  const spaceId = process.env.HF_SPACE_ID || "StackPilotMAX/bg-remover-api";
+  const spaceId = process.env.HF_SPACE_ID || DEFAULT_SPACE_ID;
+  const apiName = process.env.HF_API_NAME || DEFAULT_API_NAME;
 
   if (!token) return errorResponse("Background removal service is not configured.");
   if (!spaceId) return errorResponse("Background removal Space is not configured.");
@@ -62,8 +65,14 @@ export async function POST(request: Request) {
     }
 
     const client = await Client.connect(spaceId, { token });
+    const api = await client.view_api();
+    const endpoint = api.named_endpoints?.[apiName];
+    if (!endpoint) {
+      throw new Error(`Hugging Face Space does not expose the configured endpoint ${apiName}.`);
+    }
+
     const input = new Blob([imageBuffer], { type: image.type });
-    const result = await client.predict("/remove_background", {
+    const result = await client.predict(apiName, {
       image: handle_file(input),
     });
 
