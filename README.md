@@ -45,6 +45,9 @@ Google, Gemini, Veo, and other third-party names, marks, and product assets belo
 - Terms: `/terms`
 - Privacy: `/privacy`
 
+## Contact
+For project questions, feedback, collaboration, or responsible disclosure, contact **stackpilotfe@outlook.com**.
+
 ## Local development
 
 Requirements: Node.js 22, npm, and a modern WebAssembly-capable browser. WebGPU is optional.
