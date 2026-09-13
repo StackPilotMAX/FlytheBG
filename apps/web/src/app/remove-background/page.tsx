@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { HoverFaqList } from "@/components/HoverFaqList";
 import { Uploader } from "@/components/Uploader";
 
@@ -14,9 +13,9 @@ export const metadata: Metadata = {
 };
 
 const removalFaqs = [
-  ["Can I use portrait, landscape, square, or panoramic images?", "Yes. FlytheBG preserves the source aspect ratio and accepts PNG, JPEG, and WebP images up to the configured upload limit."],
-  ["Is my Hugging Face token exposed to visitors?", "No. The browser only calls FlytheBG's server route. The Hugging Face token stays in Netlify server environment variables and is never returned to the browser."],
-  ["Where is my image processed?", "The browser sends the selected image to FlytheBG's /api/remove-background route. That server route authenticates to the private Hugging Face Space and forwards only the current request's image to the /remove_background Gradio endpoint."],
+  ["Can I use portrait, landscape, square, or panoramic images?", "Yes. FlyTheBG preserves the source aspect ratio and accepts PNG, JPEG, and WebP images up to the configured upload limit."],
+  ["Is my Hugging Face token exposed to visitors?", "No. The browser only calls FlyTheBG's server route. The Hugging Face token stays in Netlify server environment variables and is never returned to the browser."],
+  ["Where is my image processed?", "The browser sends the selected image to FlyTheBG's /api/remove-background route. That server route authenticates to the private Hugging Face Space and forwards only the current request's image to the /remove_background Gradio endpoint."],
   ["Does background removal run in my browser?", "No. Background-removal inference is performed by the private Hugging Face Space. The browser is used only for upload, preview, cropping, and download of the returned result."],
   ["Are different users' images mixed together?", "No. Each upload is handled as an independent HTTP request and the returned image is sent only to that requesting browser. The route does not use shared global result state or public result filenames."],
   ["Does FlyTheBG store my uploaded image?", "The FlyTheBG route does not intentionally persist uploaded images in a database or public file store. Temporary processing resources are handled by the underlying Gradio service according to its runtime behavior."],
@@ -33,7 +32,6 @@ export default function RemoveBackgroundPage() {
           <div><span className="eyebrow"><i/> Free Background Remover Online</span><h1>Remove image backgrounds online. Keep the subject.</h1><p>Use FlyTheBG's free AI background remover for portrait, landscape, square, vertical, or panoramic images. Your upload goes through an authenticated FlyTheBG server route to the private Hugging Face Gradio Space, then returns as a transparent PNG.</p><div className="heroProof inline"><span><strong>Free online tool</strong><small>no signup · simple workflow</small></span><span><strong>Private AI processing</strong><small>server-side token · isolated requests</small></span><span><strong>Transparent PNG</strong><small>Hugging Face result</small></span></div></div>
           <aside className="pageHeroAside"><span className="kicker">Processing path</span><ol><li><b>01</b><span><strong>Validate + preview</strong><small>type, size, dimensions</small></span></li><li><b>02</b><span><strong>Private Hugging Face AI</strong><small>authenticated Gradio Space</small></span></li><li><b>03</b><span><strong>Return + export</strong><small>transparent PNG</small></span></li></ol></aside>
         </div>
-        <div className="shell pageHeroAd" aria-label="Top advertisement placement"><AdPlaceholder slot="remove-bg-inline-1" format="leaderboard" /></div>
       </section>
 
       <section className="toolWorkspace"><div className="shell"><Uploader /></div></section>
