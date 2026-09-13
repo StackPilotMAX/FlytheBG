@@ -2,7 +2,6 @@
 
 import { ChangeEvent, ClipboardEvent, DragEvent, useId, useRef, useState } from "react";
 import { CropEditor } from "@/components/CropEditor";
-import { removeBackgroundWithFallback } from "@/lib/browser-background-removal";
 import { protectForegroundDetails } from "@/lib/foreground-protection";
 import { validateUploadBasics } from "@/lib/image-validation";
 
@@ -31,25 +30,41 @@ async function createPreview(blob: Blob, label: string): Promise<Prepared> {
     const width = image.naturalWidth || image.width;
     const height = image.naturalHeight || image.height;
     if (!width || !height) throw new Error(`${label} has invalid dimensions.`);
-
     const scale = Math.min(1, PREVIEW_EDGE / Math.max(width, height));
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(width * scale));
     canvas.height = Math.max(1, Math.round(height * scale));
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("This browser cannot create an image preview.");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
     const previewBlob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Preview encoding failed.")), "image/png");
     });
-    canvas.width = 1;
-    canvas.height = 1;
+    canvas.width = canvas.height = 1;
     return { url: URL.createObjectURL(previewBlob), width, height };
   } finally {
     image.src = "";
     URL.revokeObjectURL(sourceUrl);
   }
+}
+
+async function removeBackground(file: File, onProgress: (message: string) => void) {
+  onProgress("Uploading securely to the private FlytheBG processing service…");
+  const form = new FormData();
+  form.append("image", file, file.name);
+  const response = await fetch("/api/remove-background", {
+    method: "POST",
+    body: form,
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null) as { error?: string } | null;
+    throw new Error(payload?.error || "Background removal failed. Please try again.");
+  }
+  onProgress("Private AI processing complete. Protecting fine foreground detail…");
+  const blob = await response.blob();
+  if (!blob.type.startsWith("image/") || blob.size < 32) throw new Error("The background-removal service returned an invalid image.");
+  return blob;
 }
 
 export function Uploader() {
@@ -70,69 +85,38 @@ export function Uploader() {
   function clearWorkingState(notice = "") {
     revoke(original?.url);
     revoke(result?.url);
-    setOriginal(null);
-    setResult(null);
-    setResultBlob(null);
-    setFileName("");
-    setEngine("");
-    setProgress("Waiting for an image");
-    setError("");
-    setCropTarget(null);
-    setStage("idle");
-    setCleanupNotice(notice);
+    setOriginal(null); setResult(null); setResultBlob(null); setFileName("");
+    setEngine(""); setProgress("Waiting for an image"); setError(""); setCropTarget(null);
+    setStage("idle"); setCleanupNotice(notice);
     if (inputRef.current) inputRef.current.value = "";
   }
 
   async function processFile(file: File) {
     if (stage === "processing") return;
     const problem = validateUploadBasics(file, MAX_MB);
-    if (problem) {
-      setError(problem);
-      setStage("error");
-      return;
-    }
-
-    revoke(original?.url);
-    revoke(result?.url);
-    setOriginal(null);
-    setResult(null);
-    setResultBlob(null);
-    setCropTarget(null);
-    setFileName(file.name);
-    setCleanupNotice("");
-    setError("");
-    setEngine("");
-    setProgress("Preparing image in this browser…");
-    setStage("processing");
+    if (problem) { setError(problem); setStage("error"); return; }
+    revoke(original?.url); revoke(result?.url);
+    setOriginal(null); setResult(null); setResultBlob(null); setCropTarget(null);
+    setFileName(file.name); setCleanupNotice(""); setError(""); setEngine("");
+    setProgress("Preparing image…"); setStage("processing");
 
     let originalPreview: Prepared | null = null;
     let resultPreview: Prepared | null = null;
     try {
       originalPreview = await createPreview(file, "Original image");
       setOriginal(originalPreview);
-      const output = await removeBackgroundWithFallback(file, setProgress);
-      setProgress("Checking the cutout for face, clothing, and interior detail…");
-      const protectedOutput = await protectForegroundDetails(file, output.blob).catch(() => ({ blob: output.blob, protected: false }));
+      const output = await removeBackground(file, setProgress);
+      const protectedOutput = await protectForegroundDetails(file, output).catch(() => ({ blob: output, protected: false }));
       resultPreview = await createPreview(protectedOutput.blob, "Background removed image");
       setResultBlob(protectedOutput.blob);
       setResult(resultPreview);
-      const qualityNotes = [
-        `IMG.LY ${output.modelLabel}`,
-        output.edgeRefined ? "refined alpha edges" : "model alpha",
-        protectedOutput.protected ? "face/clothing protection" : "conservative mask",
-        output.restoredResolution ? "source detail restored" : output.optimizedForMemory ? "memory-safe output" : "full working resolution",
-        "local GPU/CPU path",
-      ];
-      setEngine(qualityNotes.join(" · "));
-      setProgress("Complete");
-      setStage("complete");
+      setEngine(`Private Hugging Face AI · /remove_background · ${protectedOutput.protected ? "fine-detail protection applied" : "conservative result"}`);
+      setProgress("Complete"); setStage("complete");
     } catch (reason) {
       if (originalPreview) revoke(originalPreview.url);
       if (resultPreview) revoke(resultPreview.url);
-      setOriginal(null);
-      setResult(null);
-      setResultBlob(null);
-      setError(reason instanceof Error ? reason.message : "Background removal failed in this browser.");
+      setOriginal(null); setResult(null); setResultBlob(null);
+      setError(reason instanceof Error ? reason.message : "Background removal failed.");
       setStage("error");
     }
   }
@@ -141,39 +125,28 @@ export function Uploader() {
     const file = event.target.files?.[0];
     if (file) void processFile(file);
   }
-
   function onDrop(event: DragEvent<HTMLElement>) {
-    event.preventDefault();
-    setDragging(false);
+    event.preventDefault(); setDragging(false);
     const file = event.dataTransfer.files?.[0];
     if (file) void processFile(file);
   }
-
   function onPaste(event: ClipboardEvent<HTMLElement>) {
     if (stage === "processing") return;
     for (let index = 0; index < event.clipboardData.files.length; index += 1) {
       const file = event.clipboardData.files.item(index);
-      if (file?.type.startsWith("image/")) {
-        event.preventDefault();
-        void processFile(file);
-        break;
-      }
+      if (file?.type.startsWith("image/")) { event.preventDefault(); void processFile(file); break; }
     }
   }
-
   function downloadResult() {
     if (!resultBlob) return;
     const href = URL.createObjectURL(resultBlob);
     const link = document.createElement("a");
     const base = fileName.replace(/\.[^.]+$/, "") || "flythebg";
-    link.href = href;
-    link.download = `${base}-background-removed.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    link.href = href; link.download = `${base}-background-removed.png`;
+    document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(() => {
       URL.revokeObjectURL(href);
-      clearWorkingState("Download started. The working source, cutout, and previews were released from this FlytheBG tab. The downloaded PNG remains on your device.");
+      clearWorkingState("Download started. The working source, cutout, and previews were released from this FlytheBG tab.");
     }, 1200);
   }
 
@@ -184,28 +157,15 @@ export function Uploader() {
           <div><span className="kicker">Result ready</span><h2>Your transparent PNG is ready.</h2><p>{engine}</p></div>
           <button className="buttonGhost" type="button" onClick={() => clearWorkingState()}>New image</button>
         </div>
-
-        <div className="privacyBar"><span className="statusDot"/><div><strong>Processed locally</strong><span>No image upload API or image database was used.</span></div></div>
-
+        <div className="privacyBar"><span className="statusDot"/><div><strong>Processed through FlytheBG&apos;s private AI service</strong><span>Your browser sends this image only to the FlytheBG processing route; the Hugging Face token stays server-side.</span></div></div>
         <div className="compareGrid">
-          <article className="compareCard">
-            <div className="compareTitle"><strong>Original</strong><span>{original.width} × {original.height}px</span></div>
-            <div className="imageWell"><img src={original.url} alt="Original selected image" /></div>
-          </article>
-          <article className="compareCard emphasized">
-            <div className="compareTitle"><strong>Background removed</strong><span>{result.width} × {result.height}px</span></div>
-            <div className="imageWell checker"><img src={result.url} alt="Background removed transparent PNG preview" /></div>
-          </article>
+          <article className="compareCard"><div className="compareTitle"><strong>Original</strong><span>{original.width} × {original.height}px</span></div><div className="imageWell"><img src={original.url} alt="Original selected image" /></div></article>
+          <article className="compareCard emphasized"><div className="compareTitle"><strong>Background removed</strong><span>{result.width} × {result.height}px</span></div><div className="imageWell checker"><img src={result.url} alt="Background removed transparent PNG preview" /></div></article>
         </div>
-
         <div className="resultActionsBar">
-          <div><strong>Transparent PNG</strong><span>FlytheBG now adds a conservative interior-detail pass that protects likely face, shirt, and other subject pixels without restoring the outer background silhouette.</span></div>
-          <div className="buttonRow">
-            <button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Browser AI" })}>Crop</button>
-            <button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button>
-          </div>
+          <div><strong>Transparent PNG</strong><span>FlytheBG applies a conservative foreground-detail protection pass after the private AI segmentation result.</span></div>
+          <div className="buttonRow"><button className="buttonSecondary" type="button" onClick={() => setCropTarget({ blob: resultBlob, label: "Private AI" })}>Crop</button><button className="buttonPrimary" type="button" onClick={downloadResult}>Download PNG <span>↓</span></button></div>
         </div>
-
         {cropTarget && <CropEditor sourceBlob={cropTarget.blob} fileName={fileName || "image.png"} label={cropTarget.label} onClose={() => setCropTarget(null)} />}
       </section>
     );
@@ -214,45 +174,17 @@ export function Uploader() {
   return (
     <section className="toolSurface uploadSurface" onPaste={onPaste}>
       <div className="surfaceHeader">
-        <div><span className="kicker">Local Browser AI</span><h2>Drop an image. Keep it on your device.</h2><p>Most browser-decodable raster image formats up to {MAX_MB} MB.</p></div>
-        <span className="privacyPill">● No image upload</span>
+        <div><span className="kicker">Private AI Processing</span><h2>Drop an image. Get a clean transparent PNG.</h2><p>PNG, JPEG, and WebP images up to {MAX_MB} MB.</p></div>
+        <span className="privacyPill">● Private processing</span>
       </div>
-
-      <div className="modelFlow" aria-label="Browser background-removal model">
-        <div><span>01</span><strong>Smart local model</strong><small>FP16 on capable WebGPU devices · quantized on constrained devices · CPU/WASM fallback · conservative face/clothing protection</small></div>
-      </div>
-
-      <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/*" onChange={onInput} disabled={stage === "processing"}/>
-      <label
-        htmlFor={inputId}
-        className={`uploadDropZone ${dragging ? "dragging" : ""} ${stage === "processing" ? "busy" : ""}`}
-        tabIndex={stage === "processing" ? -1 : 0}
-        onDragEnter={(event) => { event.preventDefault(); if (stage !== "processing") setDragging(true); }}
-        onDragOver={(event) => event.preventDefault()}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-      >
-        {stage === "processing" ? (
-          <div className="processingPanel">
-            <span className="spinner" aria-hidden="true"/>
-            <strong>Removing the background in your browser…</strong>
-            <p>{progress}</p>
-            <small>FlytheBG selects a local model for this device, uses a low-memory guard when needed, protects interior face/clothing detail, refines eligible transparency edges, and retries with CPU/WASM if WebGPU cannot finish.</small>
-          </div>
-        ) : (
-          <div className="uploadPrompt">
-            <span className="uploadGlyph" aria-hidden="true">↑</span>
-            <strong>Choose image</strong>
-            <p>Click, drag & drop, or paste an image here.</p>
-            <small>Portrait, landscape, square, vertical, panorama, and other browser-decodable raster frames keep their aspect ratio.</small>
-          </div>
-        )}
+      <div className="modelFlow" aria-label="Private background-removal model"><div><span>01</span><strong>Hugging Face Gradio AI</strong><small>Private Space · authenticated server-side · per-request result isolation · conservative foreground-detail protection</small></div></div>
+      <input ref={inputRef} id={inputId} className="srOnly" type="file" accept="image/png,image/jpeg,image/webp" onChange={onInput} disabled={stage === "processing"}/>
+      <label htmlFor={inputId} className={`uploadDropZone ${dragging ? "dragging" : ""} ${stage === "processing" ? "busy" : ""}`} tabIndex={stage === "processing" ? -1 : 0} onDragEnter={(event) => { event.preventDefault(); if (stage !== "processing") setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
+        {stage === "processing" ? <div className="processingPanel"><span className="spinner" aria-hidden="true"/><strong>Removing the background with private AI…</strong><p>{progress}</p><small>Your image is handled by this request only. The private Hugging Face token is never sent to your browser.</small></div> : <div className="uploadPrompt"><span className="uploadGlyph" aria-hidden="true">↑</span><strong>Choose image</strong><p>Click, drag & drop, or paste an image here.</p><small>Portrait, landscape, square, vertical, panorama, and other supported raster images keep their aspect ratio.</small></div>}
       </label>
-
-      {stage === "error" && <div className="errorNotice" role="alert"><div><strong>Browser AI could not finish.</strong><p>{error}</p></div><button className="buttonSecondary" type="button" onClick={() => clearWorkingState()}>Try another image</button></div>}
+      {stage === "error" && <div className="errorNotice" role="alert"><div><strong>Background removal could not finish.</strong><p>{error}</p></div><button className="buttonSecondary" type="button" onClick={() => clearWorkingState()}>Try another image</button></div>}
       {cleanupNotice && stage === "idle" && <div className="successNotice"><strong>Working image cleared.</strong><span>{cleanupNotice}</span></div>}
-
-      <div className="toolFootnote"><strong>Runs on the visitor&apos;s device.</strong><span>The site downloads code/model/runtime assets when needed; your working photo is not intentionally uploaded to a FlytheBG inference server.</span></div>
+      <div className="toolFootnote"><strong>Private server-side AI.</strong><span>Your selected image is sent to FlytheBG&apos;s authenticated processing route and forwarded to the private Hugging Face Space. The Hugging Face token is never exposed to visitors.</span></div>
     </section>
   );
 }
