@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="apps/web/public/brand/flythebg-lockup.svg" alt="FlyThe BG" width="360" />
+  <img src="https://raw.githubusercontent.com/StackPilotMAX/FlytheBG/main/apps/web/public/brand/flythebg-mark.svg" alt="FlyThe BG logo" width="180" />
 </p>
 
 <h1 align="center">FlyThe BG</h1>
 
-<p align="center"><strong>Free, browser-first image tools designed around local processing, privacy, and open collaboration.</strong></p>
+<p align="center"><strong>Free, non-commercial image and media tools with a privacy-conscious, open-source architecture.</strong></p>
 
 <p align="center">
   <a href="https://github.com/StackPilotMAX/FlytheBG"><img alt="GitHub stars" src="https://img.shields.io/github/stars/StackPilotMAX/FlytheBG?style=flat" /></a>
   <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" /></a>
-  <img alt="Browser first" src="https://img.shields.io/badge/architecture-browser--first-7c83ff" />
+  <img alt="Hugging Face backend" src="https://img.shields.io/badge/background%20removal-Hugging%20Face-yellow" />
   <img alt="Non-commercial" src="https://img.shields.io/badge/project-non--commercial-2f855a" />
 </p>
 
@@ -19,7 +19,9 @@ FlyThe BG is an independent, free, non-commercial open-source web toolkit for us
 
 ### Background remover
 
-Remove image backgrounds with browser-side processing using `@imgly/background-removal`, WebGPU where available, and CPU/WASM fallback. The workflow includes adaptive quality selection and conservative edge/detail handling.
+Remove image backgrounds through a server-side integration with the private Hugging Face Space [`StackPilotMAX/bg-remover-api`](https://huggingface.co/spaces/StackPilotMAX/bg-remover-api). FlyThe BG sends the selected image to its API route, which calls the Space's `/remove_background` endpoint and returns the processed image for download.
+
+Background removal is **not performed locally in the browser**. The Hugging Face access token is kept on the server and is never exposed to visitors.
 
 ### Passport Photo Maker
 
@@ -27,7 +29,7 @@ Create physical-size, DPI-aware passport-photo sheets with crop framing, repeate
 
 ### Visible watermark cleanup
 
-The `/ai-watermark-remover` workflow is intentionally limited to supported visible pixel overlays. It provides before/after inspection and browser-side processing for supported media.
+The `/ai-watermark-remover` workflow is intentionally limited to supported visible pixel overlays. It provides before/after inspection and processing for supported media.
 
 It does **not** claim to remove, defeat, score, or falsify invisible provenance systems such as SynthID or other content-authenticity technologies.
 
@@ -37,16 +39,20 @@ FlyThe BG is built around a few simple principles:
 
 - **Free to use:** the public project is intended to remain accessible without subscriptions or paid access.
 - **Open source:** the code is published under AGPL-3.0 so others can study, modify, and share it under the license terms.
-- **Browser first:** supported editing workflows prefer processing in the user's browser rather than uploading working media to a FlyThe BG processing server.
-- **Privacy conscious:** the project avoids unnecessary collection of users' working images.
+- **Server-assisted AI:** background removal uses the project's Hugging Face backend rather than browser-based AI inference.
+- **Privacy conscious:** private backend credentials are kept server-side, and the project avoids unnecessary collection of users' working images.
 - **Responsible editing:** tools should not be presented as a way to bypass ownership, licensing, privacy, platform, or provenance requirements.
 - **Community driven:** improvements are welcome through issues, documentation, testing, and code contributions.
 
 ## Privacy architecture
 
-Supported FlyThe BG editing workflows are designed to keep working media in browser memory rather than sending it to a FlyThe BG image-processing server. The browser still downloads application, model, runtime, font, video, and other assets as needed.
+FlyThe BG uses different processing paths for different tools:
 
-This architecture is not a promise that every browser request is local: external application assets, analytics, search/discovery services, or other integrations may still create network requests. Review the site's Privacy and Model Disclosure pages for current details.
+- **Background removal:** the selected image is sent to the FlyThe BG API route and then processed by the private Hugging Face Space. The Hugging Face token is never sent to the browser.
+- **Other editing workflows:** supported browser-based tools may process working media locally in browser memory, depending on the feature.
+- **External assets and services:** browsers may still request application assets, fonts, analytics, search/discovery services, video assets, and other integrations.
+
+This project does not promise that every network request is local. Review the site's Privacy and Model Disclosure pages for current details before using sensitive media.
 
 ## Responsible use
 
@@ -78,7 +84,7 @@ Please use public issues for normal bugs and feature discussions. Do not publish
 
 ## Local development
 
-Requirements: Node.js 22, npm, and a modern WebAssembly-capable browser. WebGPU is optional.
+Requirements: Node.js 22, npm, and a modern browser. WebGPU is optional and is not required for background removal.
 
 ```bash
 git clone https://github.com/StackPilotMAX/FlytheBG.git
@@ -86,6 +92,8 @@ cd FlytheBG
 npm install
 npm run dev:web
 ```
+
+Configure the server-side Hugging Face credentials using the environment variables documented in `.env.example`. Never expose the Hugging Face token through client-side code or public environment variables.
 
 Production checks:
 
@@ -97,9 +105,9 @@ npm run build:web
 
 The static production output is `apps/web/out`.
 
-## Third-party software
+## Third-party software and services
 
-FlyThe BG integrates `@imgly/background-removal`, `@pilio/gemini-watermark-remover`, ONNX Runtime Web, Next.js, React, Three.js, Instrument Serif, and Inter. Review the upstream licences and notices before redistributing or operating the project.
+FlyThe BG uses Next.js, React, Three.js, `@gradio/client`, Hugging Face Spaces, Instrument Serif, and Inter. Some workflows may also use browser-side media or editing libraries. Review upstream licences, service terms, and notices before redistributing or operating the project.
 
 ## Contact
 
