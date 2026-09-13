@@ -21,9 +21,9 @@ export function detectedMime(bytes: Uint8Array): AllowedImageType | null {
 }
 
 /**
- * Let the browser decoder decide which raster formats it can handle. Common
- * PNG/JPEG/WebP files go straight to IMG.LY; other decodable raster formats
- * are normalized to PNG in browser memory before inference.
+ * Basic client-side upload checks: size, non-empty, and type sanity. The server
+ * route performs its own content-type and magic-byte validation before
+ * forwarding the image to the private Hugging Face rembg Space.
  */
 export function validateUploadBasics(file: File, maxMb: number) {
   if (file.size <= 0) return "The selected file is empty.";
