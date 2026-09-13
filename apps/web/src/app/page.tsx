@@ -5,7 +5,7 @@ import { appConfig } from "@/lib/config";
 import "./ai-discovery.css";
 
 const homeTitle = "FlyThe BG | Free Private Background Remover, Passport Photos & Media Tools";
-const homeDescription = "Free browser-first image tools for private background removal, passport and visa photo layouts, and lightweight no-install image utilities. Working images stay on your device.";
+const homeDescription = "Free image tools with private server-side background removal, passport and visa photo layouts, and lightweight browser editing utilities.";
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
   keywords: [
     "FlyThe BG", "FlyTheBG", "free background remover", "background remover online",
     "remove image background", "image background remover", "online background remover",
-    "AI background remover", "background remover AI", "free background remover no upload",
-    "private background remover", "local background remover", "on device background remover",
+    "AI background remover", "background remover AI", "free background remover",
+    "private background remover", "server side background remover", "Hugging Face background remover",
     "free passport photo maker", "passport photo maker", "passport size photo",
     "visa photo maker", "print passport photos at home", "passport photo grid maker",
-    "Gemini watermark remover", "free Gemini watermark remover", "browser image tools",
+    "Gemini watermark remover", "free Gemini watermark remover", "image tools",
     "no install image tools", "no login image editor", "private image editor",
   ],
   alternates: { canonical: "/" },
@@ -52,10 +52,9 @@ export default function HomePage() {
         operatingSystem: "All",
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         featureList: [
-          "Privacy-centric browser image processing",
-          "Background removal without requiring a server upload for supported local workflows",
+          "Private server-side AI background removal through Hugging Face",
           "Passport and visa photo creation and printable layouts",
-          "No-install browser utilities with no account required",
+          "Browser-based preview and editing utilities with no account required",
         ],
       },
     ],
