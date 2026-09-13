@@ -31,11 +31,24 @@ input::placeholder,textarea::placeholder { color: var(--fly-muted) !important; o
 input[type="range"] { accent-color: var(--fly-maroon-800); }
 .card,.panel,.toolCard,.uploadCard,.surface,[class*="card"],[class*="panel"] { border-color: var(--fly-border); }
 
-/* Footer uses the site's clean black visual system, not the maroon accent. */
-.siteFooter { background: #050505 !important; color: #f7f7f2 !important; border-top: 1px solid rgba(255,255,255,.16) !important; }
-.siteFooter a,.siteFooter p,.siteFooter span,.siteFooter h1,.siteFooter h2,.siteFooter h3,.siteFooter h4 { color: #b7b6af !important; }
-.siteFooter a:hover,.siteFooter a:focus-visible { color: #ffffff !important; }
-.siteFooter .footerBottom { border-top-color: rgba(255,255,255,.12) !important; }
+/* Footer: full maroon background with white text */
+.siteFooter { background: var(--fly-maroon-900) !important; color: var(--fly-white) !important; border-top: 1px solid var(--fly-maroon-700) !important; padding: 52px 0 24px; box-shadow: 0 -4px 18px rgba(82, 11, 36, .14) !important; }
+.siteFooter .footerGrid { background: transparent !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; }
+.siteFooter .footerBottom { background: transparent !important; border: 0 !important; border-top: 1px solid rgba(255,255,255,.22) !important; color: rgba(255,255,255,.88) !important; border-radius: 0 !important; }
+.siteFooter a,.siteFooter p,.siteFooter span,.siteFooter h1,.siteFooter h2,.siteFooter h3,.siteFooter h4,
+.siteFooter .footerLinks a,.siteFooter .footerBrand p,.siteFooter .footerLicenseNotice,
+.siteFooter .footerLicenseNotice a,.siteFooter .footerBottom span,.siteFooter .footerBottom a { color: #ffffff !important; }
+.siteFooter a:hover,.siteFooter a:focus-visible { color: #ffdce7 !important; }
+.siteFooter .footerSocials .socialIconLink { color: #ffffff !important; }
+.siteFooter .footerSocials .socialIconLink:hover { color: #ffdce7 !important; }
+.siteFooter .footerSocials .socialIconLink svg { color: #ffffff !important; }
+/* Make the GitHubStars widget fit the maroon footer */
+.siteFooter .githubStars { background: rgba(255,255,255,.12) !important; border-color: rgba(255,255,255,.25) !important; color: #ffffff !important; box-shadow: none !important; }
+.siteFooter .githubStars .githubStarsGithub { background: var(--fly-white) !important; color: var(--fly-maroon-900) !important; }
+.siteFooter .githubStars .githubStarsCopy strong { color: #ffffff !important; }
+.siteFooter .githubStars .githubStarsCopy span { color: rgba(255,255,255,.75) !important; }
+.siteFooter .githubStars .githubStarsCount { background: var(--fly-white) !important; color: var(--fly-maroon-900) !important; }
+.siteFooter .githubStars:hover { background: rgba(255,255,255,.2) !important; border-color: rgba(255,255,255,.4) !important; }
 
 ::selection { background: var(--fly-maroon-700); color: var(--fly-white); }
 .watermark-tool,.watermark-remover,[data-watermark-tool] { background: var(--fly-white) !important; color: var(--fly-ink) !important; border-color: var(--fly-border) !important; }
