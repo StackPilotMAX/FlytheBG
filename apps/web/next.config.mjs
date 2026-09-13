@@ -2,7 +2,9 @@ import path from "node:path";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  // FlytheBG uses Next.js server features (the private background-removal
+  // route), so this must remain a Netlify Next.js deployment rather than a
+  // static export.
   trailingSlash: true,
   poweredByHeader: false,
   reactStrictMode: true,
